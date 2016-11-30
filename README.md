@@ -1,6 +1,6 @@
 # Elm
 
-This is [Elm](http://elm-lang.org) architecture for [Swift](https://swift.org).
+This is [Elm](http://elm-lang.org) [architecture](https://guide.elm-lang.org/architecture/) for [Swift](https://swift.org).
 
 # Interface
 
