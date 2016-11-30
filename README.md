@@ -2,6 +2,10 @@
 
 This is [Elm](http://elm-lang.org) [architecture](https://guide.elm-lang.org/architecture/) for [Swift](https://swift.org).
 
+| `master` | `develop` |
+| :------- | :-------- |
+| [![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=583f5837a72f6501008044ab&branch=master&build=latest)](https://dashboard.buddybuild.com/apps/583f5837a72f6501008044ab/build/latest) | [![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=583f5837a72f6501008044ab&branch=develop&build=latest)](https://dashboard.buddybuild.com/apps/583f5837a72f6501008044ab/build/latest) |
+
 # Interface
 
 ```swift
