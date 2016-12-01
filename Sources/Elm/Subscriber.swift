@@ -32,20 +32,19 @@ public protocol Subscriber: AnySubscriber {
 
 public protocol AnySubscriber: class {
 
-    func unsafeUpdate(presenting view: Any)
-    func unsafeUpdate(performing command: Any)
+    func update(presenting view: Any)
+    func update(performing command: Any)
     
 }
 
 public extension Subscriber {
 
-    func unsafeUpdate(presenting view: Any) {
+    func update(presenting view: Any) {
         unsafeCall(update, with: view, as: View.self)
     }
 
-    func unsafeUpdate(performing command: Any) {
+    func update(performing command: Any) {
         unsafeCall(update, with: command, as: Command.self)
     }
 
 }
-

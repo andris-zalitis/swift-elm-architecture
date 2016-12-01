@@ -41,8 +41,7 @@ public final class Program<Main: Module> {
     // MARK: Messages
     //
 
-    typealias Message = Main.Message
-
+    public typealias Message = Main.Message
     public func dispatch(_ message: Message) {
         let commands = module.update(for: message, model: &model)
         updateView()
@@ -55,7 +54,7 @@ public final class Program<Main: Module> {
     // MARK: Model
     //
 
-    typealias Model = Main.Model
+    public typealias Model = Main.Model
     private var model = Model()
 
     //
@@ -63,12 +62,11 @@ public final class Program<Main: Module> {
     // MARK: Commands
     //
 
-    typealias Command = Main.Command
-
+    public typealias Command = Main.Command
     private func broadcastCommands(_ commands: [Command]) {
         for command in commands {
-            for subscriber in unsafeSubscribers {
-                subscriber.unsafeUpdate(performing: command)
+            for subscriber in subscribers {
+                subscriber.update(performing: command)
             }
         }
     }
@@ -78,30 +76,28 @@ public final class Program<Main: Module> {
     // MARK: Subscribers
     //
 
-    public func subscribe<Target: Subscriber>(_ observer: Target)
+    public func subscribe<Target: Subscriber>(_ subscriber: Target)
         where Target.View == View, Target.Command == Command {
-            guard !subscribers.contains(observer) else { return }
-            subscribers.add(observer)
-            observer.update(presenting: view)
+            guard !subscriberReferences.contains(subscriber) else { return }
+            subscriberReferences.add(subscriber)
+            subscriber.update(presenting: view)
     }
 
-    var unsafeSubscribers: [AnySubscriber] {
-        let objects = subscribers.allObjects
+    var subscribers: [AnySubscriber] {
+        let objects = subscriberReferences.allObjects
         let type = [AnySubscriber].self
         return unsafeCast(objects, as: type)
     }
 
-    private let subscribers = ObjectTable.weakObjects()
-
-    typealias ObjectTable = NSHashTable<AnyObject>
+    private let subscriberReferences = ObjectTable.weakObjects()
+    private typealias ObjectTable = NSHashTable<AnyObject>
 
     //
     // MARK: -
     // MARK: View
     //
 
-    typealias View = Main.View
-
+    public typealias View = Main.View
     public private(set) lazy var view: View = self.makeView()
 
     private func makeView() -> View {
@@ -109,8 +105,8 @@ public final class Program<Main: Module> {
     }
 
     private func broadcastView() {
-        for subscriber in unsafeSubscribers {
-            subscriber.unsafeUpdate(presenting: view)
+        for subscriber in subscribers {
+            subscriber.update(presenting: view)
         }
     }
 
