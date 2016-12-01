@@ -78,11 +78,11 @@ public final class Program<Main: Module> {
     // MARK: Subscribers
     //
 
-    public func subscribe<Target: Subscriber>(_ observer: Target)
+    public func subscribe<Target: Subscriber>(_ subscriber: Target)
         where Target.View == View, Target.Command == Command {
-            guard !subscribers.contains(observer) else { return }
-            subscribers.add(observer)
-            observer.update(presenting: view)
+            guard !subscribers.contains(subscriber) else { return }
+            subscribers.add(subscriber)
+            subscriber.update(presenting: view)
     }
 
     var unsafeSubscribers: [AnySubscriber] {
