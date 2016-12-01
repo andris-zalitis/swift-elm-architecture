@@ -436,6 +436,7 @@
 				91F834981DEF328A00F27AD5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		91F834991DEF328A00F27AD5 /* Build configuration list for PBXNativeTarget "ElmTests" */ = {
 			isa = XCConfigurationList;
@@ -444,6 +445,7 @@
 				91F8349B1DEF328A00F27AD5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
