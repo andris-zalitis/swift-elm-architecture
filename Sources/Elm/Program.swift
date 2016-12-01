@@ -92,7 +92,7 @@ public final class Program<Main: Module> {
     }
 
     private let subscriberReferences = ObjectTable.weakObjects()
-    typealias ObjectTable = NSHashTable<AnyObject>
+    private typealias ObjectTable = NSHashTable<AnyObject>
 
     //
     // MARK: -
