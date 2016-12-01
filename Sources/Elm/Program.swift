@@ -67,8 +67,8 @@ public final class Program<Main: Module> {
 
     private func broadcastCommands(_ commands: [Command]) {
         for command in commands {
-            for subscriber in unsafeSubscribers {
-                subscriber.unsafeUpdate(performing: command)
+            for subscriber in subscribers {
+                subscriber.update(performing: command)
             }
         }
     }
@@ -80,19 +80,18 @@ public final class Program<Main: Module> {
 
     public func subscribe<Target: Subscriber>(_ subscriber: Target)
         where Target.View == View, Target.Command == Command {
-            guard !subscribers.contains(subscriber) else { return }
-            subscribers.add(subscriber)
+            guard !subscriberReferences.contains(subscriber) else { return }
+            subscriberReferences.add(subscriber)
             subscriber.update(presenting: view)
     }
 
-    var unsafeSubscribers: [AnySubscriber] {
-        let objects = subscribers.allObjects
+    var subscribers: [AnySubscriber] {
+        let objects = subscriberReferences.allObjects
         let type = [AnySubscriber].self
         return unsafeCast(objects, as: type)
     }
 
-    private let subscribers = ObjectTable.weakObjects()
-
+    private let subscriberReferences = ObjectTable.weakObjects()
     typealias ObjectTable = NSHashTable<AnyObject>
 
     //
@@ -109,8 +108,8 @@ public final class Program<Main: Module> {
     }
 
     private func broadcastView() {
-        for subscriber in unsafeSubscribers {
-            subscriber.unsafeUpdate(presenting: view)
+        for subscriber in subscribers {
+            subscriber.update(presenting: view)
         }
     }
 

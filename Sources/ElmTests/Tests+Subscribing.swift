@@ -41,8 +41,8 @@ extension Tests {
         counter.subscribe(recorder)
 
         // Assert
-        XCTAssertEqual(counter.unsafeSubscribers.count, 1)
-        XCTAssertTrue(counter.unsafeSubscribers[0] === recorder)
+        XCTAssertEqual(counter.subscribers.count, 1)
+        XCTAssertTrue(counter.subscribers[0] === recorder)
 
     }
 
@@ -58,9 +58,9 @@ extension Tests {
         counter.subscribe(subscriber2)
 
         // Assert
-        XCTAssertEqual(counter.unsafeSubscribers.count, 2)
-        XCTAssertTrue(counter.unsafeSubscribers.contains { $0 === subscriber1 })
-        XCTAssertTrue(counter.unsafeSubscribers.contains { $0 === subscriber2 })
+        XCTAssertEqual(counter.subscribers.count, 2)
+        XCTAssertTrue(counter.subscribers.contains { $0 === subscriber1 })
+        XCTAssertTrue(counter.subscribers.contains { $0 === subscriber2 })
 
     }
 
@@ -75,7 +75,7 @@ extension Tests {
         counter.subscribe(recorder)
 
         // Assert
-        XCTAssertEqual(counter.unsafeSubscribers.count, 1)
+        XCTAssertEqual(counter.subscribers.count, 1)
 
     }
 
@@ -95,7 +95,7 @@ extension Tests {
         recorder = nil
         
         // Assert
-        XCTAssertTrue(counter.unsafeSubscribers.isEmpty)
+        XCTAssertTrue(counter.subscribers.isEmpty)
         
     }
 
