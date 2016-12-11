@@ -6,22 +6,6 @@ This is [Elm](http://elm-lang.org) [architecture](https://guide.elm-lang.org/arc
 | :------- | :-------- |
 | [![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=583f5837a72f6501008044ab&branch=master&build=latest)](https://dashboard.buddybuild.com/apps/583f5837a72f6501008044ab/build/latest) | [![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=583f5837a72f6501008044ab&branch=develop&build=latest)](https://dashboard.buddybuild.com/apps/583f5837a72f6501008044ab/build/latest) |
 
-# Interface
-
-```swift
-public protocol Module {
-
-    associatedtype Message
-    associatedtype Model: Initable
-    associatedtype Command
-    associatedtype View
-
-    static func update(for message: Message, model: inout Model) -> [Command]
-    static func view(for model: Model) -> View
-
-}
-```
-
 # Example
 
 Let's build a counter:
