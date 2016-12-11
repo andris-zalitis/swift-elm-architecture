@@ -1,6 +1,11 @@
-# Elm
+# Elm Architecture for Swift
 
-This is [Elm](http://elm-lang.org) [architecture](https://guide.elm-lang.org/architecture/) for [Swift](https://swift.org).
+This is [Elm Architecture](https://guide.elm-lang.org/architecture/) for [Swift](https://swift.org).
+
+<a href="http://elm-lang.org"><img src="Images/Logo-Elm.png" width="32" height="32" alt="Swift Logo"/></a>
+<a href="https://swift.org"><img src="Images/Logo-Swift.png" width="32" height="32" alt="Swift Logo"/></a>
+
+Build status:
 
 | `master` | `develop` |
 | :------- | :-------- |
