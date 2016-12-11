@@ -68,43 +68,41 @@ struct CounterModule: Module {
 
 ## Imperative shell
 
-* Storyboard:
-    <img src="Images/Storyboard.png" width="421" height="535" alt="Storyboard"/>
+<img src="Images/Storyboard.png" width="421" height="535" alt="Storyboard"/>
 
-* View controller:
-    ```swift
-    import UIKit
+```swift
+import UIKit
 
-    class CounterViewController: UIViewController, Subscriber {
+class CounterViewController: UIViewController, Subscriber {
 
-        let program = CounterModule.makeProgram()
+    let program = CounterModule.makeProgram()
 
-        typealias View = CounterModule.View
-        typealias Command = CounterModule.Command
+    typealias View = CounterModule.View
+    typealias Command = CounterModule.Command
 
-        @IBOutlet var countLabel: UILabel?
+    @IBOutlet var countLabel: UILabel?
 
-        @IBOutlet var incrementButton: UIBarButtonItem?
-        @IBOutlet var decrementButton: UIBarButtonItem?
+    @IBOutlet var incrementButton: UIBarButtonItem?
+    @IBOutlet var decrementButton: UIBarButtonItem?
 
-        override func viewDidLoad() {
-            super.viewDidLoad()
-            program.subscribe(self)
-        }
-
-        func update(presenting view: View) {
-            countLabel?.text = view.count
-        }
-
-        func update(performing command: Command) {}
-
-        @IBAction private func userDidTapIncrementButton() {
-            program.dispatch(.increment)
-        }
-
-        @IBAction private func userDidTapDecrementButton() {
-            program.dispatch(.decrement)
-        }
-
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        program.subscribe(self)
     }
-    ```
+
+    func update(presenting view: View) {
+        countLabel?.text = view.count
+    }
+
+    func update(performing command: Command) {}
+
+    @IBAction private func userDidTapIncrementButton() {
+        program.dispatch(.increment)
+    }
+
+    @IBAction private func userDidTapDecrementButton() {
+        program.dispatch(.decrement)
+    }
+
+}
+```
