@@ -20,8 +20,6 @@ Let's build a counter:
 ## Functional core
 
 ```swift
-import Elm
-
 struct CounterModule: Module {
 
     enum Message {
@@ -60,8 +58,6 @@ struct CounterModule: Module {
 <img src="Images/Storyboard.png" width="421" height="535" alt="Storyboard"/>
 
 ```swift
-import UIKit
-
 class CounterViewController: UIViewController, Subscriber {
 
     let program = CounterModule.makeProgram()
