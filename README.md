@@ -9,8 +9,17 @@ This is [Elm](http://elm-lang.org) [architecture](https://guide.elm-lang.org/arc
 # Interface
 
 ```swift
-static func update(for message: Message, model: inout Model) -> [Command]
-static func view(for model: Model) -> View
+public protocol Module {
+
+    associatedtype Message
+    associatedtype Model: Initable
+    associatedtype Command
+    associatedtype View
+
+    static func update(for message: Message, model: inout Model) -> [Command]
+    static func view(for model: Model) -> View
+
+}
 ```
 
 # Example
