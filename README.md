@@ -21,72 +21,57 @@ Let's build a counter:
 
 ## Functional core
 
-* Module:
-    ```swift
-    struct Counter: Module {
+```swift
+import Elm
 
-        enum Message {
-            case userDidTapIncrementButton
-            case userDidTapDecrementButton
-        }
+struct CounterModule: Module {
 
-        struct Model: Initable {
-            var count = 0
-        }
-
-        struct View {
-            let title = "Counter"
-            let count: String
-            let incrementButton = Button(
-                title: "Increment",
-                callback: .userDidTapIncrementButton
-            )
-            let decrementButton = Button(
-                title: "Decrement",
-                callback: .userDidTapDecrementButton
-            )
-            struct Button {
-                let title: String
-                let callback: Message
-            }
-        }
-
-        enum Command {}
-
-        static func update(for message: Message, model: inout Model) -> [Command] {
-            switch message {
-            case .userDidTapIncrementButton:
-                model.count += 1
-            case .userDidTapDecrementButton:
-                model.count -= 1
-            }
-            return []
-        }
-
-        static func view(for model: Model) -> View {
-            let count = String(model.count)
-            return View(count: count)
-        }
-        
+    enum Message {
+        case increment
+        case decrement
     }
-    ```
 
-* Program:
-    ```swift
-    let counter = Counter.makeProgram()
-    ```
+    struct Model: Initable {
+        var count = 0
+    }
+
+    struct View {
+        let count: String
+    }
+
+    enum Command {}
+
+    static func update(for message: Message, model: inout Model) -> [Command] {
+        switch message {
+        case .increment: model.count += 1
+        case .decrement: model.count -= 1
+        }
+        return []
+    }
+
+    static func view(for model: Model) -> View {
+        let count = String(model.count)
+        return View(count: count)
+    }
+    
+}
+```
 
 ## Imperative shell
 
 * Storyboard:
-    <img src="Images/Storyboard.png" width="813" height="601" alt="Storyboard"/>
+    <img src="Images/Storyboard.png" width="421" height="535" alt="Storyboard"/>
 
 * View controller:
     ```swift
+    import UIKit
+
     class CounterViewController: UIViewController, Subscriber {
 
-        typealias View = Counter.View
-        typealias Command = Counter.Command
+        let program = CounterModule.makeProgram()
+
+        typealias View = CounterModule.View
+        typealias Command = CounterModule.Command
 
         @IBOutlet var countLabel: UILabel?
 
@@ -95,24 +80,21 @@ Let's build a counter:
 
         override func viewDidLoad() {
             super.viewDidLoad()
-            counter.subscribe(self)
+            program.subscribe(self)
         }
 
         func update(presenting view: View) {
-            title = view.title
             countLabel?.text = view.count
-            incrementButton?.title = view.incrementButton.title
-            decrementButton?.title = view.decrementButton.title
         }
 
         func update(performing command: Command) {}
 
-        @IBAction func userDidTapIncrementButton() {
-            counter.dispatch(counter.view.incrementButton.callback)
+        @IBAction private func userDidTapIncrementButton() {
+            program.dispatch(.increment)
         }
 
-        @IBAction func userDidTapDecrementButton() {
-            counter.dispatch(counter.view.decrementButton.callback)
+        @IBAction private func userDidTapDecrementButton() {
+            program.dispatch(.decrement)
         }
 
     }
