@@ -1,17 +1,15 @@
-# Elm
+# Elm Architecture for Swift
 
-This is [Elm](http://elm-lang.org) [architecture](https://guide.elm-lang.org/architecture/) for [Swift](https://swift.org).
+This is [Elm Architecture](https://guide.elm-lang.org/architecture/) for [Swift](https://swift.org).
+
+<a href="http://elm-lang.org"><img src="Images/Logo-Elm.png" width="32" height="32" alt="Swift Logo"/></a>
+<a href="https://swift.org"><img src="Images/Logo-Swift.png" width="32" height="32" alt="Swift Logo"/></a>
+
+Build status:
 
 | `master` | `develop` |
 | :------- | :-------- |
 | [![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=583f5837a72f6501008044ab&branch=master&build=latest)](https://dashboard.buddybuild.com/apps/583f5837a72f6501008044ab/build/latest) | [![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=583f5837a72f6501008044ab&branch=develop&build=latest)](https://dashboard.buddybuild.com/apps/583f5837a72f6501008044ab/build/latest) |
-
-# Interface
-
-```swift
-static func update(for message: Message, model: inout Model) -> [Command]
-static func view(for model: Model) -> View
-```
 
 # Example
 
@@ -21,99 +19,133 @@ Let's build a counter:
 
 ## Functional core
 
-* Module:
-    ```swift
-    struct Counter: Module {
+```swift
+struct CounterModule: Module {
 
-        enum Message {
-            case userDidTapIncrementButton
-            case userDidTapDecrementButton
-        }
-
-        struct Model: Initable {
-            var count = 0
-        }
-
-        struct View {
-            let title = "Counter"
-            let count: String
-            let incrementButton = Button(
-                title: "Increment",
-                callback: .userDidTapIncrementButton
-            )
-            let decrementButton = Button(
-                title: "Decrement",
-                callback: .userDidTapDecrementButton
-            )
-            struct Button {
-                let title: String
-                let callback: Message
-            }
-        }
-
-        enum Command {}
-
-        static func update(for message: Message, model: inout Model) -> [Command] {
-            switch message {
-            case .userDidTapIncrementButton:
-                model.count += 1
-            case .userDidTapDecrementButton:
-                model.count -= 1
-            }
-            return []
-        }
-
-        static func view(for model: Model) -> View {
-            let count = String(model.count)
-            return View(count: count)
-        }
-        
+    enum Message {
+        case increment
+        case decrement
     }
-    ```
 
-* Program:
-    ```swift
-    let counter = Counter.makeProgram()
-    ```
+    struct Model: Initable {
+        var count = 0
+    }
+
+    struct View {
+        let count: String
+    }
+
+    enum Command {}
+
+    static func update(for message: Message, model: inout Model) -> [Command] {
+        switch message {
+        case .increment: model.count += 1
+        case .decrement: model.count -= 1
+        }
+        return []
+    }
+
+    static func view(for model: Model) -> View {
+        let count = String(model.count)
+        return View(count: count)
+    }
+    
+}
+```
 
 ## Imperative shell
 
-* Storyboard:
-    <img src="Images/Storyboard.png" width="813" height="601" alt="Storyboard"/>
+<img src="Images/Storyboard.png" width="421" height="535" alt="Storyboard"/>
 
-* View controller:
-    ```swift
-    class CounterViewController: UIViewController, Subscriber {
+```swift
+class CounterViewController: UIViewController, Subscriber {
 
-        typealias View = Counter.View
-        typealias Command = Counter.Command
+    let program = CounterModule.makeProgram()
 
-        @IBOutlet var countLabel: UILabel?
+    typealias View = CounterModule.View
+    typealias Command = CounterModule.Command
 
-        @IBOutlet var incrementButton: UIBarButtonItem?
-        @IBOutlet var decrementButton: UIBarButtonItem?
+    @IBOutlet var countLabel: UILabel?
 
-        override func viewDidLoad() {
-            super.viewDidLoad()
-            counter.subscribe(self)
-        }
+    @IBOutlet var incrementButton: UIBarButtonItem?
+    @IBOutlet var decrementButton: UIBarButtonItem?
 
-        func update(presenting view: View) {
-            title = view.title
-            countLabel?.text = view.count
-            incrementButton?.title = view.incrementButton.title
-            decrementButton?.title = view.decrementButton.title
-        }
-
-        func update(performing command: Command) {}
-
-        @IBAction func userDidTapIncrementButton() {
-            counter.dispatch(counter.view.incrementButton.callback)
-        }
-
-        @IBAction func userDidTapDecrementButton() {
-            counter.dispatch(counter.view.decrementButton.callback)
-        }
-
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        program.subscribe(self)
     }
-    ```
+
+    func update(presenting view: View) {
+        countLabel?.text = view.count
+    }
+
+    func update(performing command: Command) {}
+
+    @IBAction private func userDidTapIncrementButton() {
+        program.dispatch(.increment)
+    }
+
+    @IBAction private func userDidTapDecrementButton() {
+        program.dispatch(.decrement)
+    }
+
+}
+```
+
+## Unit tests
+
+```swift
+class CounterModuleTests: XCTestCase {
+
+    typealias Module = CounterModule
+
+    typealias Model = Module.Model
+    typealias View = Module.View
+
+    func testDefault() {
+        let model = Model()
+        XCTAssertEqual(model.count, 0)
+    }
+
+    func testIncrement1() {
+        var model = Model(count: 1)
+        let commands = Module.update(for: .increment, model: &model)
+        XCTAssertEqual(model.count, 2)
+        XCTAssertTrue(commands.isEmpty)
+    }
+
+    func testIncrement2() {
+        var model = Model(count: 2)
+        let commands = Module.update(for: .increment, model: &model)
+        XCTAssertEqual(model.count, 3)
+        XCTAssertTrue(commands.isEmpty)
+    }
+
+    func testDecrement1() {
+        var model = Model(count: -1)
+        let commands = Module.update(for: .decrement, model: &model)
+        XCTAssertEqual(model.count, -2)
+        XCTAssertTrue(commands.isEmpty)
+    }
+
+    func testDecrement2() {
+        var model = Model(count: -2)
+        let commands = Module.update(for: .decrement, model: &model)
+        XCTAssertEqual(model.count, -3)
+        XCTAssertTrue(commands.isEmpty)
+    }
+
+    func testView1() {
+        let model = Model(count: 1)
+        let view = Module.view(for: model)
+        XCTAssertEqual(view.count, "1")
+    }
+
+    func testView2() {
+        let model = Model(count: 2)
+        let view = Module.view(for: model)
+        XCTAssertEqual(view.count, "2")
+    }
+
+}
+```
