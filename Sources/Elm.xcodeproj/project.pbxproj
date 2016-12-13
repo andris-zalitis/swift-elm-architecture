@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9150B5E81E004D6D007F7A79 /* ElmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9150B5E71E004D6D007F7A79 /* ElmTests.swift */; };
 		91F8348C1DEF328A00F27AD5 /* Elm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91F834821DEF328A00F27AD5 /* Elm.framework */; };
 		91F834931DEF328A00F27AD5 /* Elm.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F834851DEF328A00F27AD5 /* Elm.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		91F834B01DEF32F200F27AD5 /* ElmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F834AA1DEF32F200F27AD5 /* ElmTests.swift */; };
 		91F834B91DEF332600F27AD5 /* Elm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F834B51DEF332600F27AD5 /* Elm.swift */; };
 /* End PBXBuildFile section */
 
@@ -24,12 +24,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9150B5E71E004D6D007F7A79 /* ElmTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElmTests.swift; sourceTree = "<group>"; };
+		9150B5E91E004D77007F7A79 /* InfoTests.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = InfoTests.plist; sourceTree = "<group>"; };
 		91F834821DEF328A00F27AD5 /* Elm.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Elm.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		91F834851DEF328A00F27AD5 /* Elm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Elm.h; sourceTree = "<group>"; };
 		91F834861DEF328A00F27AD5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		91F8348B1DEF328A00F27AD5 /* ElmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ElmTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		91F834921DEF328A00F27AD5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		91F834AA1DEF32F200F27AD5 /* ElmTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElmTests.swift; sourceTree = "<group>"; };
 		91F834B51DEF332600F27AD5 /* Elm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Elm.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -56,7 +56,6 @@
 			isa = PBXGroup;
 			children = (
 				91F834841DEF328A00F27AD5 /* Elm */,
-				91F8348F1DEF328A00F27AD5 /* ElmTests */,
 				91F834831DEF328A00F27AD5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -75,18 +74,11 @@
 			children = (
 				91F834851DEF328A00F27AD5 /* Elm.h */,
 				91F834B51DEF332600F27AD5 /* Elm.swift */,
+				9150B5E71E004D6D007F7A79 /* ElmTests.swift */,
 				91F834861DEF328A00F27AD5 /* Info.plist */,
+				9150B5E91E004D77007F7A79 /* InfoTests.plist */,
 			);
 			path = Elm;
-			sourceTree = "<group>";
-		};
-		91F8348F1DEF328A00F27AD5 /* ElmTests */ = {
-			isa = PBXGroup;
-			children = (
-				91F834AA1DEF32F200F27AD5 /* ElmTests.swift */,
-				91F834921DEF328A00F27AD5 /* Info.plist */,
-			);
-			path = ElmTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -208,7 +200,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				91F834B01DEF32F200F27AD5 /* ElmTests.swift in Sources */,
+				9150B5E81E004D6D007F7A79 /* ElmTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -365,7 +357,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				INFOPLIST_FILE = ElmTests/Info.plist;
+				INFOPLIST_FILE = Elm/InfoTests.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = Salutis.ElmTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -377,7 +369,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				INFOPLIST_FILE = ElmTests/Info.plist;
+				INFOPLIST_FILE = Elm/InfoTests.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = Salutis.ElmTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
