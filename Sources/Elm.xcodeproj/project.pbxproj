@@ -9,16 +9,8 @@
 /* Begin PBXBuildFile section */
 		91F8348C1DEF328A00F27AD5 /* Elm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91F834821DEF328A00F27AD5 /* Elm.framework */; };
 		91F834931DEF328A00F27AD5 /* Elm.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F834851DEF328A00F27AD5 /* Elm.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		91F834AE1DEF32F200F27AD5 /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F834A81DEF32F200F27AD5 /* Counter.swift */; };
-		91F834AF1DEF32F200F27AD5 /* Recorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F834A91DEF32F200F27AD5 /* Recorder.swift */; };
-		91F834B01DEF32F200F27AD5 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F834AA1DEF32F200F27AD5 /* Tests.swift */; };
-		91F834B11DEF32F200F27AD5 /* Tests+Dispatching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F834AB1DEF32F200F27AD5 /* Tests+Dispatching.swift */; };
-		91F834B21DEF32F200F27AD5 /* Tests+Subscribing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F834AC1DEF32F200F27AD5 /* Tests+Subscribing.swift */; };
-		91F834B31DEF32F200F27AD5 /* Tests+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F834AD1DEF32F200F27AD5 /* Tests+View.swift */; };
-		91F834B81DEF332600F27AD5 /* Module.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F834B41DEF332600F27AD5 /* Module.swift */; };
-		91F834B91DEF332600F27AD5 /* Program.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F834B51DEF332600F27AD5 /* Program.swift */; };
-		91F834BA1DEF332600F27AD5 /* Subscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F834B61DEF332600F27AD5 /* Subscriber.swift */; };
-		91F834BB1DEF332600F27AD5 /* Unsafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F834B71DEF332600F27AD5 /* Unsafe.swift */; };
+		91F834B01DEF32F200F27AD5 /* ElmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F834AA1DEF32F200F27AD5 /* ElmTests.swift */; };
+		91F834B91DEF332600F27AD5 /* Elm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F834B51DEF332600F27AD5 /* Elm.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,16 +29,8 @@
 		91F834861DEF328A00F27AD5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		91F8348B1DEF328A00F27AD5 /* ElmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ElmTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		91F834921DEF328A00F27AD5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		91F834A81DEF32F200F27AD5 /* Counter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Counter.swift; sourceTree = "<group>"; };
-		91F834A91DEF32F200F27AD5 /* Recorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Recorder.swift; sourceTree = "<group>"; };
-		91F834AA1DEF32F200F27AD5 /* Tests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
-		91F834AB1DEF32F200F27AD5 /* Tests+Dispatching.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Tests+Dispatching.swift"; sourceTree = "<group>"; };
-		91F834AC1DEF32F200F27AD5 /* Tests+Subscribing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Tests+Subscribing.swift"; sourceTree = "<group>"; };
-		91F834AD1DEF32F200F27AD5 /* Tests+View.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Tests+View.swift"; sourceTree = "<group>"; };
-		91F834B41DEF332600F27AD5 /* Module.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Module.swift; sourceTree = "<group>"; };
-		91F834B51DEF332600F27AD5 /* Program.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Program.swift; sourceTree = "<group>"; };
-		91F834B61DEF332600F27AD5 /* Subscriber.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subscriber.swift; sourceTree = "<group>"; };
-		91F834B71DEF332600F27AD5 /* Unsafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Unsafe.swift; sourceTree = "<group>"; };
+		91F834AA1DEF32F200F27AD5 /* ElmTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElmTests.swift; sourceTree = "<group>"; };
+		91F834B51DEF332600F27AD5 /* Elm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Elm.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,10 +74,7 @@
 			isa = PBXGroup;
 			children = (
 				91F834851DEF328A00F27AD5 /* Elm.h */,
-				91F834B41DEF332600F27AD5 /* Module.swift */,
-				91F834B51DEF332600F27AD5 /* Program.swift */,
-				91F834B61DEF332600F27AD5 /* Subscriber.swift */,
-				91F834B71DEF332600F27AD5 /* Unsafe.swift */,
+				91F834B51DEF332600F27AD5 /* Elm.swift */,
 				91F834861DEF328A00F27AD5 /* Info.plist */,
 			);
 			path = Elm;
@@ -102,12 +83,7 @@
 		91F8348F1DEF328A00F27AD5 /* ElmTests */ = {
 			isa = PBXGroup;
 			children = (
-				91F834AA1DEF32F200F27AD5 /* Tests.swift */,
-				91F834AC1DEF32F200F27AD5 /* Tests+Subscribing.swift */,
-				91F834AB1DEF32F200F27AD5 /* Tests+Dispatching.swift */,
-				91F834AD1DEF32F200F27AD5 /* Tests+View.swift */,
-				91F834A81DEF32F200F27AD5 /* Counter.swift */,
-				91F834A91DEF32F200F27AD5 /* Recorder.swift */,
+				91F834AA1DEF32F200F27AD5 /* ElmTests.swift */,
 				91F834921DEF328A00F27AD5 /* Info.plist */,
 			);
 			path = ElmTests;
@@ -224,10 +200,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				91F834BA1DEF332600F27AD5 /* Subscriber.swift in Sources */,
-				91F834BB1DEF332600F27AD5 /* Unsafe.swift in Sources */,
-				91F834B91DEF332600F27AD5 /* Program.swift in Sources */,
-				91F834B81DEF332600F27AD5 /* Module.swift in Sources */,
+				91F834B91DEF332600F27AD5 /* Elm.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -235,12 +208,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				91F834AF1DEF32F200F27AD5 /* Recorder.swift in Sources */,
-				91F834B01DEF32F200F27AD5 /* Tests.swift in Sources */,
-				91F834AE1DEF32F200F27AD5 /* Counter.swift in Sources */,
-				91F834B21DEF32F200F27AD5 /* Tests+Subscribing.swift in Sources */,
-				91F834B11DEF32F200F27AD5 /* Tests+Dispatching.swift in Sources */,
-				91F834B31DEF32F200F27AD5 /* Tests+View.swift in Sources */,
+				91F834B01DEF32F200F27AD5 /* ElmTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
