@@ -38,6 +38,14 @@ public protocol ElmModule {
 
 }
 
+public extension ElmModule {
+
+    static func makeProgram() -> Program<Self> {
+        return Program<Self>(module: self)
+    }
+
+}
+
 //
 // MARK: -
 // MARK: Delegate
