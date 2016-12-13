@@ -31,6 +31,11 @@ import XCTest
 
 class ElmTests: XCTestCase {
 
+    //
+    // MARK: -
+    // MARK: Delegate
+    //
+
     func testReferenceDelegateWeakly() {
 
         var recorder: Recorder? = Recorder()
@@ -64,6 +69,11 @@ class ElmTests: XCTestCase {
         XCTAssertTrue(recorder.views.isEmpty)
 
     }
+
+    //
+    // MARK: -
+    // MARK: Dispatch
+    //
 
     func testDispatch() {
 
@@ -169,7 +179,7 @@ struct Counter: ElmModule {
 
 //
 // MARK: -
-// MARK: Equatable
+// MARK: Equatable conformances
 //
 
 extension Command: Equatable {

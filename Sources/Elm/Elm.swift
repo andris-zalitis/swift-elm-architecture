@@ -66,22 +66,30 @@ public protocol ElmDelegate: class {
 
 public final class Program<Module: ElmModule> {
 
+    //
+    // MARK: -
+    // MARK: Initialization
+    //
+
     private let module: Module.Type
     private var model = Module.Model()
 
-    private typealias ViewSink = (Module.View) -> Void
-    private typealias CommandSink = (Module.Command) -> Void
+    public init(module: Module.Type) { self.module = module }
 
-    private var sink: (view: ViewSink, command: CommandSink)?
-
-    public init(module: Module.Type) {
-        self.module = module
-    }
+    //
+    // MARK: -
+    // MARK: Delegate
+    //
 
     public func setDelegate<Delegate: ElmDelegate>(_ delegate: Delegate) where Delegate.Module == Module {
-        let viewSink: ViewSink = { [weak delegate] view in delegate?.program(self, didUpdate: view) }
-        let commandSink: CommandSink = { [weak delegate] command in delegate?.program(self, didEmit: command) }
-        sink = (view: viewSink, command: commandSink)
+        sink = (
+            view: { [weak delegate] view in
+                delegate?.program(self, didUpdate: view)
+            },
+            command: { [weak delegate] command in
+                delegate?.program(self, didEmit: command)
+            }
+        )
         let view = module.view(for: model)
         delegate.program(self, didUpdate: view)
     }
@@ -89,6 +97,16 @@ public final class Program<Module: ElmModule> {
     public func unsetDelegate() {
         sink = nil
     }
+
+    private typealias ViewSink = (Module.View) -> Void
+    private typealias CommandSink = (Module.Command) -> Void
+
+    private var sink: (view: ViewSink, command: CommandSink)?
+
+    //
+    // MARK: -
+    // MARK: Dispatch
+    //
 
     public func dispatch(_ message: Module.Message) {
         guard let sink = sink else { return }
@@ -106,5 +124,7 @@ public final class Program<Module: ElmModule> {
 //
 
 public protocol Initable {
+
     init()
+
 }
