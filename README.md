@@ -20,7 +20,7 @@ Let's build a counter:
 ## Functional core
 
 ```swift
-struct CounterModule: Module {
+struct CounterModule: ElmModule {
 
     enum Message {
         case increment
@@ -37,7 +37,7 @@ struct CounterModule: Module {
 
     enum Command {}
 
-    static func update(for message: Message, model: inout Model) -> [Command] {
+    static func update(for message: Message, model: inout Model) throws -> [Command] {
         switch message {
         case .increment: model.count += 1
         case .decrement: model.count -= 1
