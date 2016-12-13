@@ -101,57 +101,69 @@ extension CounterViewController: ElmDelegate {
 ## Unit tests
 
 ```swift
-class CounterModuleTests: XCTestCase {
+typealias Module = CounterModule
+```
 
-    typealias Module = CounterModule
+```swift
+class CounterModuleModelTests: XCTestCase {
 
-    typealias Model = Module.Model
-    typealias View = Module.View
-
-    func testDefault() {
+    func testInit() {
         let model = Model()
         XCTAssertEqual(model.count, 0)
     }
 
-    func testIncrement1() {
-        var model = Model(count: 1)
-        let commands = Module.update(for: .increment, model: &model)
-        XCTAssertEqual(model.count, 2)
-        XCTAssertTrue(commands.isEmpty)
+    func testIncrement() {
+        do {
+            var model = Model(count: 1)
+            let commands = Module.update(for: .increment, model: &model)
+            XCTAssertEqual(model, Model(count: 2))
+            XCTAssertTrue(commands.isEmpty)
+        }
+        do {
+            var model = Model(count: 2)
+            let commands = Module.update(for: .increment, model: &model)
+            XCTAssertEqual(model, Model(count: 3))
+            XCTAssertTrue(commands.isEmpty)
+        }
     }
 
-    func testIncrement2() {
-        var model = Model(count: 2)
-        let commands = Module.update(for: .increment, model: &model)
-        XCTAssertEqual(model.count, 3)
-        XCTAssertTrue(commands.isEmpty)
+    func testDecrement() {
+        do {
+            var model = Model(count: -1)
+            let commands = Module.update(for: .decrement, model: &model)
+            XCTAssertEqual(model, Model(count: -2))
+            XCTAssertTrue(commands.isEmpty)
+        }
+        do {
+            var model = Model(count: -2)
+            let commands = Module.update(for: .decrement, model: &model)
+            XCTAssertEqual(model, Model(count: -3))
+            XCTAssertTrue(commands.isEmpty)
+        }
     }
 
-    func testDecrement1() {
-        var model = Model(count: -1)
-        let commands = Module.update(for: .decrement, model: &model)
-        XCTAssertEqual(model.count, -2)
-        XCTAssertTrue(commands.isEmpty)
+    func testView() {
+        do {
+            let model = Model(count: 1)
+            let view = Module.view(for: model)
+            XCTAssertEqual(view.count, "1")
+        }
+        do {
+            let model = Model(count: 2)
+            let view = Module.view(for: model)
+            XCTAssertEqual(view.count, "2")
+        }
     }
+    
+}
+```
 
-    func testDecrement2() {
-        var model = Model(count: -2)
-        let commands = Module.update(for: .decrement, model: &model)
-        XCTAssertEqual(model.count, -3)
-        XCTAssertTrue(commands.isEmpty)
+```swift
+typealias Model = Module.Model
+
+extension Model: Equatable {
+    public static func ==(lhs: Model, rhs: Model) -> Bool {
+        return String(describing: lhs) == String(describing: rhs)
     }
-
-    func testView1() {
-        let model = Model(count: 1)
-        let view = Module.view(for: model)
-        XCTAssertEqual(view.count, "1")
-    }
-
-    func testView2() {
-        let model = Model(count: 2)
-        let view = Module.view(for: model)
-        XCTAssertEqual(view.count, "2")
-    }
-
 }
 ```
