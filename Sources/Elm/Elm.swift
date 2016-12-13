@@ -29,19 +29,12 @@ public protocol ElmModule {
 
     associatedtype Message
     associatedtype Model: Initable
+    associatedtype Error = Void
     associatedtype Command
     associatedtype View
 
-    static func update(for message: Message, model: inout Model) -> [Command]
+    static func update(for message: Message, model: inout Model) throws -> [Command]
     static func view(for model: Model) -> View
-
-}
-
-public extension ElmModule {
-
-    static func makeProgram() -> Program<Self> {
-        return Program<Self>(module: self)
-    }
 
 }
 
@@ -110,7 +103,7 @@ public final class Program<Module: ElmModule> {
 
     public func dispatch(_ message: Module.Message) {
         guard let sink = sink else { return }
-        let commands = module.update(for: message, model: &model)
+        let commands = try! module.update(for: message, model: &model)
         let view = module.view(for: model)
         sink.view(view)
         commands.forEach(sink.command)
