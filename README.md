@@ -58,28 +58,18 @@ struct CounterModule: Module {
 <img src="Images/Storyboard.png" width="421" height="535" alt="Storyboard"/>
 
 ```swift
-class CounterViewController: UIViewController, Subscriber {
+class CounterViewController: UIViewController {
 
     let program = CounterModule.makeProgram()
 
-    typealias View = CounterModule.View
-    typealias Command = CounterModule.Command
-
     @IBOutlet var countLabel: UILabel?
-
     @IBOutlet var incrementButton: UIBarButtonItem?
     @IBOutlet var decrementButton: UIBarButtonItem?
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        program.subscribe(self)
+        program.setDelegate(self)
     }
-
-    func update(presenting view: View) {
-        countLabel?.text = view.count
-    }
-
-    func update(performing command: Command) {}
 
     @IBAction private func userDidTapIncrementButton() {
         program.dispatch(.increment)
@@ -87,6 +77,20 @@ class CounterViewController: UIViewController, Subscriber {
 
     @IBAction private func userDidTapDecrementButton() {
         program.dispatch(.decrement)
+    }
+
+}
+
+extension CounterViewController: ElmDelegate {
+
+    typealias Module = CounterModule
+
+    func program(_ program: Program<Module>, didUpdate view: Module.View) {
+        countLabel?.text = view.count
+    }
+
+    func program(_ program: Program<Module>, didEmit command: Module.Command) {
+        // TODO: Add command
     }
 
 }
