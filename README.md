@@ -58,28 +58,18 @@ struct CounterModule: Module {
 <img src="Images/Storyboard.png" width="421" height="535" alt="Storyboard"/>
 
 ```swift
-class CounterViewController: UIViewController, Subscriber {
+class CounterViewController: UIViewController {
 
     let program = CounterModule.makeProgram()
 
-    typealias View = CounterModule.View
-    typealias Command = CounterModule.Command
-
     @IBOutlet var countLabel: UILabel?
-
     @IBOutlet var incrementButton: UIBarButtonItem?
     @IBOutlet var decrementButton: UIBarButtonItem?
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        program.subscribe(self)
+        program.setDelegate(self)
     }
-
-    func update(presenting view: View) {
-        countLabel?.text = view.count
-    }
-
-    func update(performing command: Command) {}
 
     @IBAction private func userDidTapIncrementButton() {
         program.dispatch(.increment)
@@ -92,60 +82,88 @@ class CounterViewController: UIViewController, Subscriber {
 }
 ```
 
-## Unit tests
-
 ```swift
-class CounterModuleTests: XCTestCase {
+extension CounterViewController: ElmDelegate {
 
     typealias Module = CounterModule
 
-    typealias Model = Module.Model
-    typealias View = Module.View
+    func program(_ program: Program<Module>, didUpdate view: Module.View) {
+        countLabel?.text = view.count
+    }
 
-    func testDefault() {
+    func program(_ program: Program<Module>, didEmit command: Module.Command) {
+        // TODO: Add command
+    }
+
+}
+```
+
+## Unit tests
+
+```swift
+typealias Module = CounterModule
+```
+
+```swift
+class CounterModuleModelTests: XCTestCase {
+
+    func testInit() {
         let model = Model()
         XCTAssertEqual(model.count, 0)
     }
 
-    func testIncrement1() {
-        var model = Model(count: 1)
-        let commands = Module.update(for: .increment, model: &model)
-        XCTAssertEqual(model.count, 2)
-        XCTAssertTrue(commands.isEmpty)
+    func testIncrement() {
+        do {
+            var model = Model(count: 1)
+            let commands = Module.update(for: .increment, model: &model)
+            XCTAssertEqual(model, Model(count: 2))
+            XCTAssertTrue(commands.isEmpty)
+        }
+        do {
+            var model = Model(count: 2)
+            let commands = Module.update(for: .increment, model: &model)
+            XCTAssertEqual(model, Model(count: 3))
+            XCTAssertTrue(commands.isEmpty)
+        }
     }
 
-    func testIncrement2() {
-        var model = Model(count: 2)
-        let commands = Module.update(for: .increment, model: &model)
-        XCTAssertEqual(model.count, 3)
-        XCTAssertTrue(commands.isEmpty)
+    func testDecrement() {
+        do {
+            var model = Model(count: -1)
+            let commands = Module.update(for: .decrement, model: &model)
+            XCTAssertEqual(model, Model(count: -2))
+            XCTAssertTrue(commands.isEmpty)
+        }
+        do {
+            var model = Model(count: -2)
+            let commands = Module.update(for: .decrement, model: &model)
+            XCTAssertEqual(model, Model(count: -3))
+            XCTAssertTrue(commands.isEmpty)
+        }
     }
 
-    func testDecrement1() {
-        var model = Model(count: -1)
-        let commands = Module.update(for: .decrement, model: &model)
-        XCTAssertEqual(model.count, -2)
-        XCTAssertTrue(commands.isEmpty)
+    func testView() {
+        do {
+            let model = Model(count: 1)
+            let view = Module.view(for: model)
+            XCTAssertEqual(view.count, "1")
+        }
+        do {
+            let model = Model(count: 2)
+            let view = Module.view(for: model)
+            XCTAssertEqual(view.count, "2")
+        }
     }
+    
+}
+```
 
-    func testDecrement2() {
-        var model = Model(count: -2)
-        let commands = Module.update(for: .decrement, model: &model)
-        XCTAssertEqual(model.count, -3)
-        XCTAssertTrue(commands.isEmpty)
+```swift
+typealias Model = Module.Model
+
+extension Model: Equatable {
+    public static func ==(lhs: Model, rhs: Model) -> Bool {
+        return String(describing: lhs) == String(describing: rhs)
     }
-
-    func testView1() {
-        let model = Model(count: 1)
-        let view = Module.view(for: model)
-        XCTAssertEqual(view.count, "1")
-    }
-
-    func testView2() {
-        let model = Model(count: 2)
-        let view = Module.view(for: model)
-        XCTAssertEqual(view.count, "2")
-    }
-
 }
 ```
