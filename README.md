@@ -80,7 +80,9 @@ class CounterViewController: UIViewController {
     }
 
 }
+```
 
+```swift
 extension CounterViewController: ElmDelegate {
 
     typealias Module = CounterModule
