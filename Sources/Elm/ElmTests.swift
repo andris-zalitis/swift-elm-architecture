@@ -86,6 +86,8 @@ class ElmTests: XCTestCase {
         // MARK: Initialization
         //
 
+        XCTAssertEqual(program.view, View(counterText: "0"))
+
         XCTAssertEqual(recorder.commands.count, 0)
 
         XCTAssertEqual(recorder.views.count, 1)
@@ -97,6 +99,8 @@ class ElmTests: XCTestCase {
         //
 
         program.dispatch(.increment)
+
+        XCTAssertEqual(program.view, View(counterText: "1"))
 
         XCTAssertEqual(recorder.commands.count, 1)
         XCTAssertEqual(recorder.commands[0], .log("Did increment"))
@@ -111,6 +115,8 @@ class ElmTests: XCTestCase {
         //
 
         program.dispatch(.decrement)
+
+        XCTAssertEqual(program.view, View(counterText: "0"))
 
         XCTAssertEqual(recorder.commands.count, 2)
         XCTAssertEqual(recorder.commands[0], .log("Did increment"))
