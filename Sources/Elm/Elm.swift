@@ -75,7 +75,12 @@ public final class Program<Module: ElmModule> {
     private let module: Module.Type
     private var model = Module.Model()
 
-    public init(module: Module.Type) { self.module = module }
+    public private(set) var view: Module.View
+
+    public init(module: Module.Type) {
+        self.module = module
+        view = module.view(for: model)
+    }
 
     //
     // MARK: -
@@ -91,7 +96,6 @@ public final class Program<Module: ElmModule> {
                 delegate?.program(self, didEmit: command)
             }
         )
-        let view = module.view(for: model)
         delegate.program(self, didUpdate: view)
     }
 
@@ -112,7 +116,7 @@ public final class Program<Module: ElmModule> {
     public func dispatch(_ message: Module.Message) {
         guard let sink = sink else { return }
         let commands = try! module.update(for: message, model: &model)
-        let view = module.view(for: model)
+        view = module.view(for: model)
         sink.view(view)
         commands.forEach(sink.command)
     }
