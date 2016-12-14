@@ -29,7 +29,6 @@ public protocol ElmModule {
 
     associatedtype Message
     associatedtype Model: Initable
-    associatedtype Error = Void
     associatedtype Command
     associatedtype View
 
@@ -40,11 +39,21 @@ public protocol ElmModule {
 
 public extension ElmModule {
 
+    static var error: Error {
+        return ElmError()
+    }
+
+}
+
+public extension ElmModule {
+
     static func makeProgram() -> Program<Self> {
         return Program<Self>(module: self)
     }
 
 }
+
+public struct ElmError: Error {}
 
 //
 // MARK: -
