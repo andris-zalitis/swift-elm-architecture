@@ -40,7 +40,7 @@ public protocol Module {
 public extension Module {
 
     static var error: Error {
-        return InternalInconsistency()
+        return GenericError()
     }
 
 }
@@ -53,7 +53,7 @@ public extension Module {
 
 }
 
-public struct InternalInconsistency: Error {}
+public struct GenericError: Error {}
 
 //
 // MARK: -
@@ -82,9 +82,14 @@ public final class Program<Module: Elm.Module> {
     //
 
     private let module: Module.Type
-    private var model = Module.Model()
 
-    public private(set) var view: Module.View
+    typealias Message = Module.Message
+    typealias Model = Module.Model
+    typealias Command = Module.Command
+    typealias View = Module.View
+
+    private var model = Model()
+    public private(set) var view: View
 
     public init(module: Module.Type) {
         self.module = module
@@ -97,49 +102,43 @@ public final class Program<Module: Elm.Module> {
     //
 
     public func setDelegate<Delegate: Elm.Delegate>(_ delegate: Delegate) where Delegate.Module == Module {
-        sink = (
-            view: { [weak delegate] view in
-                delegate?.program(self, didUpdate: view)
-            },
-            command: { [weak delegate] command in
-                delegate?.program(self, didEmit: command)
-            }
-        )
+        sendView = { [weak delegate] view in
+            delegate?.program(self, didUpdate: view)
+        }
+        sendCommand = { [weak delegate] command in
+            delegate?.program(self, didEmit: command)
+        }
         delegate.program(self, didUpdate: view)
     }
 
     public func unsetDelegate() {
-        sink = nil
+        sendView = { _ in }
+        sendCommand = { _ in }
     }
 
-    private typealias ViewSink = (Module.View) -> Void
-    private typealias CommandSink = (Module.Command) -> Void
+    private typealias ViewSink = (View) -> Void
+    private typealias CommandSink = (Command) -> Void
 
-    private var sink: (view: ViewSink, command: CommandSink)?
+    private var sendView: ViewSink = { _ in }
+    private var sendCommand: CommandSink = { _ in }
 
     //
     // MARK: -
     // MARK: Dispatch
     //
 
-    public func dispatch(_ messages: Module.Message...) {
-        guard let sink = sink else { return }
+    public func dispatch(_ messages: Message...) {
         for message in messages {
             do {
                 let commands = try module.update(for: message, model: &model)
                 view = module.view(for: model)
-                sink.view(view)
-                commands.forEach(sink.command)
+                sendView(view)
+                commands.forEach(sendCommand)
             } catch {
                 var standardError = StandardError()
-                print("ERROR:", to: &standardError)
-                dump(error)
-                print("MODULE:", to: &standardError)
-                dump(module, to: &standardError)
-                print("MESSAGE:", to: &standardError)
-                dump(message)
-                print("MODEL:", to: &standardError)
-                dump(model, to: &standardError)
+                dump(error, to: &standardError, name: "Error")
+                dump(message, to: &standardError, name: "Message")
+                dump(model, to: &standardError, name: "Model")
                 fatalError()
             }
         }
