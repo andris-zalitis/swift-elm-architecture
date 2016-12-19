@@ -169,7 +169,7 @@ typealias Command = Counter.Command
 // MARK: Module
 //
 
-struct Counter: ElmModule {
+struct Counter: Module {
 
     enum Message {
         case increment
@@ -228,7 +228,7 @@ extension View: Equatable {
 // MARK: Recorder
 //
 
-final class Recorder: ElmDelegate {
+final class Recorder: Delegate {
 
     typealias Module = Counter
 

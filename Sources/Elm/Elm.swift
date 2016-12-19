@@ -25,7 +25,7 @@
 // MARK: Module
 //
 
-public protocol ElmModule {
+public protocol Module {
 
     associatedtype Message
     associatedtype Model: Initable
@@ -37,15 +37,15 @@ public protocol ElmModule {
 
 }
 
-public extension ElmModule {
+public extension Module {
 
     static var error: Error {
-        return ElmError()
+        return GenericError()
     }
 
 }
 
-public extension ElmModule {
+public extension Module {
 
     static func makeProgram() -> Program<Self> {
         return Program<Self>(module: self)
@@ -53,16 +53,16 @@ public extension ElmModule {
 
 }
 
-public struct ElmError: Error {}
+public struct GenericError: Error {}
 
 //
 // MARK: -
 // MARK: Delegate
 //
 
-public protocol ElmDelegate: class {
+public protocol Delegate: class {
 
-    associatedtype Module: ElmModule
+    associatedtype Module: Elm.Module
 
     func program(_ program: Program<Module>, didUpdate view: Module.View)
     func program(_ program: Program<Module>, didEmit command: Module.Command)
@@ -74,7 +74,7 @@ public protocol ElmDelegate: class {
 // MARK: Program
 //
 
-public final class Program<Module: ElmModule> {
+public final class Program<Module: Elm.Module> {
 
     //
     // MARK: -
@@ -82,9 +82,14 @@ public final class Program<Module: ElmModule> {
     //
 
     private let module: Module.Type
-    private var model = Module.Model()
 
-    public private(set) var view: Module.View
+    typealias Message = Module.Message
+    typealias Model = Module.Model
+    typealias Command = Module.Command
+    typealias View = Module.View
+
+    private var model = Model()
+    public private(set) var view: View
 
     public init(module: Module.Type) {
         self.module = module
@@ -96,50 +101,44 @@ public final class Program<Module: ElmModule> {
     // MARK: Delegate
     //
 
-    public func setDelegate<Delegate: ElmDelegate>(_ delegate: Delegate) where Delegate.Module == Module {
-        sink = (
-            view: { [weak delegate] view in
-                delegate?.program(self, didUpdate: view)
-            },
-            command: { [weak delegate] command in
-                delegate?.program(self, didEmit: command)
-            }
-        )
+    public func setDelegate<Delegate: Elm.Delegate>(_ delegate: Delegate) where Delegate.Module == Module {
+        sendView = { [weak delegate] view in
+            delegate?.program(self, didUpdate: view)
+        }
+        sendCommand = { [weak delegate] command in
+            delegate?.program(self, didEmit: command)
+        }
         delegate.program(self, didUpdate: view)
     }
 
     public func unsetDelegate() {
-        sink = nil
+        sendView = { _ in }
+        sendCommand = { _ in }
     }
 
-    private typealias ViewSink = (Module.View) -> Void
-    private typealias CommandSink = (Module.Command) -> Void
+    private typealias ViewSink = (View) -> Void
+    private typealias CommandSink = (Command) -> Void
 
-    private var sink: (view: ViewSink, command: CommandSink)?
+    private var sendView: ViewSink = { _ in }
+    private var sendCommand: CommandSink = { _ in }
 
     //
     // MARK: -
     // MARK: Dispatch
     //
 
-    public func dispatch(_ messages: Module.Message...) {
-        guard let sink = sink else { return }
+    public func dispatch(_ messages: Message...) {
         for message in messages {
             do {
                 let commands = try module.update(for: message, model: &model)
                 view = module.view(for: model)
-                sink.view(view)
-                commands.forEach(sink.command)
+                sendView(view)
+                commands.forEach(sendCommand)
             } catch {
                 var standardError = StandardError()
-                print("ERROR:", to: &standardError)
-                dump(error)
-                print("MODULE:", to: &standardError)
-                dump(module, to: &standardError)
-                print("MESSAGE:", to: &standardError)
-                dump(message)
-                print("MODEL:", to: &standardError)
-                dump(model, to: &standardError)
+                dump(error, to: &standardError, name: "Error")
+                dump(message, to: &standardError, name: "Message")
+                dump(model, to: &standardError, name: "Model")
                 fatalError()
             }
         }
