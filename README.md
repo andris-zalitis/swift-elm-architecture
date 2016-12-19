@@ -20,7 +20,7 @@ Let's build a counter:
 ## Functional core
 
 ```swift
-struct CounterModule: ElmModule {
+struct CounterModule: Elm.Module {
 
     enum Message {
         case increment
@@ -83,7 +83,7 @@ class CounterViewController: UIViewController {
 ```
 
 ```swift
-extension CounterViewController: ElmDelegate {
+extension CounterViewController: Elm.Delegate {
 
     typealias Module = CounterModule
 
