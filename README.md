@@ -63,6 +63,7 @@ class CounterViewController: UIViewController {
     let program = CounterModule.makeProgram()
 
     @IBOutlet var countLabel: UILabel?
+
     @IBOutlet var incrementButton: UIBarButtonItem?
     @IBOutlet var decrementButton: UIBarButtonItem?
 
@@ -92,7 +93,7 @@ extension CounterViewController: Elm.Delegate {
     }
 
     func program(_ program: Program<Module>, didEmit command: Module.Command) {
-        // TODO: Add command
+        fatalError()
     }
 
 }
@@ -105,7 +106,7 @@ typealias Module = CounterModule
 ```
 
 ```swift
-class CounterModuleModelTests: XCTestCase {
+class CounterModuleTests: XCTestCase {
 
     func testInit() {
         let model = Model()
