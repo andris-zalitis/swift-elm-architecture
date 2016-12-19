@@ -25,7 +25,7 @@
 // MARK: Module
 //
 
-public protocol ElmModule {
+public protocol Module {
 
     associatedtype Message
     associatedtype Model: Initable
@@ -37,15 +37,15 @@ public protocol ElmModule {
 
 }
 
-public extension ElmModule {
+public extension Module {
 
     static var error: Error {
-        return ElmError()
+        return InternalInconsistency()
     }
 
 }
 
-public extension ElmModule {
+public extension Module {
 
     static func makeProgram() -> Program<Self> {
         return Program<Self>(module: self)
@@ -53,16 +53,16 @@ public extension ElmModule {
 
 }
 
-public struct ElmError: Error {}
+public struct InternalInconsistency: Error {}
 
 //
 // MARK: -
 // MARK: Delegate
 //
 
-public protocol ElmDelegate: class {
+public protocol Delegate: class {
 
-    associatedtype Module: ElmModule
+    associatedtype Module: Elm.Module
 
     func program(_ program: Program<Module>, didUpdate view: Module.View)
     func program(_ program: Program<Module>, didEmit command: Module.Command)
@@ -74,7 +74,7 @@ public protocol ElmDelegate: class {
 // MARK: Program
 //
 
-public final class Program<Module: ElmModule> {
+public final class Program<Module: Elm.Module> {
 
     //
     // MARK: -
@@ -96,7 +96,7 @@ public final class Program<Module: ElmModule> {
     // MARK: Delegate
     //
 
-    public func setDelegate<Delegate: ElmDelegate>(_ delegate: Delegate) where Delegate.Module == Module {
+    public func setDelegate<Delegate: Elm.Delegate>(_ delegate: Delegate) where Delegate.Module == Module {
         sink = (
             view: { [weak delegate] view in
                 delegate?.program(self, didUpdate: view)
