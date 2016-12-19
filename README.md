@@ -1,6 +1,6 @@
 # Elm Architecture for Swift
 
-This is [Elm Architecture](https://guide.elm-lang.org/architecture/) for [Swift](https://swift.org).
+This is [The Elm Architecture](https://guide.elm-lang.org/architecture/) for [Swift](https://swift.org).
 
 <a href="http://elm-lang.org"><img src="Images/Logo-Elm.png" width="32" height="32" alt="Swift Logo"/></a>
 <a href="https://swift.org"><img src="Images/Logo-Swift.png" width="32" height="32" alt="Swift Logo"/></a>
@@ -11,6 +11,10 @@ Build status:
 | :------- | :-------- |
 | [![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=583f5837a72f6501008044ab&branch=master&build=latest)](https://dashboard.buddybuild.com/apps/583f5837a72f6501008044ab/build/latest) | [![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=583f5837a72f6501008044ab&branch=develop&build=latest)](https://dashboard.buddybuild.com/apps/583f5837a72f6501008044ab/build/latest) |
 
+# About
+
+_The Elm Architecture_ is a simple pattern for architecting apps. It is great for modularity, code reuse, and testing. Ultimately, it makes it easy to create complex apps that stay healthy as you refactor and add features.
+
 # Example
 
 Let's build a counter:
@@ -20,7 +24,7 @@ Let's build a counter:
 ## Functional core
 
 ```swift
-struct CounterModule: Elm.Module {
+struct Counter: Elm.Module {
 
     enum Message {
         case increment
@@ -60,7 +64,7 @@ struct CounterModule: Elm.Module {
 ```swift
 class CounterViewController: UIViewController {
 
-    let program = CounterModule.makeProgram()
+    let program = Counter.makeProgram()
 
     @IBOutlet var countLabel: UILabel?
 
@@ -86,7 +90,7 @@ class CounterViewController: UIViewController {
 ```swift
 extension CounterViewController: Elm.Delegate {
 
-    typealias Module = CounterModule
+    typealias Module = Counter
 
     func program(_ program: Program<Module>, didUpdate view: Module.View) {
         countLabel?.text = view.count
@@ -102,11 +106,11 @@ extension CounterViewController: Elm.Delegate {
 ## Unit tests
 
 ```swift
-typealias Module = CounterModule
+typealias Module = Counter
 ```
 
 ```swift
-class CounterModuleTests: XCTestCase {
+class CounterTests: XCTestCase {
 
     func testInit() {
         let model = Model()
