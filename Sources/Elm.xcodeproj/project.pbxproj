@@ -149,6 +149,7 @@
 					};
 					91F8348A1DEF328A00F27AD5 = {
 						CreatedOnToolsVersion = 8.1;
+						DevelopmentTeam = N8AX3PDDY9;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -361,6 +362,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				DEVELOPMENT_TEAM = N8AX3PDDY9;
 				INFOPLIST_FILE = Elm/InfoTests.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = Salutis.ElmTests;
@@ -373,6 +375,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				DEVELOPMENT_TEAM = N8AX3PDDY9;
 				INFOPLIST_FILE = Elm/InfoTests.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = Salutis.ElmTests;
