@@ -129,6 +129,29 @@ class ElmTests: XCTestCase {
 
     }
 
+    func testDispatchMultipleMessages() {
+
+        let recorder = Recorder()
+        let program = Counter.makeProgram()
+
+        program.setDelegate(recorder)
+
+        program.dispatch(
+            .increment,
+            .decrement
+        )
+
+        XCTAssertEqual(recorder.commands.count, 2)
+        XCTAssertEqual(recorder.commands[0], .log("Did increment"))
+        XCTAssertEqual(recorder.commands[1], .log("Did decrement"))
+
+        XCTAssertEqual(recorder.views.count, 3)
+        XCTAssertEqual(recorder.views[0], View(counterText: "0"))
+        XCTAssertEqual(recorder.views[1], View(counterText: "1"))
+        XCTAssertEqual(recorder.views[2], View(counterText: "0"))
+
+    }
+
 }
 
 //
