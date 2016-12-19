@@ -1,4 +1,4 @@
-# Elm Architecture for Swift
+# The Elm Architecture for Swift
 
 This is [The Elm Architecture](https://guide.elm-lang.org/architecture/) for [Swift](https://swift.org).
 
