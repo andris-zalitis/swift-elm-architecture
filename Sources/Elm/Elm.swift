@@ -124,10 +124,23 @@ public final class Program<Module: ElmModule> {
 
     public func dispatch(_ message: Module.Message) {
         guard let sink = sink else { return }
-        let commands = try! module.update(for: message, model: &model)
-        view = module.view(for: model)
-        sink.view(view)
-        commands.forEach(sink.command)
+        do {
+            let commands = try module.update(for: message, model: &model)
+            view = module.view(for: model)
+            sink.view(view)
+            commands.forEach(sink.command)
+        } catch {
+            var standardError = StandardError()
+            print("ERROR:", to: &standardError)
+            dump(error)
+            print("MODULE:", to: &standardError)
+            dump(module, to: &standardError)
+            print("MESSAGE:", to: &standardError)
+            dump(message)
+            print("MODEL:", to: &standardError)
+            dump(model, to: &standardError)
+            fatalError()
+        }
     }
 
 }
@@ -138,7 +151,12 @@ public final class Program<Module: ElmModule> {
 //
 
 public protocol Initable {
-
     init()
-
 }
+
+private struct StandardError: TextOutputStream {
+    public mutating func write(_ string: String) {
+        fputs(string, stderr)
+    }
+}
+
