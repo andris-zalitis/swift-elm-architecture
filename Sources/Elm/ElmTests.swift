@@ -165,7 +165,7 @@ struct Counter: ElmModule {
         case log(String)
     }
 
-    static func update(for message: Message, model: inout Model) -> [Command] {
+    static func update(for message: Message, model: inout Model) throws -> [Command] {
         switch message {
         case .increment:
             model.count += 1
