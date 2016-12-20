@@ -33,7 +33,7 @@ public protocol Module {
     associatedtype View
 
     static func update(for message: Message, model: inout Model) throws -> [Command]
-    static func view(for model: Model) -> View
+    static func view(for model: Model) throws -> View
 
 }
 
@@ -93,7 +93,7 @@ public final class Program<Module: Elm.Module> {
 
     public init(module: Module.Type) {
         self.module = module
-        view = module.view(for: model)
+        view = Program.makeView(module: module, model: model)
     }
 
     //
@@ -129,18 +129,32 @@ public final class Program<Module: Elm.Module> {
 
     public func dispatch(_ messages: Message...) {
         for message in messages {
+            let commands: [Command]
             do {
-                let commands = try module.update(for: message, model: &model)
-                view = module.view(for: model)
-                sendView(view)
-                commands.forEach(sendCommand)
+                 commands = try module.update(for: message, model: &model)
             } catch {
                 var standardError = StandardError()
+                print("FATAL: \(module).update function did throw!", to: &standardError)
                 dump(error, to: &standardError, name: "Error")
                 dump(message, to: &standardError, name: "Message")
                 dump(model, to: &standardError, name: "Model")
                 fatalError()
             }
+            view = Program.makeView(module: module, model: model)
+            sendView(view)
+            commands.forEach(sendCommand)
+        }
+    }
+
+    private static func makeView(module: Module.Type, model: Model) -> View {
+        do {
+            return try module.view(for: model)
+        } catch {
+            var standardError = StandardError()
+            print("FATAL: \(module).view function did throw!", to: &standardError)
+            dump(error, to: &standardError, name: "Error")
+            dump(model, to: &standardError, name: "Model")
+            fatalError()
         }
     }
 
