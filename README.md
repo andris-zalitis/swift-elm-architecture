@@ -41,7 +41,7 @@ struct Counter: Elm.Module {
 
     enum Command {}
 
-    static func update(for message: Message, model: inout Model) throws -> [Command] {
+    static func update(for message: Message, model: inout Model) -> [Command] {
         switch message {
         case .increment: model.count += 1
         case .decrement: model.count -= 1
