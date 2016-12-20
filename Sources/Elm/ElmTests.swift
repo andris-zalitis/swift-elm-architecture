@@ -136,10 +136,7 @@ class ElmTests: XCTestCase {
 
         program.setDelegate(recorder)
 
-        program.dispatch(
-            .increment,
-            .decrement
-        )
+        program.dispatch(.increment, .decrement)
 
         XCTAssertEqual(recorder.commands.count, 2)
         XCTAssertEqual(recorder.commands[0], .log("Did increment"))
@@ -188,7 +185,7 @@ struct Counter: Module {
         case log(String)
     }
 
-    static func update(for message: Message, model: inout Model) throws -> [Command] {
+    static func update(for message: Message, model: inout Model) -> [Command] {
         switch message {
         case .increment:
             model.count += 1
