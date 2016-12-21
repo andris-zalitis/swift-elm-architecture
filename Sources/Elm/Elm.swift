@@ -128,9 +128,9 @@ public final class Program<Module: Elm.Module> {
 
     public func dispatch(_ messages: Message...) {
         for message in messages {
-            let commands: [Command]
             do {
-                 commands = try module.update(for: message, model: &model)
+                let commands = try module.update(for: message, model: &model)
+                commands.forEach(sendCommand)
             } catch {
                 var standardError = StandardError()
                 print("FATAL: \(module).update function did throw!", to: &standardError)
@@ -139,10 +139,9 @@ public final class Program<Module: Elm.Module> {
                 dump(model, to: &standardError, name: "Model")
                 fatalError()
             }
-            view = Program.makeView(module: module, model: model)
-            sendView(view)
-            commands.forEach(sendCommand)
         }
+        view = Program.makeView(module: module, model: model)
+        sendView(view)
     }
 
     private static func makeView(module: Module.Type, model: Model) -> View {
