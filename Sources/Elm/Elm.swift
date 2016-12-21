@@ -89,11 +89,10 @@ public final class Program<Module: Elm.Module> {
     typealias View = Module.View
 
     private var model = Model()
-    public private(set) var view: View
+    public private(set) lazy var view: View = Program.makeView(module: self.module, model: self.model)
 
     public init(module: Module.Type) {
         self.module = module
-        view = Program.makeView(module: module, model: model)
     }
 
     //
