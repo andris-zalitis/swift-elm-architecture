@@ -172,8 +172,8 @@ struct Counter: Module {
         case decrement
     }
 
-    struct Model: Initable {
-        var count = 0
+    struct Model {
+        var count: Int
     }
 
     struct View {
@@ -184,14 +184,18 @@ struct Counter: Module {
         case log(String)
     }
 
-    static func update(for message: Message, model: inout Model) -> [Command] {
+    static func start(with flags: Empty) -> Model {
+        return Model(count: 0)
+    }
+
+    static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws {
         switch message {
         case .increment:
             model.count += 1
-            return [.log("Did increment")]
+            perform(.log("Did increment"))
         case .decrement:
             model.count -= 1
-            return [.log("Did decrement")]
+            perform(.log("Did decrement"))
         }
     }
 
