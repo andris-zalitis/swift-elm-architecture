@@ -30,7 +30,7 @@ public protocol Module {
     associatedtype Flags = Empty
     associatedtype Message
     associatedtype Model
-    associatedtype Command
+    associatedtype Command = Empty
     associatedtype View
     associatedtype Failure = Empty
 
@@ -67,6 +67,12 @@ public protocol Delegate: class {
 
     func program(_ program: Program<Module>, didUpdate view: Module.View)
     func program(_ program: Program<Module>, didEmit command: Module.Command)
+
+}
+
+extension Delegate where Module.Command == Empty {
+
+    func program(_ program: Program<Module>, didEmit command: Module.Command) {}
 
 }
 
