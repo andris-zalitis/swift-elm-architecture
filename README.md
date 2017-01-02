@@ -61,7 +61,7 @@ struct CounterModule: Elm.Module {
         let count = String(model.count)
         return View(count: count)
     }
-    
+
 }
 ```
 
@@ -75,7 +75,7 @@ import Elm
 
 final class CounterViewController: UIViewController {
 
-    let program = Counter.makeProgram()
+    let program = CounterModule.makeProgram(flags: .init())
 
     @IBOutlet var countLabel: UILabel?
 
@@ -119,6 +119,7 @@ extension CounterViewController: Elm.Delegate {
 ```swift
 import XCTest
 import Elm
+
 @testable import Counter
 
 final class CounterModuleModelTests: XCTestCase, Elm.TestCase {
@@ -173,3 +174,18 @@ final class CounterModuleModelTests: XCTestCase, Elm.TestCase {
     
 }
 ```
+
+# Installation
+
+* Add `github "salutis/Elm" "master"` to `Cartfile`
+* Run `carthage bootstrap`
+* Drag `Carthage/Build/iOS/Elm.framework` to Xcode project
+  * Targets:
+    * `App`: Yes
+    * `AppTests`: Yes
+* Add _Copy Files_ build phase to both `App` and `AppTests` targets
+  * Destination: `Frameworks`
+  * Name: `Elm.framework`
+* Add _Run Script_ build phase to both `App` and `AppTests` targets
+  * Script: `carthage copy-frameworks`
+  * Input files:`$(SRCROOT)/Carthage/Build/iOS/Elm.framework`
