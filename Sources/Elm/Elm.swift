@@ -70,7 +70,7 @@ public protocol Delegate: class {
 
 }
 
-extension Delegate where Module.Command == Empty {
+public extension Delegate where Module.Command == Empty {
 
     func program(_ program: Program<Module>, didEmit command: Module.Command) {}
 
