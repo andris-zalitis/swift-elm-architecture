@@ -27,33 +27,26 @@
 
 public protocol Module {
 
+    associatedtype Flags
     associatedtype Message
-    associatedtype Model: Initable
+    associatedtype Model
     associatedtype Command
     associatedtype View
+    associatedtype Failure
 
-    static func update(for message: Message, model: inout Model) throws -> [Command]
+    static func start(with flags: Flags) throws -> Model
+    static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws
     static func view(for model: Model) throws -> View
 
 }
 
 public extension Module {
 
-    static var error: Error {
-        return GenericError()
+    static func makeProgram(flags: Flags) -> Program<Self> {
+        return Program<Self>(module: self, flags: flags)
     }
 
 }
-
-public extension Module {
-
-    static func makeProgram() -> Program<Self> {
-        return Program<Self>(module: self)
-    }
-
-}
-
-public struct GenericError: Error {}
 
 //
 // MARK: -
@@ -83,16 +76,25 @@ public final class Program<Module: Elm.Module> {
 
     private let module: Module.Type
 
+    typealias Flags = Module.Flags
     typealias Message = Module.Message
     typealias Model = Module.Model
     typealias Command = Module.Command
     typealias View = Module.View
 
-    private var model = Model()
+    private var model: Model
     public private(set) lazy var view: View = Program.makeView(module: self.module, model: self.model)
 
-    public init(module: Module.Type) {
+    init(module: Module.Type, flags: Flags) {
         self.module = module
+        do {
+            model = try module.start(with: flags)
+        } catch {
+            print("FATAL: \(module).update function did throw!", to: &standardError)
+            dump(error, to: &standardError, name: "Error")
+            dump(flags, to: &standardError, name: "Flags")
+            fatalError()
+        }
     }
 
     //
@@ -129,10 +131,12 @@ public final class Program<Module: Elm.Module> {
     public func dispatch(_ messages: Message...) {
         for message in messages {
             do {
-                let commands = try module.update(for: message, model: &model)
+                var commands: [Command] = []
+                try module.update(for: message, model: &model) { command in
+                    commands.append(command)
+                }
                 commands.forEach(sendCommand)
             } catch {
-                var standardError = StandardError()
                 print("FATAL: \(module).update function did throw!", to: &standardError)
                 dump(error, to: &standardError, name: "Error")
                 dump(message, to: &standardError, name: "Message")
@@ -148,7 +152,6 @@ public final class Program<Module: Elm.Module> {
         do {
             return try module.view(for: model)
         } catch {
-            var standardError = StandardError()
             print("FATAL: \(module).view function did throw!", to: &standardError)
             dump(error, to: &standardError, name: "Error")
             dump(model, to: &standardError, name: "Model")
@@ -160,12 +163,221 @@ public final class Program<Module: Elm.Module> {
 
 //
 // MARK: -
-// MARK: Utilities
+// MARK: Test
 //
 
-public protocol Initable {
-    init()
+public protocol TestCase: class {
+
+    associatedtype Module: Elm.Module
+
+    typealias Flags = Module.Flags
+    typealias Message = Module.Message
+    typealias Model = Module.Model
+    typealias Command = Module.Command
+    typealias View = Module.View
+    typealias Failure = Module.Failure
+
+    var failureReporter: FailureReporter { get }
+
 }
+
+public extension TestCase {
+
+    func expect<T>(_ value: T, _ expectedValue: T, file: StaticString = #file, line: Int = #line) {
+        let value = String(describing: value)
+        let expectedValue = String(describing: expectedValue)
+        if value != expectedValue {
+            let message = value + " is not equal to " + expectedValue
+            failureReporter(message, file, UInt(line))
+        }
+    }
+
+}
+
+public extension TestCase {
+
+    func makeTest(flags: Flags) -> FlagsTest<Module> {
+        return FlagsTest(module: Module.self, flags: flags, failureReporter: failureReporter)
+    }
+
+}
+
+// TODO: Rename
+public struct FlagsTest<Module: Elm.Module>: Test {
+
+    typealias Flags = Module.Flags
+    typealias Model = Module.Model
+    typealias Failure = Module.Failure
+
+    public let module: Module.Type
+    public let flags: Flags
+
+    let failureReporter: FailureReporter
+
+}
+
+public extension FlagsTest {
+
+    func expectModel(file: StaticString = #file, line: Int = #line) -> Model? {
+        do {
+            return try module.start(with: flags)
+        } catch {
+            logUnknownFailure(error, file: file, line: line)
+            return nil
+        }
+    }
+
+    func expectFailure(file: StaticString = #file, line: Int = #line) -> Failure? {
+        do {
+            _ = try module.start(with: flags)
+            logUnexpectedSuccess(file: file, line: line)
+            return nil
+        } catch {
+            if let failure = error as? Failure { return failure }
+            logUnknownFailure(error, file: file, line: line)
+            return nil
+        }
+    }
+
+}
+
+public extension TestCase {
+
+    func makeTest(model: Model) -> ModelTest<Module> {
+        return ModelTest(module: Module.self, model: model, failureReporter: failureReporter)
+    }
+
+}
+
+// TODO: Rename
+public struct ModelTest<Module: Elm.Module>: Test {
+
+    typealias Message = Module.Message
+    typealias Model = Module.Model
+    typealias Command = Module.Command
+    typealias View = Module.View
+    typealias Failure = Module.Failure
+
+    public let module: Module.Type
+    public let model: Model
+
+    let failureReporter: FailureReporter
+    
+}
+
+public extension ModelTest {
+
+    func expectCommands(for message: Message, file: StaticString = #file, line: Int = #line) -> [Command]? {
+        do {
+            var mutableModel = model
+            var commands: [Command] = []
+            try module.update(for: message, model: &mutableModel) { command in
+                commands.append(command)
+            }
+            return commands
+        } catch {
+            logUnexpectedFailure(error, file: file, line: line)
+            return nil
+        }
+    }
+
+    func expectCommand(for message: Message, file: StaticString = #file, line: Int = #line) -> Command? {
+        guard let commands = expectCommands(for: message, file: file, line: line) else {
+            return nil
+        }
+        guard let command = commands.first else {
+            fail(message: "No commands", subject: commands, file: file, line: line)
+            return nil
+        }
+        guard commands.count == 1 else {
+            fail(message: "Multiple commands", subject: commands, file: file, line: line)
+            return nil
+        }
+        return command
+    }
+
+    func expectModel(for message: Message, file: StaticString = #file, line: Int = #line) -> Model? {
+        do {
+            var mutableModel = model
+            try module.update(for: message, model: &mutableModel) { command in }
+            return mutableModel
+        } catch {
+            logUnexpectedFailure(error, file: file, line: line)
+            return nil
+        }
+    }
+
+    func expectView(file: StaticString = #file, line: Int = #line) -> View? {
+        do {
+            return try module.view(for: model)
+        } catch {
+            logUnexpectedFailure(error, file: file, line: line)
+            return nil
+        }
+    }
+
+    func expectFailure(file: StaticString = #file, line: Int = #line) -> Failure? {
+        do {
+            _ = try module.view(for: model)
+            logUnexpectedSuccess(file: file, line: line)
+            return nil
+        } catch {
+            if let failure = error as? Failure { return failure }
+            logUnknownFailure(error, file: file, line: line)
+            return nil
+        }
+    }
+
+    func expectFailure(for message: Message, file: StaticString = #file, line: Int = #line) -> Failure? {
+        do {
+            var mutableModel = model
+            try module.update(for: message, model: &mutableModel) { command in }
+            logUnexpectedSuccess(file: file, line: line)
+            return nil
+        } catch {
+            if let failure = error as? Failure { return failure }
+            logUnknownFailure(error, file: file, line: line)
+            return nil
+        }
+    }
+
+}
+
+protocol Test {
+
+    var failureReporter: FailureReporter { get }
+
+}
+
+extension Test {
+
+    func logUnexpectedSuccess(file: StaticString = #file, line: Int = #line) {
+        fail(message: "Unexpected success", file: file, line: line)
+    }
+
+    func logUnexpectedFailure(_ failure: Error, file: StaticString = #file, line: Int = #line) {
+        fail(message: "Unexpected failure", subject: failure, file: file, line: line)
+    }
+
+    func logUnknownFailure(_ failure: Error, file: StaticString = #file, line: Int = #line) {
+        fail(message: "Unknown failure", subject: failure, file: file, line: line)
+    }
+
+    func fail<T>(message: String, subject: T, file: StaticString = #file, line: Int = #line) {
+        let message = message + ":" + " " + String(describing: subject)
+        fail(message: message, file: file, line: line)
+    }
+
+    private func fail(message: String, file: StaticString = #file, line: Int = #line) {
+        failureReporter(message, file, UInt(line))
+    }
+    
+}
+
+//
+// MARK: -
+// MARK: Utilities
+//
 
 private struct StandardError: TextOutputStream {
     public mutating func write(_ string: String) {
@@ -173,3 +385,13 @@ private struct StandardError: TextOutputStream {
     }
 }
 
+private var standardError = StandardError()
+
+let lineBreak = "\n"
+
+// XCTFail
+public typealias FailureReporter = (
+    String, // message
+    StaticString, // file
+    UInt // line
+    ) -> Void

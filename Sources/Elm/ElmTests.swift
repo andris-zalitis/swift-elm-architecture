@@ -167,13 +167,15 @@ typealias Command = Counter.Command
 
 struct Counter: Module {
 
+    struct Flags {}
+
     enum Message {
         case increment
         case decrement
     }
 
-    struct Model: Initable {
-        var count = 0
+    struct Model {
+        var count: Int
     }
 
     struct View {
@@ -184,14 +186,20 @@ struct Counter: Module {
         case log(String)
     }
 
-    static func update(for message: Message, model: inout Model) -> [Command] {
+    enum Failure {}
+
+    static func start(with flags: Flags) -> Model {
+        return Model(count: 0)
+    }
+
+    static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws {
         switch message {
         case .increment:
             model.count += 1
-            return [.log("Did increment")]
+            perform(.log("Did increment"))
         case .decrement:
             model.count -= 1
-            return [.log("Did decrement")]
+            perform(.log("Did decrement"))
         }
     }
 
@@ -200,6 +208,15 @@ struct Counter: Module {
         return View(counterText: counterText)
     }
 
+}
+
+extension Counter {
+
+    static func makeProgram() -> Program<Counter> {
+        let flags = Flags()
+        return makeProgram(flags: flags)
+    }
+    
 }
 
 //
