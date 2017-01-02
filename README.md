@@ -24,15 +24,19 @@ Let's build a counter:
 ## Functional core
 
 ```swift
-struct Counter: Elm.Module {
+import Elm
+
+struct CounterModule: Elm.Module {
+
+    struct Flags {}
 
     enum Message {
         case increment
         case decrement
     }
 
-    struct Model: Initable {
-        var count = 0
+    struct Model {
+        var count: Int
     }
 
     struct View {
@@ -40,20 +44,24 @@ struct Counter: Elm.Module {
     }
 
     enum Command {}
+    enum Failure {}
 
-    static func update(for message: Message, model: inout Model) -> [Command] {
+    static func start(with flags: Flags) throws -> Model {
+        return Model(count: 0)
+    }
+
+    static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws {
         switch message {
         case .increment: model.count += 1
         case .decrement: model.count -= 1
         }
-        return []
     }
 
-    static func view(for model: Model) -> View {
+    static func view(for model: Model) throws -> View {
         let count = String(model.count)
         return View(count: count)
     }
-    
+
 }
 ```
 
@@ -62,9 +70,12 @@ struct Counter: Elm.Module {
 <img src="Images/Storyboard.png" width="421" height="535" alt="Storyboard"/>
 
 ```swift
-class CounterViewController: UIViewController {
+import UIKit
+import Elm
 
-    let program = Counter.makeProgram()
+final class CounterViewController: UIViewController {
+
+    let program = CounterModule.makeProgram(flags: .init())
 
     @IBOutlet var countLabel: UILabel?
 
@@ -90,7 +101,7 @@ class CounterViewController: UIViewController {
 ```swift
 extension CounterViewController: Elm.Delegate {
 
-    typealias Module = Counter
+    typealias Module = CounterModule
 
     func program(_ program: Program<Module>, didUpdate view: Module.View) {
         countLabel?.text = view.count
@@ -106,69 +117,75 @@ extension CounterViewController: Elm.Delegate {
 ## Unit tests
 
 ```swift
-typealias Module = Counter
-```
+import XCTest
+import Elm
 
-```swift
-class CounterTests: XCTestCase {
+@testable import Counter
 
-    func testInit() {
-        let model = Model()
-        XCTAssertEqual(model.count, 0)
+final class CounterModuleModelTests: XCTestCase, Elm.TestCase {
+
+    typealias Module = CounterModule
+    let failureReporter = XCTFail
+
+    func testDefault() {
+        let test = makeTest(flags: .init())
+        let model = test.expectModel()
+        expect(model?.count, 0)
     }
 
     func testIncrement() {
         do {
-            var model = Model(count: 1)
-            let commands = Module.update(for: .increment, model: &model)
-            XCTAssertEqual(model, Model(count: 2))
-            XCTAssertTrue(commands.isEmpty)
+            let test = makeTest(model: .init(count: 1))
+            let model = test.expectModel(for: .increment)
+            expect(model?.count, 2)
         }
         do {
-            var model = Model(count: 2)
-            let commands = Module.update(for: .increment, model: &model)
-            XCTAssertEqual(model, Model(count: 3))
-            XCTAssertTrue(commands.isEmpty)
+            let test = makeTest(model: .init(count: 2))
+            let model = test.expectModel(for: .increment)
+            expect(model?.count, 3)
         }
     }
 
     func testDecrement() {
         do {
-            var model = Model(count: -1)
-            let commands = Module.update(for: .decrement, model: &model)
-            XCTAssertEqual(model, Model(count: -2))
-            XCTAssertTrue(commands.isEmpty)
+            let test = makeTest(model: .init(count: -1))
+            let model = test.expectModel(for: .decrement)
+            expect(model?.count, -2)
         }
         do {
-            var model = Model(count: -2)
-            let commands = Module.update(for: .decrement, model: &model)
-            XCTAssertEqual(model, Model(count: -3))
-            XCTAssertTrue(commands.isEmpty)
+            let test = makeTest(model: .init(count: -2))
+            let model = test.expectModel(for: .decrement)
+            expect(model?.count, -3)
         }
     }
 
     func testView() {
         do {
-            let model = Model(count: 1)
-            let view = Module.view(for: model)
-            XCTAssertEqual(view.count, "1")
+            let test = makeTest(model: .init(count: 1))
+            let view = test.expectView()
+            expect(view?.count, "1")
         }
         do {
-            let model = Model(count: 2)
-            let view = Module.view(for: model)
-            XCTAssertEqual(view.count, "2")
+            let test = makeTest(model: .init(count: 2))
+            let view = test.expectView()
+            expect(view?.count, "2")
         }
     }
     
 }
 ```
 
-```swift
-typealias Model = Module.Model
+# Installation
 
-extension Model: Equatable {
-    public static func ==(lhs: Model, rhs: Model) -> Bool {
-        return String(describing: lhs) == String(describing: rhs)
-    }
-}
-```
+* Add `github "salutis/Elm" "master"` to `Cartfile`
+* Run `carthage bootstrap`
+* Drag `Carthage/Build/iOS/Elm.framework` to Xcode project
+  * Targets:
+    * `App`: Yes
+    * `AppTests`: Yes
+* Add _Copy Files_ build phase to both `App` and `AppTests` targets
+  * Destination: `Frameworks`
+  * Name: `Elm.framework`
+* Add _Run Script_ build phase to both `App` and `AppTests` targets
+  * Script: `carthage copy-frameworks`
+  * Input files:`$(SRCROOT)/Carthage/Build/iOS/Elm.framework`
