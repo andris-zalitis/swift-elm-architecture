@@ -216,6 +216,14 @@ public extension TestCase {
 
 }
 
+public extension TestCase where Module.Flags == Empty {
+
+    func makeTest() -> FlagsTest<Module> {
+        return FlagsTest(module: Module.self, flags: Empty(), failureReporter: failureReporter)
+    }
+
+}
+
 public struct FlagsTest<Module: Elm.Module>: Test {
 
     typealias Flags = Module.Flags
