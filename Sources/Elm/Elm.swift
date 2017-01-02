@@ -199,7 +199,7 @@ public extension TestCase {
             failureReporter(message, file, UInt(line))
         }
     }
-    
+
 }
 
 public extension TestCase {
@@ -253,7 +253,7 @@ public extension TestCase {
     func makeTest(model: Model) -> ModelTest<Module> {
         return ModelTest(module: Module.self, model: model, failureReporter: failureReporter)
     }
-    
+
 }
 
 public struct ModelTest<Module: Elm.Module>: Test {
