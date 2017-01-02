@@ -27,24 +27,16 @@
 
 public protocol Module {
 
-    associatedtype Flags = Empty
+    associatedtype Flags
     associatedtype Message
     associatedtype Model
-    associatedtype Command = Empty
+    associatedtype Command
     associatedtype View
-    associatedtype Failure = Empty
+    associatedtype Failure
 
     static func start(with flags: Flags) throws -> Model
     static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws
     static func view(for model: Model) throws -> View
-
-}
-
-public extension Module where Flags == Empty {
-
-    static func makeProgram() -> Program<Self> {
-        return Program<Self>(module: self, flags: Empty())
-    }
 
 }
 
@@ -67,12 +59,6 @@ public protocol Delegate: class {
 
     func program(_ program: Program<Module>, didUpdate view: Module.View)
     func program(_ program: Program<Module>, didEmit command: Module.Command)
-
-}
-
-public extension Delegate where Module.Command == Empty {
-
-    func program(_ program: Program<Module>, didEmit command: Module.Command) {}
 
 }
 
@@ -216,14 +202,7 @@ public extension TestCase {
 
 }
 
-public extension TestCase where Module.Flags == Empty {
-
-    func makeTest() -> FlagsTest<Module> {
-        return FlagsTest(module: Module.self, flags: Empty(), failureReporter: failureReporter)
-    }
-
-}
-
+// TODO: Rename
 public struct FlagsTest<Module: Elm.Module>: Test {
 
     typealias Flags = Module.Flags
@@ -270,6 +249,7 @@ public extension TestCase {
 
 }
 
+// TODO: Rename
 public struct ModelTest<Module: Elm.Module>: Test {
 
     typealias Message = Module.Message
@@ -415,5 +395,3 @@ public typealias FailureReporter = (
     StaticString, // file
     UInt // line
     ) -> Void
-
-public struct Empty {}

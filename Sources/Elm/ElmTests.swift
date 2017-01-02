@@ -167,6 +167,8 @@ typealias Command = Counter.Command
 
 struct Counter: Module {
 
+    struct Flags {}
+
     enum Message {
         case increment
         case decrement
@@ -184,7 +186,9 @@ struct Counter: Module {
         case log(String)
     }
 
-    static func start(with flags: Empty) -> Model {
+    enum Failure {}
+
+    static func start(with flags: Flags) -> Model {
         return Model(count: 0)
     }
 
@@ -204,6 +208,15 @@ struct Counter: Module {
         return View(counterText: counterText)
     }
 
+}
+
+extension Counter {
+
+    static func makeProgram() -> Program<Counter> {
+        let flags = Flags()
+        return makeProgram(flags: flags)
+    }
+    
 }
 
 //
