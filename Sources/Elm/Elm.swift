@@ -163,10 +163,10 @@ public final class Program<Module: Elm.Module> {
 
 //
 // MARK: -
-// MARK: Start test
+// MARK: Start tests
 //
 
-public protocol StartTest: class, TestBase {
+public protocol StartTests: class, Tests {
 
     associatedtype Module: Elm.Module
 
@@ -174,7 +174,7 @@ public protocol StartTest: class, TestBase {
 
 }
 
-public extension StartTest {
+public extension StartTests {
 
     typealias Flags = Module.Flags
 
@@ -192,7 +192,7 @@ public extension StartTest {
 
 }
 
-public extension StartTest {
+public extension StartTests {
 
     typealias Model = Module.Model
 
@@ -210,7 +210,7 @@ public extension StartTest {
 
 }
 
-public extension StartTest {
+public extension StartTests {
 
     typealias Failure = Module.Failure
 
@@ -227,7 +227,7 @@ public extension StartTest {
 
 }
 
-public extension StartTest {
+public extension StartTests {
 
     var trap: String? {
         if case .trap(let trap) = fixture.results {
@@ -277,10 +277,10 @@ enum StartResults<Module: Elm.Module> {
 
 //
 // MARK: -
-// MARK: Update test
+// MARK: Update tests
 //
 
-public protocol UpdateTest: class, TestBase {
+public protocol UpdateTests: class, Tests {
 
     associatedtype Module: Elm.Module
 
@@ -288,7 +288,7 @@ public protocol UpdateTest: class, TestBase {
 
 }
 
-public extension UpdateTest {
+public extension UpdateTests {
 
     typealias Model = Module.Model
 
@@ -311,7 +311,7 @@ public extension UpdateTest {
 
 }
 
-public extension UpdateTest {
+public extension UpdateTests {
 
     typealias Message = Module.Message
 
@@ -329,7 +329,7 @@ public extension UpdateTest {
 
 }
 
-public extension UpdateTest {
+public extension UpdateTests {
 
     typealias Command = Module.Command
 
@@ -354,7 +354,7 @@ public extension UpdateTest {
 
 }
 
-public extension UpdateTest {
+public extension UpdateTests {
 
     typealias Failure = Module.Failure
 
@@ -371,7 +371,7 @@ public extension UpdateTest {
 
 }
 
-public extension UpdateTest {
+public extension UpdateTests {
 
     var trap: String? {
         if case .trap(let trap) = fixture.results {
@@ -432,10 +432,10 @@ enum UpdateResults<Module: Elm.Module> {
 
 //
 // MARK: -
-// MARK: View test
+// MARK: View tests
 //
 
-public protocol ViewTest: class, TestBase {
+public protocol ViewTests: class, Tests {
 
     associatedtype Module: Elm.Module
 
@@ -443,7 +443,7 @@ public protocol ViewTest: class, TestBase {
     
 }
 
-public extension ViewTest {
+public extension ViewTests {
 
     typealias Model = Module.Model
 
@@ -461,7 +461,7 @@ public extension ViewTest {
 
 }
 
-public extension ViewTest {
+public extension ViewTests {
 
     typealias View = Module.View
 
@@ -479,7 +479,7 @@ public extension ViewTest {
 
 }
 
-public extension ViewTest {
+public extension ViewTests {
 
     typealias Failure = Module.Failure
 
@@ -496,7 +496,7 @@ public extension ViewTest {
 
 }
 
-public extension ViewTest {
+public extension ViewTests {
 
     var trap: String? {
         if case .trap(let trap) = fixture.results {
@@ -549,7 +549,7 @@ enum ViewResults<Module: Elm.Module> {
 // MARK: Test base
 //
 
-public protocol TestBase {
+public protocol Tests {
 
     // XCTFail
     typealias FailureReporter = (
@@ -564,7 +564,7 @@ public protocol TestBase {
 
 }
 
-public extension TestBase {
+public extension Tests {
 
 
     func expect(_ value: @autoclosure () -> Bool, file: StaticString = #file, line: Int = #line) {
