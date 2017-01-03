@@ -73,7 +73,7 @@ struct CounterModule: Elm.Module {
 import UIKit
 import Elm
 
-final class CounterViewController: UIViewController {
+class CounterViewController: UIViewController {
 
     let program = CounterModule.makeProgram(flags: .init())
 
@@ -87,11 +87,11 @@ final class CounterViewController: UIViewController {
         program.setDelegate(self)
     }
 
-    @IBAction private func userDidTapIncrementButton() {
+    @IBAction func userDidTapIncrementButton() {
         program.dispatch(.increment)
     }
 
-    @IBAction private func userDidTapDecrementButton() {
+    @IBAction func userDidTapDecrementButton() {
         program.dispatch(.decrement)
     }
 
@@ -122,54 +122,62 @@ import Elm
 
 @testable import Counter
 
-final class CounterModuleModelTests: XCTestCase, Elm.TestCase {
+class CounterStartTests: XCTestCase, StartTests {
 
-    typealias Module = CounterModule
+    var fixture = StartFixture<CounterModule>()
     let failureReporter = XCTFail
 
-    func testDefault() {
-        let test = makeTest(flags: .init())
-        let model = test.expectModel()
-        expect(model?.count, 0)
+    func test() {
+        flags = .init()
+        expect(model.count, 0)
     }
 
-    func testIncrement() {
-        do {
-            let test = makeTest(model: .init(count: 1))
-            let model = test.expectModel(for: .increment)
-            expect(model?.count, 2)
-        }
-        do {
-            let test = makeTest(model: .init(count: 2))
-            let model = test.expectModel(for: .increment)
-            expect(model?.count, 3)
-        }
+}
+
+class CounterUpdateTests: XCTestCase, UpdateTests {
+
+    var fixture = UpdateFixture<CounterModule>()
+    let failureReporter = XCTFail
+
+    func testIncrement1() {
+        model = .init(count: 1)
+        message = .increment
+        expect(model.count, 2)
     }
 
-    func testDecrement() {
-        do {
-            let test = makeTest(model: .init(count: -1))
-            let model = test.expectModel(for: .decrement)
-            expect(model?.count, -2)
-        }
-        do {
-            let test = makeTest(model: .init(count: -2))
-            let model = test.expectModel(for: .decrement)
-            expect(model?.count, -3)
-        }
+    func testIncrement2() {
+        model = .init(count: 2)
+        message = .increment
+        expect(model.count, 3)
     }
 
-    func testView() {
-        do {
-            let test = makeTest(model: .init(count: 1))
-            let view = test.expectView()
-            expect(view?.count, "1")
-        }
-        do {
-            let test = makeTest(model: .init(count: 2))
-            let view = test.expectView()
-            expect(view?.count, "2")
-        }
+    func testDecrement1() {
+        model = .init(count: -1)
+        message = .decrement
+        expect(model.count, -2)
+    }
+
+    func testDecrement2() {
+        model = .init(count: -2)
+        message = .decrement
+        expect(model.count, -3)
+    }
+
+}
+
+class CounterViewTests: XCTestCase, ViewTests {
+
+    var fixture = ViewFixture<CounterModule>()
+    let failureReporter = XCTFail
+
+    func testView1() {
+        model = .init(count: 1)
+        expect(view.count, "1")
+    }
+
+    func testView2() {
+        model = .init(count: 2)
+        expect(view.count, "2")
     }
     
 }
