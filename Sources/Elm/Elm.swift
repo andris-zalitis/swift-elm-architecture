@@ -129,13 +129,12 @@ public final class Program<Module: Elm.Module> {
     //
 
     public func dispatch(_ messages: Message...) {
+        var commands: [Command] = []
         for message in messages {
             do {
-                var commands: [Command] = []
                 try module.update(for: message, model: &model) { command in
                     commands.append(command)
                 }
-                commands.forEach(sendCommand)
             } catch {
                 print("FATAL: \(module).update function did throw!", to: &standardError)
                 dump(error, to: &standardError, name: "Error")
@@ -146,6 +145,7 @@ public final class Program<Module: Elm.Module> {
         }
         view = Program.makeView(module: module, model: model)
         sendView(view)
+        commands.forEach(sendCommand)
     }
 
     private static func makeView(module: Module.Type, model: Model) -> View {
