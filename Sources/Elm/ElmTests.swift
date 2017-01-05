@@ -188,7 +188,7 @@ struct Counter: Module {
 
     enum Failure {}
 
-    static func model(for flags: Flags) -> Model {
+    static func model(loading flags: Flags) -> Model {
         return Model(count: 0)
     }
 

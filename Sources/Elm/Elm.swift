@@ -34,7 +34,7 @@ public protocol Module {
     associatedtype View
     associatedtype Failure
 
-    static func model(for flags: Flags) throws -> Model
+    static func model(loading flags: Flags) throws -> Model
     static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws
     static func view(presenting model: Model) throws -> View
 
@@ -88,7 +88,7 @@ public final class Program<Module: Elm.Module> {
     init(module: Module.Type, flags: Flags) {
         self.module = module
         do {
-            model = try module.model(for: flags)
+            model = try module.model(loading: flags)
         } catch {
             print("FATAL: \(module).update function did throw!", to: &standardError)
             dump(error, to: &standardError, name: "Error")
@@ -191,9 +191,9 @@ public protocol Tests: class {
 
 public extension Tests {
 
-    func expectFailure(for flags: Flags, file: StaticString = #file, line: Int = #line) -> Failure? {
+    func expectFailure(loading flags: Flags, file: StaticString = #file, line: Int = #line) -> Failure? {
         do {
-            _ = try Module.model(for: flags)
+            _ = try Module.model(loading: flags)
             reportUnexpectedSuccess()
             return nil
         } catch {
@@ -248,9 +248,9 @@ public extension Tests {
         }
     }
 
-    func expectModel(for flags: Flags, file: StaticString = #file, line: Int = #line) -> Model? {
+    func expectModel(loading flags: Flags, file: StaticString = #file, line: Int = #line) -> Model? {
         do {
-            return try Module.model(for: flags)
+            return try Module.model(loading: flags)
         } catch {
             reportUnexpectedFailure(error, file: file, line: line)
             return nil
