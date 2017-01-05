@@ -36,7 +36,7 @@ public protocol Module {
 
     static func model(for flags: Flags) throws -> Model
     static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws
-    static func view(for model: Model) throws -> View
+    static func view(presenting model: Model) throws -> View
 
 }
 
@@ -150,7 +150,7 @@ public final class Program<Module: Elm.Module> {
 
     private static func makeView(module: Module.Type, model: Model) -> View {
         do {
-            return try module.view(for: model)
+            return try module.view(presenting: model)
         } catch {
             print("FATAL: \(module).view function did throw!", to: &standardError)
             dump(error, to: &standardError, name: "Error")
@@ -205,9 +205,9 @@ public extension Tests {
         }
     }
 
-    func expectFailure(for model: Model, file: StaticString = #file, line: Int = #line) -> Failure? {
+    func expectFailure(presenting model: Model, file: StaticString = #file, line: Int = #line) -> Failure? {
         do {
-            _ = try Module.view(for: model)
+            _ = try Module.view(presenting: model)
             reportUnexpectedSuccess()
             return nil
         } catch {
@@ -257,9 +257,9 @@ public extension Tests {
         }
     }
 
-    func expectView(for model: Model, file: StaticString = #file, line: Int = #line) -> View? {
+    func expectView(presenting model: Model, file: StaticString = #file, line: Int = #line) -> View? {
         do {
-            return try Module.view(for: model)
+            return try Module.view(presenting: model)
         } catch {
             reportUnexpectedFailure(error, file: file, line: line)
             return nil
