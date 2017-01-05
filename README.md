@@ -26,7 +26,7 @@ Let's build a counter:
 ```swift
 import Elm
 
-struct CounterModule: Elm.Module {
+struct Counter: Elm.Module {
 
     struct Flags {}
 
@@ -46,22 +46,22 @@ struct CounterModule: Elm.Module {
     enum Command {}
     enum Failure {}
 
-    static func start(with flags: Flags) throws -> Model {
+    static func model(loading flags: Flags) -> Model {
         return Model(count: 0)
     }
 
-    static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws {
+    static func update(for message: Message, model: inout Model, perform: (Command) -> Void) {
         switch message {
         case .increment: model.count += 1
         case .decrement: model.count -= 1
         }
     }
 
-    static func view(for model: Model) throws -> View {
+    static func view(presenting model: Model) -> View {
         let count = String(model.count)
         return View(count: count)
     }
-
+    
 }
 ```
 
@@ -73,12 +73,12 @@ struct CounterModule: Elm.Module {
 import UIKit
 import Elm
 
-class CounterViewController: UIViewController {
+class CounterViewController: UIViewController, Elm.Delegate {
 
-    let program = CounterModule.makeProgram(flags: .init())
+    typealias Module = Counter
+    let program = Counter.makeProgram(flags: .init())
 
     @IBOutlet var countLabel: UILabel?
-
     @IBOutlet var incrementButton: UIBarButtonItem?
     @IBOutlet var decrementButton: UIBarButtonItem?
 
@@ -94,14 +94,6 @@ class CounterViewController: UIViewController {
     @IBAction func userDidTapDecrementButton() {
         program.dispatch(.decrement)
     }
-
-}
-```
-
-```swift
-extension CounterViewController: Elm.Delegate {
-
-    typealias Module = CounterModule
 
     func program(_ program: Program<Module>, didUpdate view: Module.View) {
         countLabel?.text = view.count
@@ -122,62 +114,44 @@ import Elm
 
 @testable import Counter
 
-class CounterStartTests: XCTestCase, StartTests {
+class CounterTests: XCTestCase, Elm.Tests {
 
-    var fixture = StartFixture<CounterModule>()
+    typealias Module = Counter
     let failureReporter = XCTFail
 
     func test() {
-        flags = .init()
-        expect(model.count, 0)
+        let model = expectModel(loading: .init())
+        expect(model?.count, 0)
     }
 
-}
-
-class CounterUpdateTests: XCTestCase, UpdateTests {
-
-    var fixture = UpdateFixture<CounterModule>()
-    let failureReporter = XCTFail
-
     func testIncrement1() {
-        model = .init(count: 1)
-        message = .increment
-        expect(model.count, 2)
+        let update = expectUpdate(for: .increment, model: .init(count: 1))
+        expect(update?.model.count, 2)
     }
 
     func testIncrement2() {
-        model = .init(count: 2)
-        message = .increment
-        expect(model.count, 3)
+        let update = expectUpdate(for: .increment, model: .init(count: 2))
+        expect(update?.model.count, 3)
     }
 
     func testDecrement1() {
-        model = .init(count: -1)
-        message = .decrement
-        expect(model.count, -2)
+        let update = expectUpdate(for: .decrement, model: .init(count: -1))
+        expect(update?.model.count, -2)
     }
 
     func testDecrement2() {
-        model = .init(count: -2)
-        message = .decrement
-        expect(model.count, -3)
+        let update = expectUpdate(for: .decrement, model: .init(count: -2))
+        expect(update?.model.count, -3)
     }
 
-}
-
-class CounterViewTests: XCTestCase, ViewTests {
-
-    var fixture = ViewFixture<CounterModule>()
-    let failureReporter = XCTFail
-
     func testView1() {
-        model = .init(count: 1)
-        expect(view.count, "1")
+        let view = expectView(presenting: .init(count: 1))
+        expect(view?.count, "1")
     }
 
     func testView2() {
-        model = .init(count: 2)
-        expect(view.count, "2")
+        let view = expectView(presenting: .init(count: 2))
+        expect(view?.count, "2")
     }
     
 }
