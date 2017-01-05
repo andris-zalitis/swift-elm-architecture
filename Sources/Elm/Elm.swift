@@ -315,6 +315,17 @@ public struct Update<Module: Elm.Module> {
 
 }
 
+public extension Update {
+
+    var command: Command? {
+        guard let command = commands.first, commands.count == 1 else {
+            return nil
+        }
+        return command
+    }
+
+}
+
 //
 // MARK: -
 // MARK: Utilities
