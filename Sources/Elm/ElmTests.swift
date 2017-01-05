@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2016 Rudolf Adamkovič
+// Copyright (c) 2017 Rudolf Adamkovič
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -188,7 +188,7 @@ struct Counter: Module {
 
     enum Failure {}
 
-    static func start(with flags: Flags) -> Model {
+    static func model(loading flags: Flags) -> Model {
         return Model(count: 0)
     }
 
@@ -203,7 +203,7 @@ struct Counter: Module {
         }
     }
 
-    static func view(for model: Model) -> View {
+    static func view(presenting model: Model) -> View {
         let counterText = String(model.count)
         return View(counterText: counterText)
     }

@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2016 Rudolf Adamkovič
+// Copyright (c) 2017 Rudolf Adamkovič
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,9 +34,9 @@ public protocol Module {
     associatedtype View
     associatedtype Failure
 
-    static func start(with flags: Flags) throws -> Model
+    static func model(loading flags: Flags) throws -> Model
     static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws
-    static func view(for model: Model) throws -> View
+    static func view(presenting model: Model) throws -> View
 
 }
 
@@ -88,7 +88,7 @@ public final class Program<Module: Elm.Module> {
     init(module: Module.Type, flags: Flags) {
         self.module = module
         do {
-            model = try module.start(with: flags)
+            model = try module.model(loading: flags)
         } catch {
             print("FATAL: \(module).update function did throw!", to: &standardError)
             dump(error, to: &standardError, name: "Error")
@@ -150,7 +150,7 @@ public final class Program<Module: Elm.Module> {
 
     private static func makeView(module: Module.Type, model: Model) -> View {
         do {
-            return try module.view(for: model)
+            return try module.view(presenting: model)
         } catch {
             print("FATAL: \(module).view function did throw!", to: &standardError)
             dump(error, to: &standardError, name: "Error")
@@ -163,393 +163,19 @@ public final class Program<Module: Elm.Module> {
 
 //
 // MARK: -
-// MARK: Start tests
+// MARK: Tests
 //
 
-public protocol StartTests: class, Tests {
+public protocol Tests: class {
 
     associatedtype Module: Elm.Module
 
-    var fixture: StartFixture<Module> { get set }
-
-}
-
-public extension StartTests {
-
     typealias Flags = Module.Flags
-
-    var flags: Flags {
-        get {
-            guard let flags = fixture.flags else {
-                preconditionFailure("Flags not set")
-            }
-            return flags
-        }
-        set {
-            fixture.flags = newValue
-        }
-    }
-
-}
-
-public extension StartTests {
-
-    typealias Model = Module.Model
-
-    var model: Model {
-        switch fixture.results {
-        case .success(let model):
-            return model
-        case .failure(let failure):
-            let failure = String(describing: failure)
-            fatalError("Unexpected failure: " + failure)
-        case .trap(let trap):
-            fatalError(trap)
-        }
-    }
-
-}
-
-public extension StartTests {
-
-    typealias Failure = Module.Failure
-
-    var failure: Failure? {
-        switch fixture.results {
-        case .success:
-            return nil
-        case .failure(let failure):
-            return failure
-        case .trap(let trap):
-            fatalError(trap)
-        }
-    }
-
-}
-
-public extension StartTests {
-
-    var trap: String? {
-        if case .trap(let trap) = fixture.results {
-            return trap
-        }
-        return nil
-    }
-
-}
-
-public struct StartFixture<Module: Elm.Module> {
-
-    typealias Flags = Module.Flags
-    typealias Failure = Module.Failure
-
-    public init() {}
-
-    var flags: Flags?
-
-    var results: StartResults<Module> {
-        guard let flags = flags else {
-            return .trap("Flags not set")
-        }
-        do {
-            let model = try Module.start(with: flags)
-            return .success(model)
-        } catch {
-            guard let failure = error as? Failure else {
-                return .trap("Foreign failure")
-            }
-            return .failure(failure)
-        }
-    }
-    
-}
-
-enum StartResults<Module: Elm.Module> {
-
-    typealias Model = Module.Model
-    typealias Failure = Module.Failure
-
-    case success(Model)
-    case failure(Failure)
-    case trap(String)
-
-}
-
-//
-// MARK: -
-// MARK: Update tests
-//
-
-public protocol UpdateTests: class, Tests {
-
-    associatedtype Module: Elm.Module
-
-    var fixture: UpdateFixture<Module> { get set }
-
-}
-
-public extension UpdateTests {
-
-    typealias Model = Module.Model
-
-    var model: Model {
-        get {
-            switch fixture.results {
-            case .success(let model, _):
-                return model
-            case .failure(let failure):
-                let failure = String(describing: failure)
-                fatalError("Unexpected failure: " + failure)
-            case .trap(let trap):
-                fatalError(trap)
-            }
-        }
-        set {
-            fixture.model = newValue
-        }
-    }
-
-}
-
-public extension UpdateTests {
-
-    typealias Message = Module.Message
-
-    var message: Message {
-        get {
-            guard let message = fixture.message else {
-                fatalError("Message not set")
-            }
-            return message
-        }
-        set {
-            fixture.message = newValue
-        }
-    }
-
-}
-
-public extension UpdateTests {
-
-    typealias Command = Module.Command
-
-    var commands: [Command] {
-        switch fixture.results {
-        case .success(_, let commands):
-            return commands
-        case .failure(let failure):
-            let failure = String(describing: failure)
-            fatalError("Unexpected failure: " + failure)
-        case .trap(let trap):
-            fatalError(trap)
-        }
-    }
-
-    var command: Command? {
-        guard let command = commands.first, commands.count == 1 else {
-            return nil
-        }
-        return command
-    }
-
-}
-
-public extension UpdateTests {
-
-    typealias Failure = Module.Failure
-
-    var failure: Failure? {
-        switch fixture.results {
-        case .success:
-            return nil
-        case .failure(let failure):
-            return failure
-        case .trap(let trap):
-            fatalError(trap)
-        }
-    }
-
-}
-
-public extension UpdateTests {
-
-    var trap: String? {
-        if case .trap(let trap) = fixture.results {
-            return trap
-        }
-        return nil
-    }
-
-}
-
-public struct UpdateFixture<Module: Elm.Module> {
-
     typealias Model = Module.Model
     typealias Message = Module.Message
     typealias Command = Module.Command
-    typealias Failure = Module.Failure
-
-    public init() {}
-
-    var model: Model?
-    var message: Message?
-
-    var results: UpdateResults<Module> {
-        guard let model = model else {
-            return .trap("Model not set")
-        }
-        guard let message = message else {
-            return .trap("Message not set")
-        }
-        do {
-            var model = model
-            var commands: [Command] = []
-            try Module.update(for: message, model: &model) { command in
-                commands.append(command)
-            }
-            return .success(model, commands)
-        } catch {
-            guard let failure = error as? Failure else {
-                return .trap("Foreign failure")
-            }
-            return .failure(failure)
-        }
-    }
-    
-}
-
-enum UpdateResults<Module: Elm.Module> {
-
-    typealias Model = Module.Model
-    typealias Command = Module.Command
-    typealias Failure = Module.Failure
-
-    case success(Model, [Command])
-    case failure(Failure)
-    case trap(String)
-
-}
-
-//
-// MARK: -
-// MARK: View tests
-//
-
-public protocol ViewTests: class, Tests {
-
-    associatedtype Module: Elm.Module
-
-    var fixture: ViewFixture<Module> { get set }
-    
-}
-
-public extension ViewTests {
-
-    typealias Model = Module.Model
-
-    var model: Model {
-        get {
-            guard let model = fixture.model else {
-                fatalError("Model not set")
-            }
-            return model
-        }
-        set {
-            fixture.model = newValue
-        }
-    }
-
-}
-
-public extension ViewTests {
-
-    typealias View = Module.View
-
-    var view: View {
-        switch fixture.results {
-        case .success(let view):
-            return view
-        case .failure(let failure):
-            let failure = String(describing: failure)
-            fatalError("Unexpected failure: " + failure)
-        case .trap(let trap):
-            fatalError(trap)
-        }
-    }
-
-}
-
-public extension ViewTests {
-
-    typealias Failure = Module.Failure
-
-    var failure: Failure? {
-        switch fixture.results {
-        case .success:
-            return nil
-        case .failure(let failure):
-            return failure
-        case .trap(let trap):
-            fatalError(trap)
-        }
-    }
-
-}
-
-public extension ViewTests {
-
-    var trap: String? {
-        if case .trap(let trap) = fixture.results {
-            return trap
-        }
-        return nil
-    }
-
-}
-
-public struct ViewFixture<Module: Elm.Module> {
-
-    typealias Model = Module.Model
-    typealias Failure = Module.Failure
-
-    public init() {}
-
-    var model: Model?
-
-    var results: ViewResults<Module> {
-        guard let model = model else {
-            return .trap("Model not set")
-        }
-        do {
-            let view = try Module.view(for: model)
-            return .success(view)
-        } catch {
-            guard let failure = error as? Failure else {
-                return .trap("Foreign failure")
-            }
-            return .failure(failure)
-        }
-    }
-    
-}
-
-enum ViewResults<Module: Elm.Module> {
-
     typealias View = Module.View
     typealias Failure = Module.Failure
-
-    case success(View)
-    case failure(Failure)
-    case trap(String)
-
-}
-
-//
-// MARK: -
-// MARK: Test base
-//
-
-public protocol Tests {
 
     // XCTFail
     typealias FailureReporter = (
@@ -560,28 +186,142 @@ public protocol Tests {
 
 
     var failureReporter: FailureReporter { get }
-    var trap: String? { get }
 
 }
 
 public extension Tests {
 
+    func expectFailure(loading flags: Flags, file: StaticString = #file, line: Int = #line) -> Failure? {
+        do {
+            _ = try Module.model(loading: flags)
+            reportUnexpectedSuccess()
+            return nil
+        } catch {
+            guard let failure = error as? Failure else {
+                reportUnknownFailure(error, file: file, line: line)
+                return nil
+            }
+            return failure
+        }
+    }
+
+    func expectFailure(presenting model: Model, file: StaticString = #file, line: Int = #line) -> Failure? {
+        do {
+            _ = try Module.view(presenting: model)
+            reportUnexpectedSuccess()
+            return nil
+        } catch {
+            guard let failure = error as? Failure else {
+                reportUnknownFailure(error, file: file, line: line)
+                return nil
+            }
+            return failure
+        }
+    }
+
+    func expectFailure(for message: Message, model: Model, file: StaticString = #file, line: Int = #line) -> Failure? {
+        do {
+            var model = model
+            try Module.update(for: message, model: &model) { _ in }
+            reportUnexpectedSuccess()
+            return nil
+        } catch {
+            guard let failure = error as? Failure else {
+                reportUnknownFailure(error, file: file, line: line)
+                return nil
+            }
+            return failure
+        }
+    }
+
+    func expectUpdate(for message: Message, model: Model, file: StaticString = #file, line: Int = #line) -> Update<Module>? {
+        do {
+            var model = model
+            var commands: [Command] = []
+            try Module.update(for: message, model: &model) { command in
+                commands.append(command)
+            }
+            return Update(model: model, commands: commands)
+        } catch {
+            reportUnexpectedFailure(error, file: file, line: line)
+            return nil
+        }
+    }
+
+    func expectModel(loading flags: Flags, file: StaticString = #file, line: Int = #line) -> Model? {
+        do {
+            return try Module.model(loading: flags)
+        } catch {
+            reportUnexpectedFailure(error, file: file, line: line)
+            return nil
+        }
+    }
+
+    func expectView(presenting model: Model, file: StaticString = #file, line: Int = #line) -> View? {
+        do {
+            return try Module.view(presenting: model)
+        } catch {
+            reportUnexpectedFailure(error, file: file, line: line)
+            return nil
+        }
+    }
+
+    private func reportUnexpectedSuccess(file: StaticString = #file, line: Int = #line) {
+        fail("Unexpected success", file: file, line: line)
+    }
+
+    private func reportUnknownFailure<Failure>(_ failure: Failure, file: StaticString = #file, line: Int = #line) {
+        fail("Unknown failure", subject: failure)
+    }
+
+    private func reportUnexpectedFailure<Failure>(_ failure: Failure, file: StaticString = #file, line: Int = #line) {
+        fail("Unexpected failure", subject: failure)
+    }
+
+    private func fail(_ message: String, subject: Any, file: StaticString = #file, line: Int = #line) {
+        fail(message + ":" + " " + String(describing: subject), file: file, line: line)
+    }
+
+    private func fail(_ message: String, file: StaticString = #file, line: Int = #line) {
+        failureReporter(message, file, UInt(line))
+    }
+
+}
+
+public extension Tests {
 
     func expect(_ value: @autoclosure () -> Bool, file: StaticString = #file, line: Int = #line) {
         expect(value, true, file: file, line: line)
     }
 
     func expect<T>(_ value: @autoclosure () -> T, _ expectedValue: @autoclosure () -> T, file: StaticString = #file, line: Int = #line) {
-        if let trap = trap {
-            failureReporter(trap, file, UInt(line))
-            return
-        }
         let value = String(describing: value())
         let expectedValue = String(describing: expectedValue())
         if value != expectedValue {
             let message = value + " is not equal to " + expectedValue
             failureReporter(message, file, UInt(line))
         }
+    }
+
+}
+
+public struct Update<Module: Elm.Module> {
+
+    typealias Model = Module.Model
+    typealias Command = Module.Command
+
+    public let model: Model
+    public let commands: [Command]
+
+}
+
+public extension Update {
+
+    var command: Command? {
+        guard let command = commands.first, commands.count == 1 else {
+            return nil
+        }
+        return command
     }
 
 }
