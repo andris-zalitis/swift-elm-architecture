@@ -290,10 +290,6 @@ public extension Tests {
 
 public extension Tests {
 
-    func expect(_ value: @autoclosure () -> Bool, file: StaticString = #file, line: Int = #line) {
-        expect(value, true, file: file, line: line)
-    }
-
     func expect<T>(_ value: @autoclosure () -> T, _ expectedValue: @autoclosure () -> T, file: StaticString = #file, line: Int = #line) {
         let value = String(describing: value())
         let expectedValue = String(describing: expectedValue())
