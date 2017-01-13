@@ -347,5 +347,3 @@ private struct StandardError: TextOutputStream {
 }
 
 private var standardError = StandardError()
-
-let lineBreak = "\n"
