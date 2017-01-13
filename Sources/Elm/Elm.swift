@@ -57,8 +57,11 @@ public protocol Delegate: class {
 
     associatedtype Module: Elm.Module
 
-    func program(_ program: Program<Module>, didUpdate view: Module.View)
-    func program(_ program: Program<Module>, didEmit command: Module.Command)
+    typealias Command = Module.Command
+    typealias View = Module.View
+
+    func program(_ program: Program<Module>, didEmit command: Command)
+    func program(_ program: Program<Module>, didUpdate view: View)
 
 }
 
@@ -241,7 +244,7 @@ public extension Tests {
             try Module.update(for: message, model: &model) { command in
                 commands.append(command)
             }
-            return Update(model: model, commands: commands)
+            return Update(model: model, commands: Lens(content: commands))
         } catch {
             reportUnexpectedFailure(error, file: file, line: line)
             return nil
@@ -290,9 +293,9 @@ public extension Tests {
 
 public extension Tests {
 
-    func expect<T>(_ value: @autoclosure () -> T, _ expectedValue: @autoclosure () -> T, file: StaticString = #file, line: Int = #line) {
-        let value = String(describing: value())
-        let expectedValue = String(describing: expectedValue())
+    func expect<T>(_ value: T, _ expectedValue: T, file: StaticString = #file, line: Int = #line) {
+        let value = String(describing: value)
+        let expectedValue = String(describing: expectedValue)
         if value != expectedValue {
             let message = value + " is not equal to " + expectedValue
             failureReporter(message, file, UInt(line))
@@ -307,17 +310,30 @@ public struct Update<Module: Elm.Module> {
     typealias Command = Module.Command
 
     public let model: Model
-    public let commands: [Command]
+    public let commands: Lens<Command>
 
 }
 
 public extension Update {
 
     var command: Command? {
-        guard let command = commands.first, commands.count == 1 else {
+        guard commands.content.count == 1 else {
             return nil
         }
-        return command
+        return commands[0]
+    }
+
+}
+
+public struct Lens<T> {
+
+    let content: [T]
+
+    public subscript (_ index: Int) -> T? {
+        guard content.indices.contains(index) else {
+            return nil
+        }
+        return content[index]
     }
 
 }
@@ -334,5 +350,3 @@ private struct StandardError: TextOutputStream {
 }
 
 private var standardError = StandardError()
-
-let lineBreak = "\n"
