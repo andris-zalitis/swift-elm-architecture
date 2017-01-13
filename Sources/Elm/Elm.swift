@@ -290,9 +290,9 @@ public extension Tests {
 
 public extension Tests {
 
-    func expect<T>(_ value: @autoclosure () -> T, _ expectedValue: @autoclosure () -> T, file: StaticString = #file, line: Int = #line) {
-        let value = String(describing: value())
-        let expectedValue = String(describing: expectedValue())
+    func expect<T>(_ value: T, _ expectedValue: T, file: StaticString = #file, line: Int = #line) {
+        let value = String(describing: value)
+        let expectedValue = String(describing: expectedValue)
         if value != expectedValue {
             let message = value + " is not equal to " + expectedValue
             failureReporter(message, file, UInt(line))
