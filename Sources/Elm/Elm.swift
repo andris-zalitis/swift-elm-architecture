@@ -57,8 +57,11 @@ public protocol Delegate: class {
 
     associatedtype Module: Elm.Module
 
-    func program(_ program: Program<Module>, didUpdate view: Module.View)
-    func program(_ program: Program<Module>, didEmit command: Module.Command)
+    typealias Command = Module.Command
+    typealias View = Module.View
+
+    func program(_ program: Program<Module>, didEmit command: Command)
+    func program(_ program: Program<Module>, didUpdate view: View)
 
 }
 
