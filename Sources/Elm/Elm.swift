@@ -241,7 +241,7 @@ public extension Tests {
             try Module.update(for: message, model: &model) { command in
                 commands.append(command)
             }
-            return Update(model: model, commands: commands)
+            return Update(model: model, commands: Lens(content: commands))
         } catch {
             reportUnexpectedFailure(error, file: file, line: line)
             return nil
@@ -307,17 +307,30 @@ public struct Update<Module: Elm.Module> {
     typealias Command = Module.Command
 
     public let model: Model
-    public let commands: [Command]
+    public let commands: Lens<Command>
 
 }
 
 public extension Update {
 
     var command: Command? {
-        guard let command = commands.first, commands.count == 1 else {
+        guard commands.content.count == 1 else {
             return nil
         }
-        return command
+        return commands[0]
+    }
+
+}
+
+public struct Lens<T> {
+
+    let content: [T]
+
+    public subscript (_ index: Int) -> T? {
+        guard content.indices.contains(index) else {
+            return nil
+        }
+        return content[index]
     }
 
 }
