@@ -46,20 +46,20 @@ struct Counter: Elm.Module {
     enum Command {}
     enum Failure {}
 
-    static func model(loading flags: Flags) -> Model {
-        return Model(count: 0)
+    static func start(with flags: Flags, perform: (Command) -> Void) throws -> Model {
+        return .init(count: 0)
     }
 
-    static func update(for message: Message, model: inout Model, perform: (Command) -> Void) {
+    static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws {
         switch message {
         case .increment: model.count += 1
         case .decrement: model.count -= 1
         }
     }
 
-    static func view(presenting model: Model) -> View {
+    static func view(for model: Model) throws -> View {
         let count = String(model.count)
-        return View(count: count)
+        return .init(count: count)
     }
     
 }
@@ -76,15 +76,15 @@ import Elm
 class CounterViewController: UIViewController, Elm.Delegate {
 
     typealias Module = Counter
-    let program = Counter.makeProgram(flags: .init())
+    var program: Program<Module>!
 
-    @IBOutlet var countLabel: UILabel?
-    @IBOutlet var incrementButton: UIBarButtonItem?
-    @IBOutlet var decrementButton: UIBarButtonItem?
+    @IBOutlet var countLabel: UILabel!
+    @IBOutlet var incrementButton: UIBarButtonItem!
+    @IBOutlet var decrementButton: UIBarButtonItem!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        program.setDelegate(self)
+        program = Counter.makeProgram(delegate: self, flags: .init())
     }
 
     @IBAction func userDidTapIncrementButton() {
@@ -102,7 +102,7 @@ class CounterViewController: UIViewController, Elm.Delegate {
     func program(_ program: Program<Module>, didEmit command: Module.Command) {
         fatalError()
     }
-
+    
 }
 ```
 
@@ -120,8 +120,8 @@ class CounterTests: XCTestCase, Elm.Tests {
     let failureReporter = XCTFail
 
     func test() {
-        let model = expectModel(loading: .init())
-        expect(model?.count, 0)
+        let start = expectStart(with: .init())
+        expect(start?.model.count, 0)
     }
 
     func testIncrement1() {
@@ -145,12 +145,12 @@ class CounterTests: XCTestCase, Elm.Tests {
     }
 
     func testView1() {
-        let view = expectView(presenting: .init(count: 1))
+        let view = expectView(for: .init(count: 1))
         expect(view?.count, "1")
     }
 
     func testView2() {
-        let view = expectView(presenting: .init(count: 2))
+        let view = expectView(for: .init(count: 2))
         expect(view?.count, "2")
     }
     

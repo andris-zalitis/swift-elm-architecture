@@ -34,16 +34,16 @@ public protocol Module {
     associatedtype View
     associatedtype Failure
 
-    static func model(loading flags: Flags) throws -> Model
+    static func start(with flags: Flags, perform: (Command) -> Void) throws -> Model
     static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws
-    static func view(presenting model: Model) throws -> View
+    static func view(for model: Model) throws -> View
 
 }
 
 public extension Module {
 
-    static func makeProgram(flags: Flags) -> Program<Self> {
-        return Program<Self>(module: self, flags: flags)
+    static func makeProgram<Delegate: Elm.Delegate>(delegate: Delegate, flags: Flags) -> Program<Self> where Delegate.Module == Self {
+        return Program<Self>(module: self, delegate: delegate, flags: flags)
     }
 
 }
@@ -77,8 +77,6 @@ public final class Program<Module: Elm.Module> {
     // MARK: Initialization
     //
 
-    private let module: Module.Type
-
     typealias Flags = Module.Flags
     typealias Message = Module.Message
     typealias Model = Module.Model
@@ -86,26 +84,26 @@ public final class Program<Module: Elm.Module> {
     typealias View = Module.View
 
     private var model: Model
-    public private(set) lazy var view: View = Program.makeView(module: self.module, model: self.model)
+    public private(set) lazy var view: View = Program.makeView(module: Module.self, model: self.model)
 
-    init(module: Module.Type, flags: Flags) {
-        self.module = module
+    private typealias ViewSink = (View) -> Void
+    private typealias CommandSink = (Command) -> Void
+
+    private var sendView: ViewSink = { _ in }
+    private var sendCommand: CommandSink = { _ in }
+
+    init<Delegate: Elm.Delegate>(module: Module.Type, delegate: Delegate, flags: Flags) where Delegate.Module == Module {
+        var commands: [Command] = []
         do {
-            model = try module.model(loading: flags)
+            model = try module.start(with: flags) { command in
+                commands.append(command)
+            }
         } catch {
-            print("FATAL: \(module).update function did throw!", to: &standardError)
+            print("FATAL: \(module).start function did throw!", to: &standardError)
             dump(error, to: &standardError, name: "Error")
             dump(flags, to: &standardError, name: "Flags")
             fatalError()
         }
-    }
-
-    //
-    // MARK: -
-    // MARK: Delegate
-    //
-
-    public func setDelegate<Delegate: Elm.Delegate>(_ delegate: Delegate) where Delegate.Module == Module {
         sendView = { [weak delegate] view in
             delegate?.program(self, didUpdate: view)
         }
@@ -113,18 +111,8 @@ public final class Program<Module: Elm.Module> {
             delegate?.program(self, didEmit: command)
         }
         delegate.program(self, didUpdate: view)
+        commands.forEach(sendCommand)
     }
-
-    public func unsetDelegate() {
-        sendView = { _ in }
-        sendCommand = { _ in }
-    }
-
-    private typealias ViewSink = (View) -> Void
-    private typealias CommandSink = (Command) -> Void
-
-    private var sendView: ViewSink = { _ in }
-    private var sendCommand: CommandSink = { _ in }
 
     //
     // MARK: -
@@ -135,25 +123,25 @@ public final class Program<Module: Elm.Module> {
         var commands: [Command] = []
         for message in messages {
             do {
-                try module.update(for: message, model: &model) { command in
+                try Module.update(for: message, model: &model) { command in
                     commands.append(command)
                 }
             } catch {
-                print("FATAL: \(module).update function did throw!", to: &standardError)
+                print("FATAL: \(Module.self).update function did throw!", to: &standardError)
                 dump(error, to: &standardError, name: "Error")
                 dump(message, to: &standardError, name: "Message")
                 dump(model, to: &standardError, name: "Model")
                 fatalError()
             }
         }
-        view = Program.makeView(module: module, model: model)
+        view = Program.makeView(module: Module.self, model: model)
         sendView(view)
         commands.forEach(sendCommand)
     }
 
     private static func makeView(module: Module.Type, model: Model) -> View {
         do {
-            return try module.view(presenting: model)
+            return try module.view(for: model)
         } catch {
             print("FATAL: \(module).view function did throw!", to: &standardError)
             dump(error, to: &standardError, name: "Error")
@@ -194,9 +182,9 @@ public protocol Tests: class {
 
 public extension Tests {
 
-    func expectFailure(loading flags: Flags, file: StaticString = #file, line: Int = #line) -> Failure? {
+    func expectFailure(with flags: Flags, file: StaticString = #file, line: Int = #line) -> Failure? {
         do {
-            _ = try Module.model(loading: flags)
+            _ = try Module.start(with: flags) { _ in }
             reportUnexpectedSuccess()
             return nil
         } catch {
@@ -208,9 +196,9 @@ public extension Tests {
         }
     }
 
-    func expectFailure(presenting model: Model, file: StaticString = #file, line: Int = #line) -> Failure? {
+    func expectFailure(for model: Model, file: StaticString = #file, line: Int = #line) -> Failure? {
         do {
-            _ = try Module.view(presenting: model)
+            _ = try Module.view(for: model)
             reportUnexpectedSuccess()
             return nil
         } catch {
@@ -251,18 +239,22 @@ public extension Tests {
         }
     }
 
-    func expectModel(loading flags: Flags, file: StaticString = #file, line: Int = #line) -> Model? {
+    func expectStart(with flags: Flags, file: StaticString = #file, line: Int = #line) -> Start<Module>? {
         do {
-            return try Module.model(loading: flags)
+            var commands: [Command] = []
+            let model = try Module.start(with: flags) { command in
+                commands.append(command)
+            }
+            return Start(model: model, commands: Lens(content: commands))
         } catch {
             reportUnexpectedFailure(error, file: file, line: line)
             return nil
         }
     }
 
-    func expectView(presenting model: Model, file: StaticString = #file, line: Int = #line) -> View? {
+    func expectView(for model: Model, file: StaticString = #file, line: Int = #line) -> View? {
         do {
-            return try Module.view(presenting: model)
+            return try Module.view(for: model)
         } catch {
             reportUnexpectedFailure(error, file: file, line: line)
             return nil
@@ -304,7 +296,10 @@ public extension Tests {
 
 }
 
-public struct Update<Module: Elm.Module> {
+public typealias Start<Module: Elm.Module> = Result<Module>
+public typealias Update<Module: Elm.Module> = Result<Module>
+
+public struct Result<Module: Elm.Module> {
 
     typealias Model = Module.Model
     typealias Command = Module.Command
@@ -314,7 +309,7 @@ public struct Update<Module: Elm.Module> {
 
 }
 
-public extension Update {
+public extension Result {
 
     var command: Command? {
         guard commands.content.count == 1 else {
