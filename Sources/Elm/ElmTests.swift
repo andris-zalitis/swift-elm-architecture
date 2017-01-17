@@ -168,7 +168,7 @@ struct Counter: Module {
 
     enum Failure {}
 
-    static func start(loading flags: Flags, perform: (Command) -> Void) throws -> Model {
+    static func start(with flags: Flags, perform: (Command) -> Void) throws -> Model {
         perform(.log("Did start"))
         return Model(count: flags.count)
     }
@@ -184,7 +184,7 @@ struct Counter: Module {
         }
     }
 
-    static func view(presenting model: Model) -> View {
+    static func view(for model: Model) -> View {
         let counterText = String(model.count)
         return View(counterText: counterText)
     }

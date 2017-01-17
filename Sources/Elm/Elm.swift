@@ -34,9 +34,9 @@ public protocol Module {
     associatedtype View
     associatedtype Failure
 
-    static func start(loading flags: Flags, perform: (Command) -> Void) throws -> Model
+    static func start(with flags: Flags, perform: (Command) -> Void) throws -> Model
     static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws
-    static func view(presenting model: Model) throws -> View
+    static func view(for model: Model) throws -> View
 
 }
 
@@ -95,7 +95,7 @@ public final class Program<Module: Elm.Module> {
     init<Delegate: Elm.Delegate>(module: Module.Type, delegate: Delegate, flags: Flags) where Delegate.Module == Module {
         var commands: [Command] = []
         do {
-            model = try module.start(loading: flags) { command in
+            model = try module.start(with: flags) { command in
                 commands.append(command)
             }
         } catch {
@@ -141,7 +141,7 @@ public final class Program<Module: Elm.Module> {
 
     private static func makeView(module: Module.Type, model: Model) -> View {
         do {
-            return try module.view(presenting: model)
+            return try module.view(for: model)
         } catch {
             print("FATAL: \(module).view function did throw!", to: &standardError)
             dump(error, to: &standardError, name: "Error")
@@ -182,9 +182,9 @@ public protocol Tests: class {
 
 public extension Tests {
 
-    func expectFailure(loading flags: Flags, file: StaticString = #file, line: Int = #line) -> Failure? {
+    func expectFailure(with flags: Flags, file: StaticString = #file, line: Int = #line) -> Failure? {
         do {
-            _ = try Module.start(loading: flags) { _ in }
+            _ = try Module.start(with: flags) { _ in }
             reportUnexpectedSuccess()
             return nil
         } catch {
@@ -196,9 +196,9 @@ public extension Tests {
         }
     }
 
-    func expectFailure(presenting model: Model, file: StaticString = #file, line: Int = #line) -> Failure? {
+    func expectFailure(for model: Model, file: StaticString = #file, line: Int = #line) -> Failure? {
         do {
-            _ = try Module.view(presenting: model)
+            _ = try Module.view(for: model)
             reportUnexpectedSuccess()
             return nil
         } catch {
@@ -239,10 +239,10 @@ public extension Tests {
         }
     }
 
-    func expectStart(loading flags: Flags, file: StaticString = #file, line: Int = #line) -> Start<Module>? {
+    func expectStart(with flags: Flags, file: StaticString = #file, line: Int = #line) -> Start<Module>? {
         do {
             var commands: [Command] = []
-            let model = try Module.start(loading: flags) { command in
+            let model = try Module.start(with: flags) { command in
                 commands.append(command)
             }
             return Start(model: model, commands: Lens(content: commands))
@@ -252,9 +252,9 @@ public extension Tests {
         }
     }
 
-    func expectView(presenting model: Model, file: StaticString = #file, line: Int = #line) -> View? {
+    func expectView(for model: Model, file: StaticString = #file, line: Int = #line) -> View? {
         do {
-            return try Module.view(presenting: model)
+            return try Module.view(for: model)
         } catch {
             reportUnexpectedFailure(error, file: file, line: line)
             return nil
