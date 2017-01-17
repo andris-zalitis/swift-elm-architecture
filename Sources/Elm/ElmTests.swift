@@ -36,37 +36,16 @@ class ElmTests: XCTestCase {
     // MARK: Delegate
     //
 
-    func testReferenceDelegateWeakly() {
+    func testWeakDelegate() {
 
         var recorder: Recorder? = Recorder()
 
-        let program = Counter.makeProgram()
-        program.setDelegate(recorder!)
+        _ = Counter.makeProgram(delegate: recorder!, flags: .init(count: 0))
 
         weak var weakRecorder: Recorder? = recorder
         recorder = nil
 
         XCTAssertNil(weakRecorder)
-
-    }
-
-    func testRemoveDelegate() {
-
-        let recorder = Recorder()
-        let program = Counter.makeProgram()
-
-        program.setDelegate(recorder)
-
-        recorder.commands.removeAll()
-        recorder.views.removeAll()
-
-        program.unsetDelegate()
-
-        program.dispatch(.increment)
-        program.dispatch(.decrement)
-
-        XCTAssertTrue(recorder.commands.isEmpty)
-        XCTAssertTrue(recorder.views.isEmpty)
 
     }
 
@@ -78,20 +57,20 @@ class ElmTests: XCTestCase {
     func testDispatch() {
 
         let recorder = Recorder()
-        let program = Counter.makeProgram()
-        program.setDelegate(recorder)
+        let program = Counter.makeProgram(delegate: recorder, flags: .init(count: 1))
 
         //
         // MARK: -
         // MARK: Initialization
         //
 
-        XCTAssertEqual(program.view, View(counterText: "0"))
+        XCTAssertEqual(program.view, View(counterText: "1"))
 
-        XCTAssertEqual(recorder.commands.count, 0)
+        XCTAssertEqual(recorder.commands.count, 1)
+        XCTAssertEqual(recorder.commands.last, .log("Did start"))
 
         XCTAssertEqual(recorder.views.count, 1)
-        XCTAssertEqual(recorder.views[0], View(counterText: "0"))
+        XCTAssertEqual(recorder.views.last, View(counterText: "1"))
 
         //
         // MARK: -
@@ -100,14 +79,13 @@ class ElmTests: XCTestCase {
 
         program.dispatch(.increment)
 
-        XCTAssertEqual(program.view, View(counterText: "1"))
+        XCTAssertEqual(program.view, View(counterText: "2"))
 
-        XCTAssertEqual(recorder.commands.count, 1)
-        XCTAssertEqual(recorder.commands[0], .log("Did increment"))
+        XCTAssertEqual(recorder.commands.count, 2)
+        XCTAssertEqual(recorder.commands.last, .log("Did increment"))
 
         XCTAssertEqual(recorder.views.count, 2)
-        XCTAssertEqual(recorder.views[0], View(counterText: "0"))
-        XCTAssertEqual(recorder.views[1], View(counterText: "1"))
+        XCTAssertEqual(recorder.views.last, View(counterText: "2"))
 
         //
         // MARK: -
@@ -116,35 +94,35 @@ class ElmTests: XCTestCase {
 
         program.dispatch(.decrement)
 
-        XCTAssertEqual(program.view, View(counterText: "0"))
+        XCTAssertEqual(program.view, View(counterText: "1"))
 
-        XCTAssertEqual(recorder.commands.count, 2)
-        XCTAssertEqual(recorder.commands[0], .log("Did increment"))
-        XCTAssertEqual(recorder.commands[1], .log("Did decrement"))
+        XCTAssertEqual(recorder.commands.count, 3)
+        XCTAssertEqual(recorder.commands.last, .log("Did decrement"))
 
         XCTAssertEqual(recorder.views.count, 3)
-        XCTAssertEqual(recorder.views[0], View(counterText: "0"))
-        XCTAssertEqual(recorder.views[1], View(counterText: "1"))
-        XCTAssertEqual(recorder.views[2], View(counterText: "0"))
+        XCTAssertEqual(recorder.views.last, View(counterText: "1"))
 
     }
 
     func testDispatchMultipleMessages() {
 
         let recorder = Recorder()
-        let program = Counter.makeProgram()
-
-        program.setDelegate(recorder)
+        let program = Counter.makeProgram(delegate: recorder, flags: .init(count: 2))
 
         program.dispatch(.increment, .decrement)
 
-        XCTAssertEqual(recorder.commands.count, 2)
-        XCTAssertEqual(recorder.commands[0], .log("Did increment"))
-        XCTAssertEqual(recorder.commands[1], .log("Did decrement"))
+        XCTAssertEqual(recorder.commands, [
+            .log("Did start"),
+            .log("Did increment"),
+            .log("Did decrement")
+            ]
+        )
 
-        XCTAssertEqual(recorder.views.count, 2)
-        XCTAssertEqual(recorder.views[0], View(counterText: "0"))
-        XCTAssertEqual(recorder.views[1], View(counterText: "0"))
+        XCTAssertEqual(recorder.views, [
+            .init(counterText: "2"),
+            .init(counterText: "2")
+            ]
+        )
 
     }
 
@@ -167,7 +145,9 @@ typealias Command = Counter.Command
 
 struct Counter: Module {
 
-    struct Flags {}
+    struct Flags {
+        let count: Int
+    }
 
     enum Message {
         case increment
@@ -188,8 +168,9 @@ struct Counter: Module {
 
     enum Failure {}
 
-    static func model(loading flags: Flags) -> Model {
-        return Model(count: 0)
+    static func start(loading flags: Flags, perform: (Command) -> Void) throws -> Model {
+        perform(.log("Did start"))
+        return Model(count: flags.count)
     }
 
     static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws {
@@ -208,15 +189,6 @@ struct Counter: Module {
         return View(counterText: counterText)
     }
 
-}
-
-extension Counter {
-
-    static func makeProgram() -> Program<Counter> {
-        let flags = Flags()
-        return makeProgram(flags: flags)
-    }
-    
 }
 
 //
