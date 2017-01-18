@@ -72,11 +72,6 @@ public protocol Delegate: class {
 
 public final class Program<Module: Elm.Module> {
 
-    //
-    // MARK: -
-    // MARK: Initialization
-    //
-
     typealias Flags = Module.Flags
     typealias Message = Module.Message
     typealias Model = Module.Model
@@ -110,14 +105,8 @@ public final class Program<Module: Elm.Module> {
         sendCommand = { [weak delegate] command in
             delegate?.program(self, didEmit: command)
         }
-        delegate.program(self, didUpdate: view)
-        commands.forEach(sendCommand)
+        updateDelegate(with: commands)
     }
-
-    //
-    // MARK: -
-    // MARK: Dispatch
-    //
 
     public func dispatch(_ messages: Message...) {
         var commands: [Command] = []
@@ -135,8 +124,7 @@ public final class Program<Module: Elm.Module> {
             }
         }
         view = Program.makeView(module: Module.self, model: model)
-        sendView(view)
-        commands.forEach(sendCommand)
+        updateDelegate(with: commands)
     }
 
     private static func makeView(module: Module.Type, model: Model) -> View {
@@ -148,6 +136,17 @@ public final class Program<Module: Elm.Module> {
             dump(model, to: &standardError, name: "Model")
             fatalError()
         }
+    }
+
+    private func updateDelegate(with commands: [Command]) {
+        guard Thread.isMainThread else {
+            OperationQueue.main.addOperation { [weak program = self] in
+                program?.updateDelegate(with: commands)
+            }
+            return
+        }
+        sendView(view)
+        commands.forEach(sendCommand)
     }
 
 }
