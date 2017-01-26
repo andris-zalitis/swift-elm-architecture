@@ -2,7 +2,7 @@
 
 This is [The Elm Architecture](https://guide.elm-lang.org/architecture/) for [Swift](https://swift.org).
 
-<a href="http://elm-lang.org"><img src="Images/Logo-Elm.png" width="32" height="32" alt="Swift Logo"/></a>
+<a href="http://elm-lang.org"><img src="Images/Logo-Elm.png" width="32" height="32" alt="Elm Logo"/></a>
 <a href="https://swift.org"><img src="Images/Logo-Swift.png" width="32" height="32" alt="Swift Logo"/></a>
 
 Build status:
