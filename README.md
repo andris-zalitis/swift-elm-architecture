@@ -2,10 +2,12 @@
 
 This is [The Elm Architecture](https://guide.elm-lang.org/architecture/) for [Swift](https://swift.org).
 
+Looking for a way to build iOS apps in [Elm](http://elm-lang.org)? Check out [`swift-elm`](https://github.com/salutis/swift-elm)!
+
+Questions? Comments? Concerns? [Say hello!](https://twitter.com/salutis)
+
 <a href="http://elm-lang.org"><img src="Images/Logo-Elm.png" width="32" height="32" alt="Elm Logo"/></a>
 <a href="https://swift.org"><img src="Images/Logo-Swift.png" width="32" height="32" alt="Swift Logo"/></a>
-
-Looking for a way to build iOS apps in [Elm](http://elm-lang.org)? Check out [`swift-elm`](https://github.com/salutis/swift-elm)!
 
 | `master` | `develop` |
 | :------- | :-------- |
