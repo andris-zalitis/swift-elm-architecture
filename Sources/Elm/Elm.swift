@@ -42,8 +42,8 @@ public protocol Module {
 
 public extension Module {
 
-    static func makeProgram<Delegate: Elm.Delegate>(delegate: Delegate, seed: Seed) -> Program<Self> where Delegate.Module == Self {
-        return Program<Self>(module: self, delegate: delegate, seed: seed)
+    static func makeStore<Delegate: Elm.Delegate>(delegate: Delegate, seed: Seed) -> Store<Self> where Delegate.Module == Self {
+        return Store<Self>(module: self, delegate: delegate, seed: seed)
     }
 
 }
@@ -60,17 +60,17 @@ public protocol Delegate: class {
     typealias Action = Module.Action
     typealias View = Module.View
 
-    func program(_ program: Program<Module>, didRequest action: Action)
-    func program(_ program: Program<Module>, didUpdate view: View)
+    func store(_ store: Store<Module>, didRequest action: Action)
+    func store(_ store: Store<Module>, didUpdate view: View)
 
 }
 
 //
 // MARK: -
-// MARK: Program
+// MARK: Store
 //
 
-public final class Program<Module: Elm.Module> {
+public final class Store<Module: Elm.Module> {
 
     typealias Seed = Module.Seed
     typealias Event = Module.Event
@@ -79,7 +79,7 @@ public final class Program<Module: Elm.Module> {
     typealias View = Module.View
 
     private var state: State
-    public private(set) lazy var view: View = Program.makeView(module: Module.self, state: self.state)
+    public private(set) lazy var view: View = Store.makeView(module: Module.self, state: self.state)
 
     private typealias ViewSink = (View) -> Void
     private typealias ActionSink = (Action) -> Void
@@ -100,10 +100,10 @@ public final class Program<Module: Elm.Module> {
             fatalError()
         }
         sendView = { [weak delegate] view in
-            delegate?.program(self, didUpdate: view)
+            delegate?.store(self, didUpdate: view)
         }
         sendAction = { [weak delegate] action in
-            delegate?.program(self, didRequest: action)
+            delegate?.store(self, didRequest: action)
         }
         updateDelegate(with: actions)
     }
@@ -123,7 +123,7 @@ public final class Program<Module: Elm.Module> {
                 fatalError()
             }
         }
-        view = Program.makeView(module: Module.self, state: state)
+        view = Store.makeView(module: Module.self, state: state)
         updateDelegate(with: actions)
     }
 
@@ -140,8 +140,8 @@ public final class Program<Module: Elm.Module> {
 
     private func updateDelegate(with actions: [Action]) {
         guard Thread.isMainThread else {
-            OperationQueue.main.addOperation { [weak program = self] in
-                program?.updateDelegate(with: actions)
+            OperationQueue.main.addOperation { [weak store = self] in
+                store?.updateDelegate(with: actions)
             }
             return
         }

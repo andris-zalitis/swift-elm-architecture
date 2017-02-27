@@ -40,7 +40,7 @@ class ElmTests: XCTestCase {
 
         var recorder: DataRecorder? = DataRecorder()
 
-        _ = Counter.makeProgram(delegate: recorder!, seed: .init(count: 0))
+        _ = Counter.makeStore(delegate: recorder!, seed: .init(count: 0))
 
         weak var weakRecorder: DataRecorder? = recorder
         recorder = nil
@@ -65,7 +65,7 @@ class ElmTests: XCTestCase {
 
         let backgroundQueue = OperationQueue()
         backgroundQueue.addOperation {
-            _ = Counter.makeProgram(delegate: recorder, seed: .init())
+            _ = Counter.makeStore(delegate: recorder, seed: .init())
         }
 
         waitForExpectations(timeout: 60) { _ in
@@ -78,7 +78,7 @@ class ElmTests: XCTestCase {
     func testDelegateUpdateOnMainThread() {
 
         let recorder = ThreadRecorder()
-        let program = Counter.makeProgram(delegate: recorder, seed: .init())
+        let store = Counter.makeStore(delegate: recorder, seed: .init())
 
         let didUpdateView = expectation(description: "")
         let didRequestAction = expectation(description: "")
@@ -87,7 +87,7 @@ class ElmTests: XCTestCase {
 
         let backgroundQueue = OperationQueue()
         backgroundQueue.addOperation {
-            program.dispatch(.increment)
+            store.dispatch(.increment)
         }
 
         waitForExpectations(timeout: 60) { _ in
@@ -105,11 +105,11 @@ class ElmTests: XCTestCase {
     func testDispatch() {
 
         let recorder = DataRecorder()
-        let program = Counter.makeProgram(delegate: recorder, seed: .init(count: 1))
+        let store = Counter.makeStore(delegate: recorder, seed: .init(count: 1))
 
         // Start
 
-        XCTAssertEqual(program.view, View(counterText: "1"))
+        XCTAssertEqual(store.view, View(counterText: "1"))
 
         XCTAssertEqual(recorder.actions.count, 1)
         XCTAssertEqual(recorder.actions.last, .log("Did start"))
@@ -119,9 +119,9 @@ class ElmTests: XCTestCase {
 
         // Event 1
 
-        program.dispatch(.increment)
+        store.dispatch(.increment)
 
-        XCTAssertEqual(program.view, View(counterText: "2"))
+        XCTAssertEqual(store.view, View(counterText: "2"))
 
         XCTAssertEqual(recorder.actions.count, 2)
         XCTAssertEqual(recorder.actions.last, .log("Did increment"))
@@ -131,9 +131,9 @@ class ElmTests: XCTestCase {
 
         // Event 2
 
-        program.dispatch(.decrement)
+        store.dispatch(.decrement)
 
-        XCTAssertEqual(program.view, View(counterText: "1"))
+        XCTAssertEqual(store.view, View(counterText: "1"))
 
         XCTAssertEqual(recorder.actions.count, 3)
         XCTAssertEqual(recorder.actions.last, .log("Did decrement"))
@@ -146,9 +146,9 @@ class ElmTests: XCTestCase {
     func testDispatchMultipleEvents() {
 
         let recorder = DataRecorder()
-        let program = Counter.makeProgram(delegate: recorder, seed: .init(count: 2))
+        let store = Counter.makeStore(delegate: recorder, seed: .init(count: 2))
 
-        program.dispatch(.increment, .decrement)
+        store.dispatch(.increment, .decrement)
 
         XCTAssertEqual(recorder.actions, [
             .log("Did start"),
@@ -272,7 +272,7 @@ final class DataRecorder: Delegate {
 
     var views: [View] = []
 
-    func program(_ program: Program<Counter>, didUpdate view: Counter.View) {
+    func store(_ store: Store<Counter>, didUpdate view: Counter.View) {
         views.append(view)
     }
 
@@ -283,7 +283,7 @@ final class DataRecorder: Delegate {
 
     var actions: [Action] = []
 
-    func program(_ program: Program<Counter>, didRequest action: Counter.Action) {
+    func store(_ store: Store<Counter>, didRequest action: Counter.Action) {
         actions.append(action)
     }
 
@@ -297,12 +297,12 @@ final class ThreadRecorder: Elm.Delegate {
     var didRequestAction: () -> Void = { _ in }
     private(set) var didRequestActionOnThread: Thread?
 
-    func program(_ program: Program<Counter>, didUpdate view: Counter.View) {
+    func store(_ store: Store<Counter>, didUpdate view: Counter.View) {
         didUpdateViewOnThread = Thread.current
         didUpdateView()
     }
 
-    func program(_ program: Program<Counter>, didRequest action: Counter.Action) {
+    func store(_ store: Store<Counter>, didRequest action: Counter.Action) {
         didRequestActionOnThread = Thread.current
         didRequestAction()
     }
