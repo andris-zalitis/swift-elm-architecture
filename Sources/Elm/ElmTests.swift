@@ -117,7 +117,7 @@ class ElmTests: XCTestCase {
         XCTAssertEqual(recorder.views.count, 1)
         XCTAssertEqual(recorder.views.last, View(counterText: "1"))
 
-        // Message 1
+        // Event 1
 
         program.dispatch(.increment)
 
@@ -129,7 +129,7 @@ class ElmTests: XCTestCase {
         XCTAssertEqual(recorder.views.count, 2)
         XCTAssertEqual(recorder.views.last, View(counterText: "2"))
 
-        // Message 2
+        // Event 2
 
         program.dispatch(.decrement)
 
@@ -143,7 +143,7 @@ class ElmTests: XCTestCase {
 
     }
 
-    func testDispatchMultipleMessages() {
+    func testDispatchMultipleEvents() {
 
         let recorder = DataRecorder()
         let program = Counter.makeProgram(delegate: recorder, seed: .init(count: 2))
@@ -173,7 +173,7 @@ class ElmTests: XCTestCase {
 //
 
 typealias Seed = Counter.Seed
-typealias Message = Counter.Message
+typealias Event = Counter.Event
 typealias View = Counter.View
 typealias Model = Counter.Model
 typealias Command = Counter.Command
@@ -197,7 +197,7 @@ struct Counter: Module {
         let count: Int
     }
 
-    enum Message {
+    enum Event {
         case increment
         case decrement
     }
@@ -221,8 +221,8 @@ struct Counter: Module {
         return Model(count: seed.count)
     }
 
-    static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws {
-        switch message {
+    static func update(for event: Event, model: inout Model, perform: (Command) -> Void) throws {
+        switch event {
         case .increment:
             model.count += 1
             perform(.log("Did increment"))

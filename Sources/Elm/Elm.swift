@@ -28,14 +28,14 @@
 public protocol Module {
 
     associatedtype Seed
-    associatedtype Message
+    associatedtype Event
     associatedtype Model
     associatedtype Command
     associatedtype View
     associatedtype Failure
 
     static func start(with seed: Seed, perform: (Command) -> Void) throws -> Model
-    static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws
+    static func update(for event: Event, model: inout Model, perform: (Command) -> Void) throws
     static func view(for model: Model) throws -> View
 
 }
@@ -73,7 +73,7 @@ public protocol Delegate: class {
 public final class Program<Module: Elm.Module> {
 
     typealias Seed = Module.Seed
-    typealias Message = Module.Message
+    typealias Event = Module.Event
     typealias Model = Module.Model
     typealias Command = Module.Command
     typealias View = Module.View
@@ -108,17 +108,17 @@ public final class Program<Module: Elm.Module> {
         updateDelegate(with: commands)
     }
 
-    public func dispatch(_ messages: Message...) {
+    public func dispatch(_ events: Event...) {
         var commands: [Command] = []
-        for message in messages {
+        for event in events {
             do {
-                try Module.update(for: message, model: &model) { command in
+                try Module.update(for: event, model: &model) { command in
                     commands.append(command)
                 }
             } catch {
                 print("FATAL: \(Module.self).update function did throw!", to: &standardError)
                 dump(error, to: &standardError, name: "Error")
-                dump(message, to: &standardError, name: "Message")
+                dump(event, to: &standardError, name: "Event")
                 dump(model, to: &standardError, name: "Model")
                 fatalError()
             }
@@ -162,14 +162,14 @@ public protocol Tests: class {
 
     typealias Seed = Module.Seed
     typealias Model = Module.Model
-    typealias Message = Module.Message
+    typealias Event = Module.Event
     typealias Command = Module.Command
     typealias View = Module.View
     typealias Failure = Module.Failure
 
     // XCTFail
     typealias FailureReporter = (
-        String, // message
+        String, // event
         StaticString, // file
         UInt // line
         ) -> Void
@@ -209,10 +209,10 @@ public extension Tests {
         }
     }
 
-    func expectFailure(for message: Message, model: Model, file: StaticString = #file, line: Int = #line) -> Failure? {
+    func expectFailure(for event: Event, model: Model, file: StaticString = #file, line: Int = #line) -> Failure? {
         do {
             var model = model
-            try Module.update(for: message, model: &model) { _ in }
+            try Module.update(for: event, model: &model) { _ in }
             reportUnexpectedSuccess()
             return nil
         } catch {
@@ -224,11 +224,11 @@ public extension Tests {
         }
     }
 
-    func expectUpdate(for message: Message, model: Model, file: StaticString = #file, line: Int = #line) -> Update<Module>? {
+    func expectUpdate(for event: Event, model: Model, file: StaticString = #file, line: Int = #line) -> Update<Module>? {
         do {
             var model = model
             var commands: [Command] = []
-            try Module.update(for: message, model: &model) { command in
+            try Module.update(for: event, model: &model) { command in
                 commands.append(command)
             }
             return Update(model: model, commands: Lens(content: commands))
@@ -272,12 +272,12 @@ public extension Tests {
         fail("Unexpected failure", subject: failure)
     }
 
-    private func fail(_ message: String, subject: Any, file: StaticString = #file, line: Int = #line) {
-        fail(message + ":" + " " + String(describing: subject), file: file, line: line)
+    private func fail(_ event: String, subject: Any, file: StaticString = #file, line: Int = #line) {
+        fail(event + ":" + " " + String(describing: subject), file: file, line: line)
     }
 
-    private func fail(_ message: String, file: StaticString = #file, line: Int = #line) {
-        failureReporter(message, file, UInt(line))
+    private func fail(_ event: String, file: StaticString = #file, line: Int = #line) {
+        failureReporter(event, file, UInt(line))
     }
 
 }
@@ -288,8 +288,8 @@ public extension Tests {
         let value = String(describing: value)
         let expectedValue = String(describing: expectedValue)
         if value != expectedValue {
-            let message = value + " is not equal to " + expectedValue
-            failureReporter(message, file, UInt(line))
+            let event = value + " is not equal to " + expectedValue
+            failureReporter(event, file, UInt(line))
         }
     }
 
