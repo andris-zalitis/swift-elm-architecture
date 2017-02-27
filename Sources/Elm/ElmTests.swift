@@ -175,7 +175,7 @@ class ElmTests: XCTestCase {
 typealias Seed = Counter.Seed
 typealias Event = Counter.Event
 typealias View = Counter.View
-typealias Model = Counter.Model
+typealias State = Counter.State
 typealias Command = Counter.Command
 
 extension Seed {
@@ -202,7 +202,7 @@ struct Counter: Module {
         case decrement
     }
 
-    struct Model {
+    struct State {
         var count: Int
     }
 
@@ -216,24 +216,24 @@ struct Counter: Module {
 
     enum Failure {}
 
-    static func start(with seed: Seed, perform: (Command) -> Void) throws -> Model {
+    static func start(with seed: Seed, perform: (Command) -> Void) throws -> State {
         perform(.log("Did start"))
-        return Model(count: seed.count)
+        return State(count: seed.count)
     }
 
-    static func update(for event: Event, model: inout Model, perform: (Command) -> Void) throws {
+    static func update(for event: Event, state: inout State, perform: (Command) -> Void) throws {
         switch event {
         case .increment:
-            model.count += 1
+            state.count += 1
             perform(.log("Did increment"))
         case .decrement:
-            model.count -= 1
+            state.count -= 1
             perform(.log("Did decrement"))
         }
     }
 
-    static func view(for model: Model) -> View {
-        let counterText = String(model.count)
+    static func view(for state: State) -> View {
+        let counterText = String(state.count)
         return View(counterText: counterText)
     }
 

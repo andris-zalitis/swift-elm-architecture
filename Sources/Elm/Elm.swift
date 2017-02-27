@@ -29,14 +29,14 @@ public protocol Module {
 
     associatedtype Seed
     associatedtype Event
-    associatedtype Model
+    associatedtype State
     associatedtype Command
     associatedtype View
     associatedtype Failure
 
-    static func start(with seed: Seed, perform: (Command) -> Void) throws -> Model
-    static func update(for event: Event, model: inout Model, perform: (Command) -> Void) throws
-    static func view(for model: Model) throws -> View
+    static func start(with seed: Seed, perform: (Command) -> Void) throws -> State
+    static func update(for event: Event, state: inout State, perform: (Command) -> Void) throws
+    static func view(for state: State) throws -> View
 
 }
 
@@ -74,12 +74,12 @@ public final class Program<Module: Elm.Module> {
 
     typealias Seed = Module.Seed
     typealias Event = Module.Event
-    typealias Model = Module.Model
+    typealias State = Module.State
     typealias Command = Module.Command
     typealias View = Module.View
 
-    private var model: Model
-    public private(set) lazy var view: View = Program.makeView(module: Module.self, model: self.model)
+    private var state: State
+    public private(set) lazy var view: View = Program.makeView(module: Module.self, state: self.state)
 
     private typealias ViewSink = (View) -> Void
     private typealias CommandSink = (Command) -> Void
@@ -90,7 +90,7 @@ public final class Program<Module: Elm.Module> {
     init<Delegate: Elm.Delegate>(module: Module.Type, delegate: Delegate, seed: Seed) where Delegate.Module == Module {
         var commands: [Command] = []
         do {
-            model = try module.start(with: seed) { command in
+            state = try module.start(with: seed) { command in
                 commands.append(command)
             }
         } catch {
@@ -112,28 +112,28 @@ public final class Program<Module: Elm.Module> {
         var commands: [Command] = []
         for event in events {
             do {
-                try Module.update(for: event, model: &model) { command in
+                try Module.update(for: event, state: &state) { command in
                     commands.append(command)
                 }
             } catch {
                 print("FATAL: \(Module.self).update function did throw!", to: &standardError)
                 dump(error, to: &standardError, name: "Error")
                 dump(event, to: &standardError, name: "Event")
-                dump(model, to: &standardError, name: "Model")
+                dump(state, to: &standardError, name: "State")
                 fatalError()
             }
         }
-        view = Program.makeView(module: Module.self, model: model)
+        view = Program.makeView(module: Module.self, state: state)
         updateDelegate(with: commands)
     }
 
-    private static func makeView(module: Module.Type, model: Model) -> View {
+    private static func makeView(module: Module.Type, state: State) -> View {
         do {
-            return try module.view(for: model)
+            return try module.view(for: state)
         } catch {
             print("FATAL: \(module).view function did throw!", to: &standardError)
             dump(error, to: &standardError, name: "Error")
-            dump(model, to: &standardError, name: "Model")
+            dump(state, to: &standardError, name: "State")
             fatalError()
         }
     }
@@ -161,7 +161,7 @@ public protocol Tests: class {
     associatedtype Module: Elm.Module
 
     typealias Seed = Module.Seed
-    typealias Model = Module.Model
+    typealias State = Module.State
     typealias Event = Module.Event
     typealias Command = Module.Command
     typealias View = Module.View
@@ -195,9 +195,9 @@ public extension Tests {
         }
     }
 
-    func expectFailure(for model: Model, file: StaticString = #file, line: Int = #line) -> Failure? {
+    func expectFailure(for state: State, file: StaticString = #file, line: Int = #line) -> Failure? {
         do {
-            _ = try Module.view(for: model)
+            _ = try Module.view(for: state)
             reportUnexpectedSuccess()
             return nil
         } catch {
@@ -209,10 +209,10 @@ public extension Tests {
         }
     }
 
-    func expectFailure(for event: Event, model: Model, file: StaticString = #file, line: Int = #line) -> Failure? {
+    func expectFailure(for event: Event, state: State, file: StaticString = #file, line: Int = #line) -> Failure? {
         do {
-            var model = model
-            try Module.update(for: event, model: &model) { _ in }
+            var state = state
+            try Module.update(for: event, state: &state) { _ in }
             reportUnexpectedSuccess()
             return nil
         } catch {
@@ -224,14 +224,14 @@ public extension Tests {
         }
     }
 
-    func expectUpdate(for event: Event, model: Model, file: StaticString = #file, line: Int = #line) -> Update<Module>? {
+    func expectUpdate(for event: Event, state: State, file: StaticString = #file, line: Int = #line) -> Update<Module>? {
         do {
-            var model = model
+            var state = state
             var commands: [Command] = []
-            try Module.update(for: event, model: &model) { command in
+            try Module.update(for: event, state: &state) { command in
                 commands.append(command)
             }
-            return Update(model: model, commands: Lens(content: commands))
+            return Update(state: state, commands: Lens(content: commands))
         } catch {
             reportUnexpectedFailure(error, file: file, line: line)
             return nil
@@ -241,19 +241,19 @@ public extension Tests {
     func expectStart(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Start<Module>? {
         do {
             var commands: [Command] = []
-            let model = try Module.start(with: seed) { command in
+            let state = try Module.start(with: seed) { command in
                 commands.append(command)
             }
-            return Start(model: model, commands: Lens(content: commands))
+            return Start(state: state, commands: Lens(content: commands))
         } catch {
             reportUnexpectedFailure(error, file: file, line: line)
             return nil
         }
     }
 
-    func expectView(for model: Model, file: StaticString = #file, line: Int = #line) -> View? {
+    func expectView(for state: State, file: StaticString = #file, line: Int = #line) -> View? {
         do {
-            return try Module.view(for: model)
+            return try Module.view(for: state)
         } catch {
             reportUnexpectedFailure(error, file: file, line: line)
             return nil
@@ -300,10 +300,10 @@ public typealias Update<Module: Elm.Module> = Result<Module>
 
 public struct Result<Module: Elm.Module> {
 
-    typealias Model = Module.Model
+    typealias State = Module.State
     typealias Command = Module.Command
 
-    public let model: Model
+    public let state: State
     public let commands: Lens<Command>
 
 }
