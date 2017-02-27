@@ -60,7 +60,7 @@ public protocol Delegate: class {
     typealias Action = Module.Action
     typealias View = Module.View
 
-    func program(_ program: Program<Module>, didEmit action: Action)
+    func program(_ program: Program<Module>, didRequest action: Action)
     func program(_ program: Program<Module>, didUpdate view: View)
 
 }
@@ -103,7 +103,7 @@ public final class Program<Module: Elm.Module> {
             delegate?.program(self, didUpdate: view)
         }
         sendAction = { [weak delegate] action in
-            delegate?.program(self, didEmit: action)
+            delegate?.program(self, didRequest: action)
         }
         updateDelegate(with: actions)
     }

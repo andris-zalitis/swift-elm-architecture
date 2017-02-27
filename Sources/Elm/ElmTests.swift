@@ -59,9 +59,9 @@ class ElmTests: XCTestCase {
         let recorder = ThreadRecorder()
 
         let didUpdateView = expectation(description: "")
-        let didEmitAction = expectation(description: "")
+        let didRequestAction = expectation(description: "")
         recorder.didUpdateView = didUpdateView.fulfill
-        recorder.didEmitAction = didEmitAction.fulfill
+        recorder.didRequestAction = didRequestAction.fulfill
 
         let backgroundQueue = OperationQueue()
         backgroundQueue.addOperation {
@@ -70,7 +70,7 @@ class ElmTests: XCTestCase {
 
         waitForExpectations(timeout: 60) { _ in
             XCTAssertEqual(recorder.didUpdateViewOnThread, Thread.main)
-            XCTAssertEqual(recorder.didEmitActionOnThread, Thread.main)
+            XCTAssertEqual(recorder.didRequestActionOnThread, Thread.main)
         }
 
     }
@@ -81,9 +81,9 @@ class ElmTests: XCTestCase {
         let program = Counter.makeProgram(delegate: recorder, seed: .init())
 
         let didUpdateView = expectation(description: "")
-        let didEmitAction = expectation(description: "")
+        let didRequestAction = expectation(description: "")
         recorder.didUpdateView = didUpdateView.fulfill
-        recorder.didEmitAction = didEmitAction.fulfill
+        recorder.didRequestAction = didRequestAction.fulfill
 
         let backgroundQueue = OperationQueue()
         backgroundQueue.addOperation {
@@ -92,7 +92,7 @@ class ElmTests: XCTestCase {
 
         waitForExpectations(timeout: 60) { _ in
             XCTAssertEqual(recorder.didUpdateViewOnThread, Thread.main)
-            XCTAssertEqual(recorder.didEmitActionOnThread, Thread.main)
+            XCTAssertEqual(recorder.didRequestActionOnThread, Thread.main)
         }
 
     }
@@ -283,7 +283,7 @@ final class DataRecorder: Delegate {
 
     var actions: [Action] = []
 
-    func program(_ program: Program<Counter>, didEmit action: Counter.Action) {
+    func program(_ program: Program<Counter>, didRequest action: Counter.Action) {
         actions.append(action)
     }
 
@@ -294,17 +294,17 @@ final class ThreadRecorder: Elm.Delegate {
     var didUpdateView: () -> Void = { _ in }
     private(set) var didUpdateViewOnThread: Thread?
 
-    var didEmitAction: () -> Void = { _ in }
-    private(set) var didEmitActionOnThread: Thread?
+    var didRequestAction: () -> Void = { _ in }
+    private(set) var didRequestActionOnThread: Thread?
 
     func program(_ program: Program<Counter>, didUpdate view: Counter.View) {
         didUpdateViewOnThread = Thread.current
         didUpdateView()
     }
 
-    func program(_ program: Program<Counter>, didEmit action: Counter.Action) {
-        didEmitActionOnThread = Thread.current
-        didEmitAction()
+    func program(_ program: Program<Counter>, didRequest action: Counter.Action) {
+        didRequestActionOnThread = Thread.current
+        didRequestAction()
     }
 
 }
