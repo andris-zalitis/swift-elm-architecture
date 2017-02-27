@@ -167,9 +167,6 @@ class CounterTests: XCTestCase, Elm.Tests {
   * Targets:
     * `App`: Yes
     * `AppTests`: Yes
-* Add _Copy Files_ build phase to both `App` and `AppTests` targets
-  * Destination: `Frameworks`
-  * Name: `Elm.framework`
 * Add _Run Script_ build phase to both `App` and `AppTests` targets
   * Script: `carthage copy-frameworks`
   * Input files:`$(SRCROOT)/Carthage/Build/iOS/Elm.framework`
