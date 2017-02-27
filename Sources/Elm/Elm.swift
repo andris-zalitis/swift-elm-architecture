@@ -295,10 +295,10 @@ public extension Tests {
 
 }
 
-public typealias Start<Program: Elm.Program> = Result<Program>
-public typealias Update<Program: Elm.Program> = Result<Program>
+public typealias Start<Program: Elm.Program> = TestResult<Program>
+public typealias Update<Program: Elm.Program> = TestResult<Program>
 
-public struct Result<Program: Elm.Program> {
+public struct TestResult<Program: Elm.Program> {
 
     typealias State = Program.State
     typealias Action = Program.Action
@@ -308,7 +308,7 @@ public struct Result<Program: Elm.Program> {
 
 }
 
-public extension Result {
+public extension TestResult {
 
     var action: Action? {
         guard actions.content.count == 1 else {
