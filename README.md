@@ -28,16 +28,16 @@ Let's build a counter:
 ```swift
 import Elm
 
-struct Counter: Elm.Module {
+struct Counter: Program {
 
-    struct Flags {}
+    struct Seed {}
 
-    enum Message {
-        case increment
-        case decrement
+    enum Event {
+        case userDidTapIncrementButton
+        case userDidTapDecrementButton
     }
 
-    struct Model {
+    struct State {
         var count: Int
     }
 
@@ -45,22 +45,24 @@ struct Counter: Elm.Module {
         let count: String
     }
 
-    enum Command {}
+    enum Action {}
     enum Failure {}
 
-    static func start(with flags: Flags, perform: (Command) -> Void) throws -> Model {
+    static func start(with seed: Seed, perform: (Action) -> Void) throws -> State {
         return .init(count: 0)
     }
 
-    static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws {
-        switch message {
-        case .increment: model.count += 1
-        case .decrement: model.count -= 1
+    static func update(for event: Event, state: inout State, perform: (Action) -> Void) throws {
+        switch event {
+        case .userDidTapIncrementButton:
+            state.count += 1
+        case .userDidTapDecrementButton:
+            state.count -= 1
         }
     }
 
-    static func view(for model: Model) throws -> View {
-        let count = String(model.count)
+    static func view(for state: State) throws -> View {
+        let count = String(state.count)
         return .init(count: count)
     }
     
@@ -77,8 +79,8 @@ import Elm
 
 class CounterViewController: UIViewController, Elm.Delegate {
 
-    typealias Module = Counter
-    var program: Program<Module>!
+    typealias Program = Counter
+    var store: Store<Program>!
 
     @IBOutlet var countLabel: UILabel!
     @IBOutlet var incrementButton: UIBarButtonItem!
@@ -86,22 +88,22 @@ class CounterViewController: UIViewController, Elm.Delegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        program = Counter.makeProgram(delegate: self, flags: .init())
+        store = Counter.makeStore(delegate: self, seed: .init())
     }
 
     @IBAction func userDidTapIncrementButton() {
-        program.dispatch(.increment)
+        store.dispatch(.userDidTapIncrementButton)
     }
 
     @IBAction func userDidTapDecrementButton() {
-        program.dispatch(.decrement)
+        store.dispatch(.userDidTapDecrementButton)
     }
 
-    func program(_ program: Program<Module>, didUpdate view: Module.View) {
+    func store(_ store: Store<Program>, didUpdate view: Program.View) {
         countLabel?.text = view.count
     }
 
-    func program(_ program: Program<Module>, didEmit command: Module.Command) {
+    func store(_ store: Store<Program>, didRequest action: Program.Action) {
         fatalError()
     }
     
@@ -118,32 +120,32 @@ import Elm
 
 class CounterTests: XCTestCase, Elm.Tests {
 
-    typealias Module = Counter
+    typealias Program = Counter
     let failureReporter = XCTFail
 
     func test() {
         let start = expectStart(with: .init())
-        expect(start?.model.count, 0)
+        expect(start?.state.count, 0)
     }
 
     func testIncrement1() {
-        let update = expectUpdate(for: .increment, model: .init(count: 1))
-        expect(update?.model.count, 2)
+        let update = expectUpdate(for: .userDidTapIncrementButton, state: .init(count: 1))
+        expect(update?.state.count, 2)
     }
 
     func testIncrement2() {
-        let update = expectUpdate(for: .increment, model: .init(count: 2))
-        expect(update?.model.count, 3)
+        let update = expectUpdate(for: .userDidTapIncrementButton, state: .init(count: 2))
+        expect(update?.state.count, 3)
     }
 
     func testDecrement1() {
-        let update = expectUpdate(for: .decrement, model: .init(count: -1))
-        expect(update?.model.count, -2)
+        let update = expectUpdate(for: .userDidTapDecrementButton, state: .init(count: -1))
+        expect(update?.state.count, -2)
     }
 
     func testDecrement2() {
-        let update = expectUpdate(for: .decrement, model: .init(count: -2))
-        expect(update?.model.count, -3)
+        let update = expectUpdate(for: .userDidTapDecrementButton, state: .init(count: -2))
+        expect(update?.state.count, -3)
     }
 
     func testView1() {
