@@ -45,7 +45,7 @@ struct Counter: Program {
     enum Failure {}
 
     static func start(with seed: Seed, perform: (Action) -> Void) -> Result<State, Failure> {
-        let state = .init(count: 0)
+        let state = State(count: 0)
         return .success(state)
     }
 
@@ -61,7 +61,7 @@ struct Counter: Program {
 
     static func view(for state: State) -> Result<View, Failure> {
         let count = String(state.count)
-        let view = return .init(count: count)
+        let view = View(count: count)
         return .success(view)
     }
     
