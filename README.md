@@ -44,22 +44,25 @@ struct Counter: Program {
     enum Action {}
     enum Failure {}
 
-    static func start(with seed: Seed, perform: (Action) -> Void) throws -> State {
-        return .init(count: 0)
+    static func start(with seed: Seed, perform: (Action) -> Void) -> Result<State, Failure> {
+        let state = .init(count: 0)
+        return .success(state)
     }
 
-    static func update(for event: Event, state: inout State, perform: (Action) -> Void) throws {
+    static func update(for event: Event, state: inout State, perform: (Action) -> Void) -> Result<Success, Failure> {
         switch event {
         case .userDidTapIncrementButton:
             state.count += 1
         case .userDidTapDecrementButton:
             state.count -= 1
         }
+        return .success() 
     }
 
-    static func view(for state: State) throws -> View {
+    static func view(for state: State) -> Result<View, Failure> {
         let count = String(state.count)
-        return .init(count: count)
+        let view = return .init(count: count)
+        return .success(view)
     }
     
 }

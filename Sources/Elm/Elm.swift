@@ -34,9 +34,9 @@ public protocol Program {
     associatedtype View
     associatedtype Failure
 
-    static func start(with seed: Seed, perform: (Action) -> Void) throws -> State
-    static func update(for event: Event, state: inout State, perform: (Action) -> Void) throws
-    static func view(for state: State) throws -> View
+    static func start(with seed: Seed, perform: (Action) -> Void) -> Result<State, Failure>
+    static func update(for event: Event, state: inout State, perform: (Action) -> Void) -> Result<Success, Failure>
+    static func view(for state: State) -> Result<View, Failure>
 
 }
 
@@ -47,6 +47,15 @@ public extension Program {
     }
 
 }
+
+public enum Result<Success, Failure> {
+
+    case success(Success)
+    case failure(Failure)
+
+}
+
+public typealias Success = ()
 
 //
 // MARK: -
@@ -89,35 +98,36 @@ public final class Store<Program: Elm.Program> {
 
     init<Delegate: Elm.Delegate>(program: Program.Type, delegate: Delegate, seed: Seed) where Delegate.Program == Program {
         var actions: [Action] = []
-        do {
-            state = try program.start(with: seed) { action in
-                actions.append(action)
+        let result = program.start(with: seed) { action in
+            actions.append(action)
+        }
+        switch result {
+        case .success(let state):
+            self.state = state
+            sendView = { [weak delegate] view in
+                delegate?.store(self, didUpdate: view)
             }
-        } catch {
-            print("FATAL: \(program).start function did throw!", to: &standardError)
-            dump(error, to: &standardError, name: "Error")
+            sendAction = { [weak delegate] action in
+                delegate?.store(self, didRequest: action)
+            }
+            updateDelegate(with: actions)
+        case .failure(let failure):
+            print("FATAL: \(program).start function did fail!", to: &standardError)
+            dump(failure, to: &standardError, name: "Failure")
             dump(seed, to: &standardError, name: "Seed")
             fatalError()
         }
-        sendView = { [weak delegate] view in
-            delegate?.store(self, didUpdate: view)
-        }
-        sendAction = { [weak delegate] action in
-            delegate?.store(self, didRequest: action)
-        }
-        updateDelegate(with: actions)
     }
 
     public func dispatch(_ events: Event...) {
         var actions: [Action] = []
         for event in events {
-            do {
-                try Program.update(for: event, state: &state) { action in
-                    actions.append(action)
-                }
-            } catch {
-                print("FATAL: \(Program.self).update function did throw!", to: &standardError)
-                dump(error, to: &standardError, name: "Error")
+            let result = Program.update(for: event, state: &state) { action in
+                actions.append(action)
+            }
+            if case .failure(let failure) = result  {
+                print("FATAL: \(Program.self).update function did fail!", to: &standardError)
+                dump(failure, to: &standardError, name: "Failure")
                 dump(event, to: &standardError, name: "Event")
                 dump(state, to: &standardError, name: "State")
                 fatalError()
@@ -128,11 +138,12 @@ public final class Store<Program: Elm.Program> {
     }
 
     private static func makeView(program: Program.Type, state: State) -> View {
-        do {
-            return try program.view(for: state)
-        } catch {
-            print("FATAL: \(program).view function did throw!", to: &standardError)
-            dump(error, to: &standardError, name: "Error")
+        switch program.view(for: state) {
+        case .success(let view):
+            return view
+        case .failure(let failure):
+            print("FATAL: \(program).view function did fail!", to: &standardError)
+            dump(failure, to: &standardError, name: "Error")
             dump(state, to: &standardError, name: "State")
             fatalError()
         }
@@ -182,90 +193,81 @@ public protocol Tests: class {
 public extension Tests {
 
     func expectFailure(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Failure? {
-        do {
-            _ = try Program.start(with: seed) { _ in }
-            reportUnexpectedSuccess()
+        let result = Program.start(with: seed) { _ in }
+        switch result {
+        case .success:
+            reportUnexpectedSuccess(file: file, line: line)
             return nil
-        } catch {
-            guard let failure = error as? Failure else {
-                reportUnknownFailure(error, file: file, line: line)
-                return nil
-            }
+        case .failure(let failure):
             return failure
         }
     }
 
     func expectFailure(for state: State, file: StaticString = #file, line: Int = #line) -> Failure? {
-        do {
-            _ = try Program.view(for: state)
-            reportUnexpectedSuccess()
+        let result = Program.view(for: state)
+        switch result {
+        case .success:
+            reportUnexpectedSuccess(file: file, line: line)
             return nil
-        } catch {
-            guard let failure = error as? Failure else {
-                reportUnknownFailure(error, file: file, line: line)
-                return nil
-            }
+        case .failure(let failure):
             return failure
         }
     }
 
     func expectFailure(for event: Event, state: State, file: StaticString = #file, line: Int = #line) -> Failure? {
-        do {
-            var state = state
-            try Program.update(for: event, state: &state) { _ in }
-            reportUnexpectedSuccess()
+        var state = state
+        let result = Program.update(for: event, state: &state) { _ in }
+        switch result {
+        case .success:
+            reportUnexpectedSuccess(file: file, line: line)
             return nil
-        } catch {
-            guard let failure = error as? Failure else {
-                reportUnknownFailure(error, file: file, line: line)
-                return nil
-            }
+        case .failure(let failure):
             return failure
         }
     }
 
     func expectUpdate(for event: Event, state: State, file: StaticString = #file, line: Int = #line) -> Update<Program>? {
-        do {
-            var state = state
-            var actions: [Action] = []
-            try Program.update(for: event, state: &state) { action in
-                actions.append(action)
-            }
+        var state = state
+        var actions: [Action] = []
+        let result = Program.update(for: event, state: &state) { action in
+            actions.append(action)
+        }
+        switch result {
+        case .success:
             return Update(state: state, actions: Lens(content: actions))
-        } catch {
-            reportUnexpectedFailure(error, file: file, line: line)
+        case .failure(let failure):
+            reportUnexpectedFailure(failure, file: file, line: line)
             return nil
         }
     }
 
     func expectStart(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Start<Program>? {
-        do {
-            var actions: [Action] = []
-            let state = try Program.start(with: seed) { action in
-                actions.append(action)
-            }
+        var actions: [Action] = []
+        let result = Program.start(with: seed) { action in
+            actions.append(action)
+        }
+        switch result {
+        case .success(let state):
             return Start(state: state, actions: Lens(content: actions))
-        } catch {
-            reportUnexpectedFailure(error, file: file, line: line)
+        case .failure(let failure):
+            reportUnexpectedFailure(failure, file: file, line: line)
             return nil
         }
     }
 
     func expectView(for state: State, file: StaticString = #file, line: Int = #line) -> View? {
-        do {
-            return try Program.view(for: state)
-        } catch {
-            reportUnexpectedFailure(error, file: file, line: line)
+        let result = Program.view(for: state)
+        switch result {
+        case .success(let view):
+            return view
+        case .failure(let failure):
+            reportUnexpectedFailure(failure, file: file, line: line)
             return nil
         }
     }
 
     private func reportUnexpectedSuccess(file: StaticString = #file, line: Int = #line) {
         fail("Unexpected success", file: file, line: line)
-    }
-
-    private func reportUnknownFailure<Failure>(_ failure: Failure, file: StaticString = #file, line: Int = #line) {
-        fail("Unknown failure", subject: failure)
     }
 
     private func reportUnexpectedFailure<Failure>(_ failure: Failure, file: StaticString = #file, line: Int = #line) {
@@ -295,10 +297,10 @@ public extension Tests {
 
 }
 
-public typealias Start<Program: Elm.Program> = Result<Program>
-public typealias Update<Program: Elm.Program> = Result<Program>
+public typealias Start<Program: Elm.Program> = TestResult<Program>
+public typealias Update<Program: Elm.Program> = TestResult<Program>
 
-public struct Result<Program: Elm.Program> {
+public struct TestResult<Program: Elm.Program> {
 
     typealias State = Program.State
     typealias Action = Program.Action
@@ -308,7 +310,7 @@ public struct Result<Program: Elm.Program> {
 
 }
 
-public extension Result {
+public extension TestResult {
 
     var action: Action? {
         guard actions.content.count == 1 else {

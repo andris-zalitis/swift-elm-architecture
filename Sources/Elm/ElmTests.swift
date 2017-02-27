@@ -216,12 +216,13 @@ struct Counter: Program {
 
     enum Failure {}
 
-    static func start(with seed: Seed, perform: (Action) -> Void) throws -> State {
+    static func start(with seed: Seed, perform: (Action) -> Void) -> Result<State, Failure> {
         perform(.log("Did start"))
-        return State(count: seed.count)
+        let state = State(count: seed.count)
+        return .success(state)
     }
 
-    static func update(for event: Event, state: inout State, perform: (Action) -> Void) throws {
+    static func update(for event: Event, state: inout State, perform: (Action) -> Void) -> Result<Success, Failure> {
         switch event {
         case .increment:
             state.count += 1
@@ -230,11 +231,13 @@ struct Counter: Program {
             state.count -= 1
             perform(.log("Did decrement"))
         }
+        return .success()
     }
 
-    static func view(for state: State) -> View {
+    static func view(for state: State) -> Result<View, Failure> {
         let counterText = String(state.count)
-        return View(counterText: counterText)
+        let view = View(counterText: counterText)
+        return .success(view)
     }
 
 }
