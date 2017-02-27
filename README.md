@@ -100,7 +100,7 @@ class CounterViewController: UIViewController, Elm.Delegate {
     }
 
     func store(_ store: Store<Program>, didUpdate view: Program.View) {
-        countLabel?.text = view.count
+        countLabel.text = view.count
     }
 
     func store(_ store: Store<Program>, didRequest action: Program.Action) {
