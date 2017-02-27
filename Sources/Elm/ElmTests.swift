@@ -40,7 +40,7 @@ class ElmTests: XCTestCase {
 
         var recorder: DataRecorder? = DataRecorder()
 
-        _ = Counter.makeProgram(delegate: recorder!, flags: .init(count: 0))
+        _ = Counter.makeProgram(delegate: recorder!, seed: .init(count: 0))
 
         weak var weakRecorder: DataRecorder? = recorder
         recorder = nil
@@ -65,7 +65,7 @@ class ElmTests: XCTestCase {
 
         let backgroundQueue = OperationQueue()
         backgroundQueue.addOperation {
-            _ = Counter.makeProgram(delegate: recorder, flags: .init())
+            _ = Counter.makeProgram(delegate: recorder, seed: .init())
         }
 
         waitForExpectations(timeout: 60) { _ in
@@ -78,7 +78,7 @@ class ElmTests: XCTestCase {
     func testDelegateUpdateOnMainThread() {
 
         let recorder = ThreadRecorder()
-        let program = Counter.makeProgram(delegate: recorder, flags: .init())
+        let program = Counter.makeProgram(delegate: recorder, seed: .init())
 
         let didUpdateView = expectation(description: "")
         let didEmitCommand = expectation(description: "")
@@ -105,7 +105,7 @@ class ElmTests: XCTestCase {
     func testDispatch() {
 
         let recorder = DataRecorder()
-        let program = Counter.makeProgram(delegate: recorder, flags: .init(count: 1))
+        let program = Counter.makeProgram(delegate: recorder, seed: .init(count: 1))
 
         // Start
 
@@ -146,7 +146,7 @@ class ElmTests: XCTestCase {
     func testDispatchMultipleMessages() {
 
         let recorder = DataRecorder()
-        let program = Counter.makeProgram(delegate: recorder, flags: .init(count: 2))
+        let program = Counter.makeProgram(delegate: recorder, seed: .init(count: 2))
 
         program.dispatch(.increment, .decrement)
 
@@ -172,13 +172,13 @@ class ElmTests: XCTestCase {
 // MARK: Shortcuts
 //
 
-typealias Flags = Counter.Flags
+typealias Seed = Counter.Seed
 typealias Message = Counter.Message
 typealias View = Counter.View
 typealias Model = Counter.Model
 typealias Command = Counter.Command
 
-extension Flags {
+extension Seed {
 
     init() {
         count = 0
@@ -193,7 +193,7 @@ extension Flags {
 
 struct Counter: Module {
 
-    struct Flags {
+    struct Seed {
         let count: Int
     }
 
@@ -216,9 +216,9 @@ struct Counter: Module {
 
     enum Failure {}
 
-    static func start(with flags: Flags, perform: (Command) -> Void) throws -> Model {
+    static func start(with seed: Seed, perform: (Command) -> Void) throws -> Model {
         perform(.log("Did start"))
-        return Model(count: flags.count)
+        return Model(count: seed.count)
     }
 
     static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws {

@@ -27,14 +27,14 @@
 
 public protocol Module {
 
-    associatedtype Flags
+    associatedtype Seed
     associatedtype Message
     associatedtype Model
     associatedtype Command
     associatedtype View
     associatedtype Failure
 
-    static func start(with flags: Flags, perform: (Command) -> Void) throws -> Model
+    static func start(with seed: Seed, perform: (Command) -> Void) throws -> Model
     static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws
     static func view(for model: Model) throws -> View
 
@@ -42,8 +42,8 @@ public protocol Module {
 
 public extension Module {
 
-    static func makeProgram<Delegate: Elm.Delegate>(delegate: Delegate, flags: Flags) -> Program<Self> where Delegate.Module == Self {
-        return Program<Self>(module: self, delegate: delegate, flags: flags)
+    static func makeProgram<Delegate: Elm.Delegate>(delegate: Delegate, seed: Seed) -> Program<Self> where Delegate.Module == Self {
+        return Program<Self>(module: self, delegate: delegate, seed: seed)
     }
 
 }
@@ -72,7 +72,7 @@ public protocol Delegate: class {
 
 public final class Program<Module: Elm.Module> {
 
-    typealias Flags = Module.Flags
+    typealias Seed = Module.Seed
     typealias Message = Module.Message
     typealias Model = Module.Model
     typealias Command = Module.Command
@@ -87,16 +87,16 @@ public final class Program<Module: Elm.Module> {
     private var sendView: ViewSink = { _ in }
     private var sendCommand: CommandSink = { _ in }
 
-    init<Delegate: Elm.Delegate>(module: Module.Type, delegate: Delegate, flags: Flags) where Delegate.Module == Module {
+    init<Delegate: Elm.Delegate>(module: Module.Type, delegate: Delegate, seed: Seed) where Delegate.Module == Module {
         var commands: [Command] = []
         do {
-            model = try module.start(with: flags) { command in
+            model = try module.start(with: seed) { command in
                 commands.append(command)
             }
         } catch {
             print("FATAL: \(module).start function did throw!", to: &standardError)
             dump(error, to: &standardError, name: "Error")
-            dump(flags, to: &standardError, name: "Flags")
+            dump(seed, to: &standardError, name: "Seed")
             fatalError()
         }
         sendView = { [weak delegate] view in
@@ -160,7 +160,7 @@ public protocol Tests: class {
 
     associatedtype Module: Elm.Module
 
-    typealias Flags = Module.Flags
+    typealias Seed = Module.Seed
     typealias Model = Module.Model
     typealias Message = Module.Message
     typealias Command = Module.Command
@@ -181,9 +181,9 @@ public protocol Tests: class {
 
 public extension Tests {
 
-    func expectFailure(with flags: Flags, file: StaticString = #file, line: Int = #line) -> Failure? {
+    func expectFailure(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Failure? {
         do {
-            _ = try Module.start(with: flags) { _ in }
+            _ = try Module.start(with: seed) { _ in }
             reportUnexpectedSuccess()
             return nil
         } catch {
@@ -238,10 +238,10 @@ public extension Tests {
         }
     }
 
-    func expectStart(with flags: Flags, file: StaticString = #file, line: Int = #line) -> Start<Module>? {
+    func expectStart(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Start<Module>? {
         do {
             var commands: [Command] = []
-            let model = try Module.start(with: flags) { command in
+            let model = try Module.start(with: seed) { command in
                 commands.append(command)
             }
             return Start(model: model, commands: Lens(content: commands))
