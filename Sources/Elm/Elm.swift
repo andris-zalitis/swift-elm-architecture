@@ -30,12 +30,12 @@ public protocol Module {
     associatedtype Seed
     associatedtype Event
     associatedtype State
-    associatedtype Command
+    associatedtype Action
     associatedtype View
     associatedtype Failure
 
-    static func start(with seed: Seed, perform: (Command) -> Void) throws -> State
-    static func update(for event: Event, state: inout State, perform: (Command) -> Void) throws
+    static func start(with seed: Seed, perform: (Action) -> Void) throws -> State
+    static func update(for event: Event, state: inout State, perform: (Action) -> Void) throws
     static func view(for state: State) throws -> View
 
 }
@@ -57,10 +57,10 @@ public protocol Delegate: class {
 
     associatedtype Module: Elm.Module
 
-    typealias Command = Module.Command
+    typealias Action = Module.Action
     typealias View = Module.View
 
-    func program(_ program: Program<Module>, didEmit command: Command)
+    func program(_ program: Program<Module>, didEmit action: Action)
     func program(_ program: Program<Module>, didUpdate view: View)
 
 }
@@ -75,23 +75,23 @@ public final class Program<Module: Elm.Module> {
     typealias Seed = Module.Seed
     typealias Event = Module.Event
     typealias State = Module.State
-    typealias Command = Module.Command
+    typealias Action = Module.Action
     typealias View = Module.View
 
     private var state: State
     public private(set) lazy var view: View = Program.makeView(module: Module.self, state: self.state)
 
     private typealias ViewSink = (View) -> Void
-    private typealias CommandSink = (Command) -> Void
+    private typealias ActionSink = (Action) -> Void
 
     private var sendView: ViewSink = { _ in }
-    private var sendCommand: CommandSink = { _ in }
+    private var sendAction: ActionSink = { _ in }
 
     init<Delegate: Elm.Delegate>(module: Module.Type, delegate: Delegate, seed: Seed) where Delegate.Module == Module {
-        var commands: [Command] = []
+        var actions: [Action] = []
         do {
-            state = try module.start(with: seed) { command in
-                commands.append(command)
+            state = try module.start(with: seed) { action in
+                actions.append(action)
             }
         } catch {
             print("FATAL: \(module).start function did throw!", to: &standardError)
@@ -102,18 +102,18 @@ public final class Program<Module: Elm.Module> {
         sendView = { [weak delegate] view in
             delegate?.program(self, didUpdate: view)
         }
-        sendCommand = { [weak delegate] command in
-            delegate?.program(self, didEmit: command)
+        sendAction = { [weak delegate] action in
+            delegate?.program(self, didEmit: action)
         }
-        updateDelegate(with: commands)
+        updateDelegate(with: actions)
     }
 
     public func dispatch(_ events: Event...) {
-        var commands: [Command] = []
+        var actions: [Action] = []
         for event in events {
             do {
-                try Module.update(for: event, state: &state) { command in
-                    commands.append(command)
+                try Module.update(for: event, state: &state) { action in
+                    actions.append(action)
                 }
             } catch {
                 print("FATAL: \(Module.self).update function did throw!", to: &standardError)
@@ -124,7 +124,7 @@ public final class Program<Module: Elm.Module> {
             }
         }
         view = Program.makeView(module: Module.self, state: state)
-        updateDelegate(with: commands)
+        updateDelegate(with: actions)
     }
 
     private static func makeView(module: Module.Type, state: State) -> View {
@@ -138,15 +138,15 @@ public final class Program<Module: Elm.Module> {
         }
     }
 
-    private func updateDelegate(with commands: [Command]) {
+    private func updateDelegate(with actions: [Action]) {
         guard Thread.isMainThread else {
             OperationQueue.main.addOperation { [weak program = self] in
-                program?.updateDelegate(with: commands)
+                program?.updateDelegate(with: actions)
             }
             return
         }
         sendView(view)
-        commands.forEach(sendCommand)
+        actions.forEach(sendAction)
     }
 
 }
@@ -163,7 +163,7 @@ public protocol Tests: class {
     typealias Seed = Module.Seed
     typealias State = Module.State
     typealias Event = Module.Event
-    typealias Command = Module.Command
+    typealias Action = Module.Action
     typealias View = Module.View
     typealias Failure = Module.Failure
 
@@ -227,11 +227,11 @@ public extension Tests {
     func expectUpdate(for event: Event, state: State, file: StaticString = #file, line: Int = #line) -> Update<Module>? {
         do {
             var state = state
-            var commands: [Command] = []
-            try Module.update(for: event, state: &state) { command in
-                commands.append(command)
+            var actions: [Action] = []
+            try Module.update(for: event, state: &state) { action in
+                actions.append(action)
             }
-            return Update(state: state, commands: Lens(content: commands))
+            return Update(state: state, actions: Lens(content: actions))
         } catch {
             reportUnexpectedFailure(error, file: file, line: line)
             return nil
@@ -240,11 +240,11 @@ public extension Tests {
 
     func expectStart(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Start<Module>? {
         do {
-            var commands: [Command] = []
-            let state = try Module.start(with: seed) { command in
-                commands.append(command)
+            var actions: [Action] = []
+            let state = try Module.start(with: seed) { action in
+                actions.append(action)
             }
-            return Start(state: state, commands: Lens(content: commands))
+            return Start(state: state, actions: Lens(content: actions))
         } catch {
             reportUnexpectedFailure(error, file: file, line: line)
             return nil
@@ -301,20 +301,20 @@ public typealias Update<Module: Elm.Module> = Result<Module>
 public struct Result<Module: Elm.Module> {
 
     typealias State = Module.State
-    typealias Command = Module.Command
+    typealias Action = Module.Action
 
     public let state: State
-    public let commands: Lens<Command>
+    public let actions: Lens<Action>
 
 }
 
 public extension Result {
 
-    var command: Command? {
-        guard commands.content.count == 1 else {
+    var action: Action? {
+        guard actions.content.count == 1 else {
             return nil
         }
-        return commands[0]
+        return actions[0]
     }
 
 }

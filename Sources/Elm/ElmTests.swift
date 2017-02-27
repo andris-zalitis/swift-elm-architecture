@@ -59,9 +59,9 @@ class ElmTests: XCTestCase {
         let recorder = ThreadRecorder()
 
         let didUpdateView = expectation(description: "")
-        let didEmitCommand = expectation(description: "")
+        let didEmitAction = expectation(description: "")
         recorder.didUpdateView = didUpdateView.fulfill
-        recorder.didEmitCommand = didEmitCommand.fulfill
+        recorder.didEmitAction = didEmitAction.fulfill
 
         let backgroundQueue = OperationQueue()
         backgroundQueue.addOperation {
@@ -70,7 +70,7 @@ class ElmTests: XCTestCase {
 
         waitForExpectations(timeout: 60) { _ in
             XCTAssertEqual(recorder.didUpdateViewOnThread, Thread.main)
-            XCTAssertEqual(recorder.didEmitCommandOnThread, Thread.main)
+            XCTAssertEqual(recorder.didEmitActionOnThread, Thread.main)
         }
 
     }
@@ -81,9 +81,9 @@ class ElmTests: XCTestCase {
         let program = Counter.makeProgram(delegate: recorder, seed: .init())
 
         let didUpdateView = expectation(description: "")
-        let didEmitCommand = expectation(description: "")
+        let didEmitAction = expectation(description: "")
         recorder.didUpdateView = didUpdateView.fulfill
-        recorder.didEmitCommand = didEmitCommand.fulfill
+        recorder.didEmitAction = didEmitAction.fulfill
 
         let backgroundQueue = OperationQueue()
         backgroundQueue.addOperation {
@@ -92,7 +92,7 @@ class ElmTests: XCTestCase {
 
         waitForExpectations(timeout: 60) { _ in
             XCTAssertEqual(recorder.didUpdateViewOnThread, Thread.main)
-            XCTAssertEqual(recorder.didEmitCommandOnThread, Thread.main)
+            XCTAssertEqual(recorder.didEmitActionOnThread, Thread.main)
         }
 
     }
@@ -111,8 +111,8 @@ class ElmTests: XCTestCase {
 
         XCTAssertEqual(program.view, View(counterText: "1"))
 
-        XCTAssertEqual(recorder.commands.count, 1)
-        XCTAssertEqual(recorder.commands.last, .log("Did start"))
+        XCTAssertEqual(recorder.actions.count, 1)
+        XCTAssertEqual(recorder.actions.last, .log("Did start"))
 
         XCTAssertEqual(recorder.views.count, 1)
         XCTAssertEqual(recorder.views.last, View(counterText: "1"))
@@ -123,8 +123,8 @@ class ElmTests: XCTestCase {
 
         XCTAssertEqual(program.view, View(counterText: "2"))
 
-        XCTAssertEqual(recorder.commands.count, 2)
-        XCTAssertEqual(recorder.commands.last, .log("Did increment"))
+        XCTAssertEqual(recorder.actions.count, 2)
+        XCTAssertEqual(recorder.actions.last, .log("Did increment"))
 
         XCTAssertEqual(recorder.views.count, 2)
         XCTAssertEqual(recorder.views.last, View(counterText: "2"))
@@ -135,8 +135,8 @@ class ElmTests: XCTestCase {
 
         XCTAssertEqual(program.view, View(counterText: "1"))
 
-        XCTAssertEqual(recorder.commands.count, 3)
-        XCTAssertEqual(recorder.commands.last, .log("Did decrement"))
+        XCTAssertEqual(recorder.actions.count, 3)
+        XCTAssertEqual(recorder.actions.last, .log("Did decrement"))
 
         XCTAssertEqual(recorder.views.count, 3)
         XCTAssertEqual(recorder.views.last, View(counterText: "1"))
@@ -150,7 +150,7 @@ class ElmTests: XCTestCase {
 
         program.dispatch(.increment, .decrement)
 
-        XCTAssertEqual(recorder.commands, [
+        XCTAssertEqual(recorder.actions, [
             .log("Did start"),
             .log("Did increment"),
             .log("Did decrement")
@@ -176,7 +176,7 @@ typealias Seed = Counter.Seed
 typealias Event = Counter.Event
 typealias View = Counter.View
 typealias State = Counter.State
-typealias Command = Counter.Command
+typealias Action = Counter.Action
 
 extension Seed {
 
@@ -210,18 +210,18 @@ struct Counter: Module {
         let counterText: String
     }
 
-    enum Command {
+    enum Action {
         case log(String)
     }
 
     enum Failure {}
 
-    static func start(with seed: Seed, perform: (Command) -> Void) throws -> State {
+    static func start(with seed: Seed, perform: (Action) -> Void) throws -> State {
         perform(.log("Did start"))
         return State(count: seed.count)
     }
 
-    static func update(for event: Event, state: inout State, perform: (Command) -> Void) throws {
+    static func update(for event: Event, state: inout State, perform: (Action) -> Void) throws {
         switch event {
         case .increment:
             state.count += 1
@@ -244,8 +244,8 @@ struct Counter: Module {
 // MARK: Equatable conformances
 //
 
-extension Command: Equatable {
-    static func ==(lhs: Command, rhs: Command) -> Bool {
+extension Action: Equatable {
+    static func ==(lhs: Action, rhs: Action) -> Bool {
         return String(describing: lhs) == String(describing: rhs)
     }
 }
@@ -278,13 +278,13 @@ final class DataRecorder: Delegate {
 
     //
     // MARK: -
-    // MARK: Capture commands
+    // MARK: Capture actions
     //
 
-    var commands: [Command] = []
+    var actions: [Action] = []
 
-    func program(_ program: Program<Counter>, didEmit command: Counter.Command) {
-        commands.append(command)
+    func program(_ program: Program<Counter>, didEmit action: Counter.Action) {
+        actions.append(action)
     }
 
 }
@@ -294,17 +294,17 @@ final class ThreadRecorder: Elm.Delegate {
     var didUpdateView: () -> Void = { _ in }
     private(set) var didUpdateViewOnThread: Thread?
 
-    var didEmitCommand: () -> Void = { _ in }
-    private(set) var didEmitCommandOnThread: Thread?
+    var didEmitAction: () -> Void = { _ in }
+    private(set) var didEmitActionOnThread: Thread?
 
     func program(_ program: Program<Counter>, didUpdate view: Counter.View) {
         didUpdateViewOnThread = Thread.current
         didUpdateView()
     }
 
-    func program(_ program: Program<Counter>, didEmit command: Counter.Command) {
-        didEmitCommandOnThread = Thread.current
-        didEmitCommand()
+    func program(_ program: Program<Counter>, didEmit action: Counter.Action) {
+        didEmitActionOnThread = Thread.current
+        didEmitAction()
     }
 
 }
