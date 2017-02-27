@@ -22,10 +22,10 @@
 
 //
 // MARK: -
-// MARK: Module
+// MARK: Program
 //
 
-public protocol Module {
+public protocol Program {
 
     associatedtype Seed
     associatedtype Event
@@ -40,10 +40,10 @@ public protocol Module {
 
 }
 
-public extension Module {
+public extension Program {
 
-    static func makeStore<Delegate: Elm.Delegate>(delegate: Delegate, seed: Seed) -> Store<Self> where Delegate.Module == Self {
-        return Store<Self>(module: self, delegate: delegate, seed: seed)
+    static func makeStore<Delegate: Elm.Delegate>(delegate: Delegate, seed: Seed) -> Store<Self> where Delegate.Program == Self {
+        return Store<Self>(program: self, delegate: delegate, seed: seed)
     }
 
 }
@@ -55,13 +55,13 @@ public extension Module {
 
 public protocol Delegate: class {
 
-    associatedtype Module: Elm.Module
+    associatedtype Program: Elm.Program
 
-    typealias Action = Module.Action
-    typealias View = Module.View
+    typealias Action = Program.Action
+    typealias View = Program.View
 
-    func store(_ store: Store<Module>, didRequest action: Action)
-    func store(_ store: Store<Module>, didUpdate view: View)
+    func store(_ store: Store<Program>, didRequest action: Action)
+    func store(_ store: Store<Program>, didUpdate view: View)
 
 }
 
@@ -70,16 +70,16 @@ public protocol Delegate: class {
 // MARK: Store
 //
 
-public final class Store<Module: Elm.Module> {
+public final class Store<Program: Elm.Program> {
 
-    typealias Seed = Module.Seed
-    typealias Event = Module.Event
-    typealias State = Module.State
-    typealias Action = Module.Action
-    typealias View = Module.View
+    typealias Seed = Program.Seed
+    typealias Event = Program.Event
+    typealias State = Program.State
+    typealias Action = Program.Action
+    typealias View = Program.View
 
     private var state: State
-    public private(set) lazy var view: View = Store.makeView(module: Module.self, state: self.state)
+    public private(set) lazy var view: View = Store.makeView(program: Program.self, state: self.state)
 
     private typealias ViewSink = (View) -> Void
     private typealias ActionSink = (Action) -> Void
@@ -87,14 +87,14 @@ public final class Store<Module: Elm.Module> {
     private var sendView: ViewSink = { _ in }
     private var sendAction: ActionSink = { _ in }
 
-    init<Delegate: Elm.Delegate>(module: Module.Type, delegate: Delegate, seed: Seed) where Delegate.Module == Module {
+    init<Delegate: Elm.Delegate>(program: Program.Type, delegate: Delegate, seed: Seed) where Delegate.Program == Program {
         var actions: [Action] = []
         do {
-            state = try module.start(with: seed) { action in
+            state = try program.start(with: seed) { action in
                 actions.append(action)
             }
         } catch {
-            print("FATAL: \(module).start function did throw!", to: &standardError)
+            print("FATAL: \(program).start function did throw!", to: &standardError)
             dump(error, to: &standardError, name: "Error")
             dump(seed, to: &standardError, name: "Seed")
             fatalError()
@@ -112,26 +112,26 @@ public final class Store<Module: Elm.Module> {
         var actions: [Action] = []
         for event in events {
             do {
-                try Module.update(for: event, state: &state) { action in
+                try Program.update(for: event, state: &state) { action in
                     actions.append(action)
                 }
             } catch {
-                print("FATAL: \(Module.self).update function did throw!", to: &standardError)
+                print("FATAL: \(Program.self).update function did throw!", to: &standardError)
                 dump(error, to: &standardError, name: "Error")
                 dump(event, to: &standardError, name: "Event")
                 dump(state, to: &standardError, name: "State")
                 fatalError()
             }
         }
-        view = Store.makeView(module: Module.self, state: state)
+        view = Store.makeView(program: Program.self, state: state)
         updateDelegate(with: actions)
     }
 
-    private static func makeView(module: Module.Type, state: State) -> View {
+    private static func makeView(program: Program.Type, state: State) -> View {
         do {
-            return try module.view(for: state)
+            return try program.view(for: state)
         } catch {
-            print("FATAL: \(module).view function did throw!", to: &standardError)
+            print("FATAL: \(program).view function did throw!", to: &standardError)
             dump(error, to: &standardError, name: "Error")
             dump(state, to: &standardError, name: "State")
             fatalError()
@@ -158,14 +158,14 @@ public final class Store<Module: Elm.Module> {
 
 public protocol Tests: class {
 
-    associatedtype Module: Elm.Module
+    associatedtype Program: Elm.Program
 
-    typealias Seed = Module.Seed
-    typealias State = Module.State
-    typealias Event = Module.Event
-    typealias Action = Module.Action
-    typealias View = Module.View
-    typealias Failure = Module.Failure
+    typealias Seed = Program.Seed
+    typealias State = Program.State
+    typealias Event = Program.Event
+    typealias Action = Program.Action
+    typealias View = Program.View
+    typealias Failure = Program.Failure
 
     // XCTFail
     typealias FailureReporter = (
@@ -183,7 +183,7 @@ public extension Tests {
 
     func expectFailure(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Failure? {
         do {
-            _ = try Module.start(with: seed) { _ in }
+            _ = try Program.start(with: seed) { _ in }
             reportUnexpectedSuccess()
             return nil
         } catch {
@@ -197,7 +197,7 @@ public extension Tests {
 
     func expectFailure(for state: State, file: StaticString = #file, line: Int = #line) -> Failure? {
         do {
-            _ = try Module.view(for: state)
+            _ = try Program.view(for: state)
             reportUnexpectedSuccess()
             return nil
         } catch {
@@ -212,7 +212,7 @@ public extension Tests {
     func expectFailure(for event: Event, state: State, file: StaticString = #file, line: Int = #line) -> Failure? {
         do {
             var state = state
-            try Module.update(for: event, state: &state) { _ in }
+            try Program.update(for: event, state: &state) { _ in }
             reportUnexpectedSuccess()
             return nil
         } catch {
@@ -224,11 +224,11 @@ public extension Tests {
         }
     }
 
-    func expectUpdate(for event: Event, state: State, file: StaticString = #file, line: Int = #line) -> Update<Module>? {
+    func expectUpdate(for event: Event, state: State, file: StaticString = #file, line: Int = #line) -> Update<Program>? {
         do {
             var state = state
             var actions: [Action] = []
-            try Module.update(for: event, state: &state) { action in
+            try Program.update(for: event, state: &state) { action in
                 actions.append(action)
             }
             return Update(state: state, actions: Lens(content: actions))
@@ -238,10 +238,10 @@ public extension Tests {
         }
     }
 
-    func expectStart(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Start<Module>? {
+    func expectStart(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Start<Program>? {
         do {
             var actions: [Action] = []
-            let state = try Module.start(with: seed) { action in
+            let state = try Program.start(with: seed) { action in
                 actions.append(action)
             }
             return Start(state: state, actions: Lens(content: actions))
@@ -253,7 +253,7 @@ public extension Tests {
 
     func expectView(for state: State, file: StaticString = #file, line: Int = #line) -> View? {
         do {
-            return try Module.view(for: state)
+            return try Program.view(for: state)
         } catch {
             reportUnexpectedFailure(error, file: file, line: line)
             return nil
@@ -295,13 +295,13 @@ public extension Tests {
 
 }
 
-public typealias Start<Module: Elm.Module> = Result<Module>
-public typealias Update<Module: Elm.Module> = Result<Module>
+public typealias Start<Program: Elm.Program> = Result<Program>
+public typealias Update<Program: Elm.Program> = Result<Program>
 
-public struct Result<Module: Elm.Module> {
+public struct Result<Program: Elm.Program> {
 
-    typealias State = Module.State
-    typealias Action = Module.Action
+    typealias State = Program.State
+    typealias Action = Program.Action
 
     public let state: State
     public let actions: Lens<Action>

@@ -188,10 +188,10 @@ extension Seed {
 
 //
 // MARK: -
-// MARK: Module
+// MARK: Program
 //
 
-struct Counter: Module {
+struct Counter: Program {
 
     struct Seed {
         let count: Int
@@ -263,7 +263,7 @@ extension View: Equatable {
 
 final class DataRecorder: Delegate {
 
-    typealias Module = Counter
+    typealias Program = Counter
 
     //
     // MARK: -
