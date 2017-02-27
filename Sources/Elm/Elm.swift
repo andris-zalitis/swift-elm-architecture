@@ -22,28 +22,28 @@
 
 //
 // MARK: -
-// MARK: Module
+// MARK: Program
 //
 
-public protocol Module {
+public protocol Program {
 
-    associatedtype Flags
-    associatedtype Message
-    associatedtype Model
-    associatedtype Command
+    associatedtype Seed
+    associatedtype Event
+    associatedtype State
+    associatedtype Action
     associatedtype View
     associatedtype Failure
 
-    static func start(with flags: Flags, perform: (Command) -> Void) throws -> Model
-    static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws
-    static func view(for model: Model) throws -> View
+    static func start(with seed: Seed, perform: (Action) -> Void) throws -> State
+    static func update(for event: Event, state: inout State, perform: (Action) -> Void) throws
+    static func view(for state: State) throws -> View
 
 }
 
-public extension Module {
+public extension Program {
 
-    static func makeProgram<Delegate: Elm.Delegate>(delegate: Delegate, flags: Flags) -> Program<Self> where Delegate.Module == Self {
-        return Program<Self>(module: self, delegate: delegate, flags: flags)
+    static func makeStore<Delegate: Elm.Delegate>(delegate: Delegate, seed: Seed) -> Store<Self> where Delegate.Program == Self {
+        return Store<Self>(program: self, delegate: delegate, seed: seed)
     }
 
 }
@@ -55,98 +55,98 @@ public extension Module {
 
 public protocol Delegate: class {
 
-    associatedtype Module: Elm.Module
+    associatedtype Program: Elm.Program
 
-    typealias Command = Module.Command
-    typealias View = Module.View
+    typealias Action = Program.Action
+    typealias View = Program.View
 
-    func program(_ program: Program<Module>, didEmit command: Command)
-    func program(_ program: Program<Module>, didUpdate view: View)
+    func store(_ store: Store<Program>, didRequest action: Action)
+    func store(_ store: Store<Program>, didUpdate view: View)
 
 }
 
 //
 // MARK: -
-// MARK: Program
+// MARK: Store
 //
 
-public final class Program<Module: Elm.Module> {
+public final class Store<Program: Elm.Program> {
 
-    typealias Flags = Module.Flags
-    typealias Message = Module.Message
-    typealias Model = Module.Model
-    typealias Command = Module.Command
-    typealias View = Module.View
+    typealias Seed = Program.Seed
+    typealias Event = Program.Event
+    typealias State = Program.State
+    typealias Action = Program.Action
+    typealias View = Program.View
 
-    private var model: Model
-    public private(set) lazy var view: View = Program.makeView(module: Module.self, model: self.model)
+    private var state: State
+    public private(set) lazy var view: View = Store.makeView(program: Program.self, state: self.state)
 
     private typealias ViewSink = (View) -> Void
-    private typealias CommandSink = (Command) -> Void
+    private typealias ActionSink = (Action) -> Void
 
     private var sendView: ViewSink = { _ in }
-    private var sendCommand: CommandSink = { _ in }
+    private var sendAction: ActionSink = { _ in }
 
-    init<Delegate: Elm.Delegate>(module: Module.Type, delegate: Delegate, flags: Flags) where Delegate.Module == Module {
-        var commands: [Command] = []
+    init<Delegate: Elm.Delegate>(program: Program.Type, delegate: Delegate, seed: Seed) where Delegate.Program == Program {
+        var actions: [Action] = []
         do {
-            model = try module.start(with: flags) { command in
-                commands.append(command)
+            state = try program.start(with: seed) { action in
+                actions.append(action)
             }
         } catch {
-            print("FATAL: \(module).start function did throw!", to: &standardError)
+            print("FATAL: \(program).start function did throw!", to: &standardError)
             dump(error, to: &standardError, name: "Error")
-            dump(flags, to: &standardError, name: "Flags")
+            dump(seed, to: &standardError, name: "Seed")
             fatalError()
         }
         sendView = { [weak delegate] view in
-            delegate?.program(self, didUpdate: view)
+            delegate?.store(self, didUpdate: view)
         }
-        sendCommand = { [weak delegate] command in
-            delegate?.program(self, didEmit: command)
+        sendAction = { [weak delegate] action in
+            delegate?.store(self, didRequest: action)
         }
-        updateDelegate(with: commands)
+        updateDelegate(with: actions)
     }
 
-    public func dispatch(_ messages: Message...) {
-        var commands: [Command] = []
-        for message in messages {
+    public func dispatch(_ events: Event...) {
+        var actions: [Action] = []
+        for event in events {
             do {
-                try Module.update(for: message, model: &model) { command in
-                    commands.append(command)
+                try Program.update(for: event, state: &state) { action in
+                    actions.append(action)
                 }
             } catch {
-                print("FATAL: \(Module.self).update function did throw!", to: &standardError)
+                print("FATAL: \(Program.self).update function did throw!", to: &standardError)
                 dump(error, to: &standardError, name: "Error")
-                dump(message, to: &standardError, name: "Message")
-                dump(model, to: &standardError, name: "Model")
+                dump(event, to: &standardError, name: "Event")
+                dump(state, to: &standardError, name: "State")
                 fatalError()
             }
         }
-        view = Program.makeView(module: Module.self, model: model)
-        updateDelegate(with: commands)
+        view = Store.makeView(program: Program.self, state: state)
+        updateDelegate(with: actions)
     }
 
-    private static func makeView(module: Module.Type, model: Model) -> View {
+    private static func makeView(program: Program.Type, state: State) -> View {
         do {
-            return try module.view(for: model)
+            return try program.view(for: state)
         } catch {
-            print("FATAL: \(module).view function did throw!", to: &standardError)
+            print("FATAL: \(program).view function did throw!", to: &standardError)
             dump(error, to: &standardError, name: "Error")
-            dump(model, to: &standardError, name: "Model")
+            dump(state, to: &standardError, name: "State")
             fatalError()
         }
     }
 
-    private func updateDelegate(with commands: [Command]) {
+    private func updateDelegate(with actions: [Action]) {
         guard Thread.isMainThread else {
-            OperationQueue.main.addOperation { [weak program = self] in
-                program?.updateDelegate(with: commands)
+            OperationQueue.main.addOperation { [weak store = self] in
+                store?.updateDelegate(with: actions)
             }
             return
         }
         sendView(view)
-        commands.forEach(sendCommand)
+        actions.forEach(sendAction)
     }
 
 }
@@ -158,18 +158,18 @@ public final class Program<Module: Elm.Module> {
 
 public protocol Tests: class {
 
-    associatedtype Module: Elm.Module
+    associatedtype Program: Elm.Program
 
-    typealias Flags = Module.Flags
-    typealias Model = Module.Model
-    typealias Message = Module.Message
-    typealias Command = Module.Command
-    typealias View = Module.View
-    typealias Failure = Module.Failure
+    typealias Seed = Program.Seed
+    typealias State = Program.State
+    typealias Event = Program.Event
+    typealias Action = Program.Action
+    typealias View = Program.View
+    typealias Failure = Program.Failure
 
     // XCTFail
     typealias FailureReporter = (
-        String, // message
+        String, // event
         StaticString, // file
         UInt // line
         ) -> Void
@@ -181,9 +181,9 @@ public protocol Tests: class {
 
 public extension Tests {
 
-    func expectFailure(with flags: Flags, file: StaticString = #file, line: Int = #line) -> Failure? {
+    func expectFailure(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Failure? {
         do {
-            _ = try Module.start(with: flags) { _ in }
+            _ = try Program.start(with: seed) { _ in }
             reportUnexpectedSuccess()
             return nil
         } catch {
@@ -195,9 +195,9 @@ public extension Tests {
         }
     }
 
-    func expectFailure(for model: Model, file: StaticString = #file, line: Int = #line) -> Failure? {
+    func expectFailure(for state: State, file: StaticString = #file, line: Int = #line) -> Failure? {
         do {
-            _ = try Module.view(for: model)
+            _ = try Program.view(for: state)
             reportUnexpectedSuccess()
             return nil
         } catch {
@@ -209,10 +209,10 @@ public extension Tests {
         }
     }
 
-    func expectFailure(for message: Message, model: Model, file: StaticString = #file, line: Int = #line) -> Failure? {
+    func expectFailure(for event: Event, state: State, file: StaticString = #file, line: Int = #line) -> Failure? {
         do {
-            var model = model
-            try Module.update(for: message, model: &model) { _ in }
+            var state = state
+            try Program.update(for: event, state: &state) { _ in }
             reportUnexpectedSuccess()
             return nil
         } catch {
@@ -224,36 +224,36 @@ public extension Tests {
         }
     }
 
-    func expectUpdate(for message: Message, model: Model, file: StaticString = #file, line: Int = #line) -> Update<Module>? {
+    func expectUpdate(for event: Event, state: State, file: StaticString = #file, line: Int = #line) -> Update<Program>? {
         do {
-            var model = model
-            var commands: [Command] = []
-            try Module.update(for: message, model: &model) { command in
-                commands.append(command)
+            var state = state
+            var actions: [Action] = []
+            try Program.update(for: event, state: &state) { action in
+                actions.append(action)
             }
-            return Update(model: model, commands: Lens(content: commands))
+            return Update(state: state, actions: Lens(content: actions))
         } catch {
             reportUnexpectedFailure(error, file: file, line: line)
             return nil
         }
     }
 
-    func expectStart(with flags: Flags, file: StaticString = #file, line: Int = #line) -> Start<Module>? {
+    func expectStart(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Start<Program>? {
         do {
-            var commands: [Command] = []
-            let model = try Module.start(with: flags) { command in
-                commands.append(command)
+            var actions: [Action] = []
+            let state = try Program.start(with: seed) { action in
+                actions.append(action)
             }
-            return Start(model: model, commands: Lens(content: commands))
+            return Start(state: state, actions: Lens(content: actions))
         } catch {
             reportUnexpectedFailure(error, file: file, line: line)
             return nil
         }
     }
 
-    func expectView(for model: Model, file: StaticString = #file, line: Int = #line) -> View? {
+    func expectView(for state: State, file: StaticString = #file, line: Int = #line) -> View? {
         do {
-            return try Module.view(for: model)
+            return try Program.view(for: state)
         } catch {
             reportUnexpectedFailure(error, file: file, line: line)
             return nil
@@ -272,12 +272,12 @@ public extension Tests {
         fail("Unexpected failure", subject: failure)
     }
 
-    private func fail(_ message: String, subject: Any, file: StaticString = #file, line: Int = #line) {
-        fail(message + ":" + " " + String(describing: subject), file: file, line: line)
+    private func fail(_ event: String, subject: Any, file: StaticString = #file, line: Int = #line) {
+        fail(event + ":" + " " + String(describing: subject), file: file, line: line)
     }
 
-    private func fail(_ message: String, file: StaticString = #file, line: Int = #line) {
-        failureReporter(message, file, UInt(line))
+    private func fail(_ event: String, file: StaticString = #file, line: Int = #line) {
+        failureReporter(event, file, UInt(line))
     }
 
 }
@@ -288,33 +288,33 @@ public extension Tests {
         let value = String(describing: value)
         let expectedValue = String(describing: expectedValue)
         if value != expectedValue {
-            let message = value + " is not equal to " + expectedValue
-            failureReporter(message, file, UInt(line))
+            let event = value + " is not equal to " + expectedValue
+            failureReporter(event, file, UInt(line))
         }
     }
 
 }
 
-public typealias Start<Module: Elm.Module> = Result<Module>
-public typealias Update<Module: Elm.Module> = Result<Module>
+public typealias Start<Program: Elm.Program> = Result<Program>
+public typealias Update<Program: Elm.Program> = Result<Program>
 
-public struct Result<Module: Elm.Module> {
+public struct Result<Program: Elm.Program> {
 
-    typealias Model = Module.Model
-    typealias Command = Module.Command
+    typealias State = Program.State
+    typealias Action = Program.Action
 
-    public let model: Model
-    public let commands: Lens<Command>
+    public let state: State
+    public let actions: Lens<Action>
 
 }
 
 public extension Result {
 
-    var command: Command? {
-        guard commands.content.count == 1 else {
+    var action: Action? {
+        guard actions.content.count == 1 else {
             return nil
         }
-        return commands[0]
+        return actions[0]
     }
 
 }
