@@ -2,10 +2,6 @@
 
 This is [The Elm Architecture](https://guide.elm-lang.org/architecture/) for [Swift](https://swift.org).
 
-Looking for a way to build iOS apps in [Elm](http://elm-lang.org)? Check out [`swift-elm`](https://github.com/salutis/swift-elm)!
-
-Questions? Comments? Concerns? [Say hello!](https://twitter.com/salutis)
-
 <a href="http://elm-lang.org"><img src="Images/Logo-Elm.png" width="32" height="32" alt="Elm Logo"/></a>
 <a href="https://swift.org"><img src="Images/Logo-Swift.png" width="32" height="32" alt="Swift Logo"/></a>
 
@@ -49,7 +45,7 @@ struct Counter: Program {
     enum Failure {}
 
     static func start(with seed: Seed, perform: (Action) -> Void) -> Result<State, Failure> {
-        let state = .init(count: 0)
+        let state = State(count: 0)
         return .success(state)
     }
 
@@ -65,7 +61,7 @@ struct Counter: Program {
 
     static func view(for state: State) -> Result<View, Failure> {
         let count = String(state.count)
-        let view = return .init(count: count)
+        let view = View(count: count)
         return .success(view)
     }
     
@@ -103,7 +99,7 @@ class CounterViewController: UIViewController, Elm.Delegate {
     }
 
     func store(_ store: Store<Program>, didUpdate view: Program.View) {
-        countLabel?.text = view.count
+        countLabel.text = view.count
     }
 
     func store(_ store: Store<Program>, didRequest action: Program.Action) {
@@ -172,9 +168,6 @@ class CounterTests: XCTestCase, Elm.Tests {
   * Targets:
     * `App`: Yes
     * `AppTests`: Yes
-* Add _Copy Files_ build phase to both `App` and `AppTests` targets
-  * Destination: `Frameworks`
-  * Name: `Elm.framework`
 * Add _Run Script_ build phase to both `App` and `AppTests` targets
   * Script: `carthage copy-frameworks`
   * Input files:`$(SRCROOT)/Carthage/Build/iOS/Elm.framework`
