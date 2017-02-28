@@ -37,11 +37,12 @@ struct Counter: Program {
         var count: Int
     }
 
+    enum Action {}
+
     struct View {
         let count: String
     }
 
-    enum Action {}
     enum Failure {}
 
     static func start(with seed: Seed, perform: (Action) -> Void) -> Result<State, Failure> {
