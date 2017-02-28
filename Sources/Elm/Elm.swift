@@ -261,11 +261,11 @@ public extension Tests {
         }
     }
 
-    private func reportUnexpectedSuccess(file: StaticString = #file, line: Int = #line) {
+    private func reportUnexpectedSuccess(file: StaticString, line: Int) {
         fail("Unexpected success", file: file, line: line)
     }
 
-    private func reportUnexpectedFailure<Failure>(_ failure: Failure, file: StaticString = #file, line: Int = #line) {
+    private func reportUnexpectedFailure<Failure>(_ failure: Failure, file: StaticString, line: Int) {
         fail("Unexpected failure: \(failure)", file: file, line: line)
     }
 
