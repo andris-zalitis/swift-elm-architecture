@@ -181,15 +181,7 @@ public protocol Tests: class {
     typealias View = Program.View
     typealias Failure = Program.Failure
 
-    // XCTFail
-    typealias FailureReporter = (
-        String, // event
-        StaticString, // file
-        UInt // line
-        ) -> Void
-
-
-    var failureReporter: FailureReporter { get }
+    func fail(_ message: String, file: StaticString, line: Int)
 
 }
 
@@ -274,15 +266,7 @@ public extension Tests {
     }
 
     private func reportUnexpectedFailure<Failure>(_ failure: Failure, file: StaticString = #file, line: Int = #line) {
-        fail("Unexpected failure", subject: failure)
-    }
-
-    private func fail(_ event: String, subject: Any, file: StaticString = #file, line: Int = #line) {
-        fail(event + ":" + " " + String(describing: subject), file: file, line: line)
-    }
-
-    private func fail(_ event: String, file: StaticString = #file, line: Int = #line) {
-        failureReporter(event, file, UInt(line))
+        fail("Unexpected failure: \(failure)", file: file, line: line)
     }
 
 }
@@ -294,7 +278,7 @@ public extension Tests {
         let expectedValue = String(describing: expectedValue)
         if value != expectedValue {
             let event = value + " is not equal to " + expectedValue
-            failureReporter(event, file, UInt(line))
+            fail(event, file: file, line: line)
         }
     }
 
