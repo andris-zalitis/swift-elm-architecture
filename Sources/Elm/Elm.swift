@@ -125,7 +125,7 @@ public final class Store<Program: Elm.Program> {
             let result = Program.update(for: event, state: &state) { action in
                 actions.append(action)
             }
-            if case .failure(let failure) = result  {
+            if case .failure(let failure) = result {
                 print("FATAL: \(Program.self).update function did fail!", to: &standardError)
                 dump(failure, to: &standardError, name: "Failure")
                 dump(event, to: &standardError, name: "Event")
@@ -184,7 +184,6 @@ public protocol Tests: class {
         StaticString, // file
         UInt // line
         ) -> Void
-
 
     var failureReporter: FailureReporter { get }
 
