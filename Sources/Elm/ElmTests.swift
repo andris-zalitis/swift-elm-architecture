@@ -248,13 +248,13 @@ struct Counter: Program {
 //
 
 extension Action: Equatable {
-    static func ==(lhs: Action, rhs: Action) -> Bool {
+    static func == (lhs: Action, rhs: Action) -> Bool {
         return String(describing: lhs) == String(describing: rhs)
     }
 }
 
 extension View: Equatable {
-    static func ==(lhs: View, rhs: View) -> Bool {
+    static func == (lhs: View, rhs: View) -> Bool {
         return String(describing: lhs) == String(describing: rhs)
     }
 }
