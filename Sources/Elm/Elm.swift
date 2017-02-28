@@ -96,9 +96,9 @@ public final class Store<Program: Elm.Program> {
     private var sendView: ViewSink = { _ in }
     private var sendAction: ActionSink = { _ in }
 
-    init<Delegate: Elm.Delegate>(program: Program.Type, delegate: Delegate, seed: Seed) where Delegate.Program == Program {
+    init<Delegate: Elm.Delegate>(program _: Program.Type, delegate: Delegate, seed: Seed) where Delegate.Program == Program {
         var actions: [Action] = []
-        let result = program.start(with: seed) { action in
+        let result = Program.start(with: seed) { action in
             actions.append(action)
         }
         switch result {
@@ -112,10 +112,11 @@ public final class Store<Program: Elm.Program> {
             }
             updateDelegate(with: actions)
         case .failure(let failure):
-            print("FATAL: \(program).start function did fail!", to: &standardError)
-            dump(failure, to: &standardError, name: "Failure")
-            dump(seed, to: &standardError, name: "Seed")
-            fatalError()
+            let message = "Fatal error!" + "\n"
+                + dumped(Program.start, label: "Location")
+                + dumped(failure, label: "Failure")
+                + dumped(seed, label: "Seed")
+            fatalError(message)
         }
     }
 
@@ -125,12 +126,13 @@ public final class Store<Program: Elm.Program> {
             let result = Program.update(for: event, state: &state) { action in
                 actions.append(action)
             }
-            if case .failure(let failure) = result {
-                print("FATAL: \(Program.self).update function did fail!", to: &standardError)
-                dump(failure, to: &standardError, name: "Failure")
-                dump(event, to: &standardError, name: "Event")
-                dump(state, to: &standardError, name: "State")
-                fatalError()
+            if case .failure(let failure) = result  {
+                let message = "Fatal error!" + "\n"
+                    + dumped(Program.update, label: "Location")
+                    + dumped(failure, label: "Failure")
+                    + dumped(event, label: "Event")
+                    + dumped(state, label: "State")
+                fatalError(message)
             }
         }
         view = Store.makeView(program: Program.self, state: state)
@@ -142,10 +144,11 @@ public final class Store<Program: Elm.Program> {
         case .success(let view):
             return view
         case .failure(let failure):
-            print("FATAL: \(program).view function did fail!", to: &standardError)
-            dump(failure, to: &standardError, name: "Error")
-            dump(state, to: &standardError, name: "State")
-            fatalError()
+            let message = "Fatal error!" + "\n"
+                + dumped(Program.update, label: "Location")
+                + dumped(failure, label: "Failure")
+                + dumped(state, label: "State")
+            fatalError(message)
         }
     }
 
@@ -178,14 +181,7 @@ public protocol Tests: class {
     typealias View = Program.View
     typealias Failure = Program.Failure
 
-    // XCTFail
-    typealias FailureReporter = (
-        String, // event
-        StaticString, // file
-        UInt // line
-        ) -> Void
-
-    var failureReporter: FailureReporter { get }
+    func fail(_ message: String, file: StaticString, line: Int)
 
 }
 
@@ -265,20 +261,12 @@ public extension Tests {
         }
     }
 
-    private func reportUnexpectedSuccess(file: StaticString = #file, line: Int = #line) {
+    private func reportUnexpectedSuccess(file: StaticString, line: Int) {
         fail("Unexpected success", file: file, line: line)
     }
 
-    private func reportUnexpectedFailure<Failure>(_ failure: Failure, file: StaticString = #file, line: Int = #line) {
-        fail("Unexpected failure", subject: failure)
-    }
-
-    private func fail(_ event: String, subject: Any, file: StaticString = #file, line: Int = #line) {
-        fail(event + ":" + " " + String(describing: subject), file: file, line: line)
-    }
-
-    private func fail(_ event: String, file: StaticString = #file, line: Int = #line) {
-        failureReporter(event, file, UInt(line))
+    private func reportUnexpectedFailure<Failure>(_ failure: Failure, file: StaticString, line: Int) {
+        fail("Unexpected failure: \(failure)", file: file, line: line)
     }
 
 }
@@ -290,7 +278,7 @@ public extension Tests {
         let expectedValue = String(describing: expectedValue)
         if value != expectedValue {
             let event = value + " is not equal to " + expectedValue
-            failureReporter(event, file, UInt(line))
+            fail(event, file: file, line: line)
         }
     }
 
@@ -338,10 +326,8 @@ public struct Lens<T> {
 // MARK: Utilities
 //
 
-private struct StandardError: TextOutputStream {
-    public mutating func write(_ string: String) {
-        fputs(string, stderr)
-    }
+func dumped<T>(_ value: T, label: String) -> String {
+    var result = label + ":" + "\n"
+    dump(value, to: &result, indent: 1)
+    return result
 }
-
-private var standardError = StandardError()

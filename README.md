@@ -13,6 +13,25 @@ This is [The Elm Architecture](https://guide.elm-lang.org/architecture/) for [Sw
 
 _The Elm Architecture_ is a simple pattern for architecting apps. It is great for modularity, code reuse, and testing. Ultimately, it makes it easy to create complex apps that stay healthy as you refactor and add features.
 
+# Interface
+
+```swift
+public protocol Program {
+
+    associatedtype Seed
+    associatedtype Event
+    associatedtype State
+    associatedtype Action
+    associatedtype View
+    associatedtype Failure
+
+    static func start(with seed: Seed, perform: (Action) -> Void) -> Result<State, Failure>
+    static func update(for event: Event, state: inout State, perform: (Action) -> Void) -> Result<Success, Failure>
+    static func view(for state: State) -> Result<View, Failure>
+
+}
+```
+
 # Example
 
 Let's build a counter:
@@ -37,11 +56,12 @@ struct Counter: Program {
         var count: Int
     }
 
+    enum Action {}
+
     struct View {
         let count: String
     }
 
-    enum Action {}
     enum Failure {}
 
     static func start(with seed: Seed, perform: (Action) -> Void) -> Result<State, Failure> {
@@ -120,9 +140,8 @@ import Elm
 class CounterTests: XCTestCase, Elm.Tests {
 
     typealias Program = Counter
-    let failureReporter = XCTFail
 
-    func test() {
+    func testStart() {
         let start = expectStart(with: .init())
         expect(start?.state.count, 0)
     }
@@ -155,6 +174,10 @@ class CounterTests: XCTestCase, Elm.Tests {
     func testView2() {
         let view = expectView(for: .init(count: 2))
         expect(view?.count, "2")
+    }
+
+    func fail(_ message: String, file: StaticString, line: Int) {
+        XCTFail(message, file: file, line: UInt(line))
     }
     
 }
