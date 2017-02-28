@@ -120,7 +120,6 @@ import Elm
 class CounterTests: XCTestCase, Elm.Tests {
 
     typealias Program = Counter
-    let failureReporter = XCTFail
 
     func test() {
         let start = expectStart(with: .init())
@@ -155,6 +154,10 @@ class CounterTests: XCTestCase, Elm.Tests {
     func testView2() {
         let view = expectView(for: .init(count: 2))
         expect(view?.count, "2")
+    }
+
+    func fail(_ message: String, file: StaticString, line: Int) {
+        XCTFail(message, file: file, line: UInt(line))
     }
     
 }
