@@ -121,7 +121,7 @@ class CounterTests: XCTestCase, Elm.Tests {
 
     typealias Program = Counter
 
-    func test() {
+    func testStart() {
         let start = expectStart(with: .init())
         expect(start?.state.count, 0)
     }
