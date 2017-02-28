@@ -99,6 +99,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 91F834961DEF328A00F27AD5 /* Build configuration list for PBXNativeTarget "Elm" */;
 			buildPhases = (
+				916E9F6A1E66327400B6C008 /* Run SwiftLint */,
 				91F8347D1DEF328A00F27AD5 /* Sources */,
 				91F8347E1DEF328A00F27AD5 /* Frameworks */,
 				91F8347F1DEF328A00F27AD5 /* Headers */,
@@ -186,6 +187,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		916E9F6A1E66327400B6C008 /* Run SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run SwiftLint";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -ex\ntest $(swiftlint version) == \"0.16.1\"\nFLAGS=$(test $CONFIGURATION == \"Release\" && echo \"--strict\" || echo \"\")\nswiftlint lint $FLAGS\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		91F8347D1DEF328A00F27AD5 /* Sources */ = {
