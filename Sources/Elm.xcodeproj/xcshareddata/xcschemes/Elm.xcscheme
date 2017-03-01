@@ -33,7 +33,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "91F8348A1DEF328A00F27AD5"
+               BlueprintIdentifier = "916E9F6E1E66CBB300B6C008"
                BuildableName = "ElmTests.xctest"
                BlueprintName = "ElmTests"
                ReferencedContainer = "container:Elm.xcodeproj">
