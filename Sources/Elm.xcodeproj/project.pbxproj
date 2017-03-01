@@ -7,12 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		916E9F721E66CBB300B6C008 /* ElmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F711E66CBB300B6C008 /* ElmTests.swift */; };
+		916E9F721E66CBB300B6C008 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F711E66CBB300B6C008 /* Tests.swift */; };
 		916E9F741E66CBB300B6C008 /* Elm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91F834821DEF328A00F27AD5 /* Elm.framework */; };
 		916E9F7B1E66CC8400B6C008 /* Program.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F7A1E66CC8400B6C008 /* Program.swift */; };
 		916E9F7D1E66CC8800B6C008 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F7C1E66CC8800B6C008 /* Store.swift */; };
 		916E9F7F1E66CC9500B6C008 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F7E1E66CC9500B6C008 /* Tests.swift */; };
 		916E9F811E66CCF600B6C008 /* Utilitities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F801E66CCF600B6C008 /* Utilitities.swift */; };
+		916E9F871E66DA7E00B6C008 /* Recorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F861E66DA7E00B6C008 /* Recorder.swift */; };
+		916E9F891E66DAC100B6C008 /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F881E66DAC100B6C008 /* Counter.swift */; };
 		91F834931DEF328A00F27AD5 /* Elm.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F834851DEF328A00F27AD5 /* Elm.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
@@ -28,12 +30,14 @@
 
 /* Begin PBXFileReference section */
 		916E9F6F1E66CBB300B6C008 /* ElmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ElmTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		916E9F711E66CBB300B6C008 /* ElmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElmTests.swift; sourceTree = "<group>"; };
+		916E9F711E66CBB300B6C008 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
 		916E9F731E66CBB300B6C008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		916E9F7A1E66CC8400B6C008 /* Program.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Program.swift; sourceTree = "<group>"; };
 		916E9F7C1E66CC8800B6C008 /* Store.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		916E9F7E1E66CC9500B6C008 /* Tests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
 		916E9F801E66CCF600B6C008 /* Utilitities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilitities.swift; sourceTree = "<group>"; };
+		916E9F861E66DA7E00B6C008 /* Recorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Recorder.swift; sourceTree = "<group>"; };
+		916E9F881E66DAC100B6C008 /* Counter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Counter.swift; sourceTree = "<group>"; };
 		91F834821DEF328A00F27AD5 /* Elm.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Elm.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		91F834851DEF328A00F27AD5 /* Elm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Elm.h; sourceTree = "<group>"; };
 		91F834861DEF328A00F27AD5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -61,7 +65,9 @@
 		916E9F701E66CBB300B6C008 /* ElmTests */ = {
 			isa = PBXGroup;
 			children = (
-				916E9F711E66CBB300B6C008 /* ElmTests.swift */,
+				916E9F711E66CBB300B6C008 /* Tests.swift */,
+				916E9F881E66DAC100B6C008 /* Counter.swift */,
+				916E9F861E66DA7E00B6C008 /* Recorder.swift */,
 				916E9F731E66CBB300B6C008 /* Info.plist */,
 			);
 			path = ElmTests;
@@ -228,7 +234,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				916E9F721E66CBB300B6C008 /* ElmTests.swift in Sources */,
+				916E9F721E66CBB300B6C008 /* Tests.swift in Sources */,
+				916E9F871E66DA7E00B6C008 /* Recorder.swift in Sources */,
+				916E9F891E66DAC100B6C008 /* Counter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -430,6 +438,7 @@
 				916E9F791E66CBB300B6C008 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		91F8347C1DEF328A00F27AD5 /* Build configuration list for PBXProject "Elm" */ = {
 			isa = XCConfigurationList;
