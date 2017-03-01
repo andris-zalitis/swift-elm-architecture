@@ -1,0 +1,176 @@
+// The MIT License (MIT)
+//
+// Copyright (c) 2017 Rudolf Adamkovič
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+import XCTest
+
+@testable import Elm
+
+final class Tests: XCTestCase {
+
+    func testWeakDelegate() {
+        var recorder: Recorder? = Recorder()
+        _ = Counter.makeStore(delegate: recorder!, seed: .init(count: 0))
+        weak var weakRecorder: Recorder? = recorder
+        recorder = nil
+        XCTAssertNil(weakRecorder)
+    }
+
+    func testViewAfterStart1() {
+        let recorder = Recorder()
+        let store = Counter.makeStore(delegate: recorder, seed: .init(count: 1))
+        XCTAssertEqual(store.view, View(count: "1"))
+    }
+
+    func testViewAfterStart2() {
+        let recorder = Recorder()
+        let store = Counter.makeStore(delegate: recorder, seed: .init(count: 2))
+        XCTAssertEqual(store.view, View(count: "2"))
+    }
+
+    func testViewAfterDispatch1() {
+        let recorder = Recorder()
+        let store = Counter.makeStore(delegate: recorder, seed: .init(count: 1))
+        store.dispatch(.increment)
+        XCTAssertEqual(store.view, .init(count: "2"))
+    }
+
+    func testViewAfterDispatch2() {
+        let recorder = Recorder()
+        let store = Counter.makeStore(delegate: recorder, seed: .init(count: 1))
+        store.dispatch(.increment)
+        store.dispatch(.decrement)
+        XCTAssertEqual(store.view, .init(count: "1"))
+    }
+
+    func testActionsAfterStart() {
+        let recorder = Recorder()
+        _ = Counter.makeStore(delegate: recorder, seed: .init(count: 1))
+        XCTAssertEqual(recorder.actions, [.log("Did start")])
+    }
+
+    func testActionsAfterDispatch1() {
+        let recorder = Recorder()
+        let store = Counter.makeStore(delegate: recorder, seed: .init(count: 1))
+        store.dispatch(.increment)
+        XCTAssertEqual(recorder.actions, [
+            .log("Did start"),
+            .log("Did increment")
+            ]
+        )
+    }
+
+    func testActionsAfterDispatch2() {
+        let recorder = Recorder()
+        let store = Counter.makeStore(delegate: recorder, seed: .init(count: 1))
+        store.dispatch(.increment)
+        store.dispatch(.decrement)
+        XCTAssertEqual(recorder.actions, [
+            .log("Did start"),
+            .log("Did increment"),
+            .log("Did decrement")
+            ]
+        )
+    }
+
+    func testActionsAfterMultidispatch1() {
+        let recorder = Recorder()
+        let store = Counter.makeStore(delegate: recorder, seed: .init(count: 1))
+        store.dispatch(.increment, .decrement)
+        XCTAssertEqual(recorder.actions, [
+            .log("Did start"),
+            .log("Did increment"),
+            .log("Did decrement")
+            ]
+        )
+    }
+
+    func testActionsAfterMultidispatch2() {
+        let recorder = Recorder()
+        let store = Counter.makeStore(delegate: recorder, seed: .init(count: 2))
+        store.dispatch(.decrement, .increment)
+        XCTAssertEqual(recorder.actions, [
+            .log("Did start"),
+            .log("Did decrement"),
+            .log("Did increment")
+            ]
+        )
+    }
+
+    func testViewsAfterStart1() {
+        let recorder = Recorder()
+        _ = Counter.makeStore(delegate: recorder, seed: .init(count: 1))
+        XCTAssertEqual(recorder.views, [.init(count: "1")])
+    }
+
+    func testViewsAfterStart2() {
+        let recorder = Recorder()
+        _ = Counter.makeStore(delegate: recorder, seed: .init(count: 2))
+        XCTAssertEqual(recorder.views, [.init(count: "2")])
+    }
+
+    func testViewsAfterDispatch1() {
+        let recorder = Recorder()
+        let store = Counter.makeStore(delegate: recorder, seed: .init(count: 1))
+        store.dispatch(.increment)
+        XCTAssertEqual(recorder.views, [
+            .init(count: "1"),
+            .init(count: "2")
+            ]
+        )
+    }
+
+    func testViewsAfterDispatch2() {
+        let recorder = Recorder()
+        let store = Counter.makeStore(delegate: recorder, seed: .init(count: 1))
+        store.dispatch(.increment)
+        store.dispatch(.decrement)
+        XCTAssertEqual(recorder.views, [
+            .init(count: "1"),
+            .init(count: "2"),
+            .init(count: "1")
+            ]
+        )
+    }
+
+    func testViewsAfterMultidispatch1() {
+        let recorder = Recorder()
+        let store = Counter.makeStore(delegate: recorder, seed: .init(count: 0))
+        store.dispatch(.increment, .increment)
+        XCTAssertEqual(recorder.views, [
+            .init(count: "0"),
+            .init(count: "2")
+            ]
+        )
+    }
+
+    func testViewsAfterMultidispatch2() {
+        let recorder = Recorder()
+        let store = Counter.makeStore(delegate: recorder, seed: .init(count: 2))
+        store.dispatch(.decrement, .decrement)
+        XCTAssertEqual(recorder.views, [
+            .init(count: "2"),
+            .init(count: "0")
+            ]
+        )
+    }
+
+}
