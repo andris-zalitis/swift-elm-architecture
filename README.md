@@ -96,7 +96,7 @@ struct Counter: Program {
 import UIKit
 import Elm
 
-class CounterViewController: UIViewController, Elm.Delegate {
+class CounterViewController: UIViewController, StoreDelegate {
 
     typealias Program = Counter
     var store: Store<Program>!

@@ -37,8 +37,8 @@ public protocol Program {
 
 public extension Program {
 
-    static func makeStore<Delegate: Elm.Delegate>(delegate: Delegate, seed: Seed) -> Store<Self> where Delegate.Program == Self {
+    static func makeStore<Delegate: StoreDelegate>(delegate: Delegate, seed: Seed) -> Store<Self> where Delegate.Program == Self {
         return Store<Self>(program: self, delegate: delegate, seed: seed)
     }
-    
+
 }

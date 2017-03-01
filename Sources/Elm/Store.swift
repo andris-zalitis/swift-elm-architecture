@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-public protocol Delegate: class {
+public protocol StoreDelegate: class {
 
     associatedtype Program: Elm.Program
 
@@ -49,7 +49,7 @@ public final class Store<Program: Elm.Program> {
     private var sendView: ViewSink = { _ in }
     private var sendAction: ActionSink = { _ in }
 
-    init<Delegate: Elm.Delegate>(program _: Program.Type, delegate: Delegate, seed: Seed) where Delegate.Program == Program {
+    init<Delegate: Elm.StoreDelegate>(program _: Program.Type, delegate: Delegate, seed: Seed) where Delegate.Program == Program {
         var actions: [Action] = []
         let result = Program.start(with: seed) { action in
             actions.append(action)
@@ -115,5 +115,5 @@ public final class Store<Program: Elm.Program> {
         sendView(view)
         actions.forEach(sendAction)
     }
-    
+
 }
