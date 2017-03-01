@@ -2,10 +2,8 @@
 
 This is [The Elm Architecture](https://guide.elm-lang.org/architecture/) for [Swift](https://swift.org).
 
-<a href="http://elm-lang.org"><img src="Images/Logo-Elm.png" width="32" height="32" alt="Swift Logo"/></a>
+<a href="http://elm-lang.org"><img src="Images/Logo-Elm.png" width="32" height="32" alt="Elm Logo"/></a>
 <a href="https://swift.org"><img src="Images/Logo-Swift.png" width="32" height="32" alt="Swift Logo"/></a>
-
-Build status:
 
 | `master` | `develop` |
 | :------- | :-------- |
@@ -14,6 +12,25 @@ Build status:
 # About
 
 _The Elm Architecture_ is a simple pattern for architecting apps. It is great for modularity, code reuse, and testing. Ultimately, it makes it easy to create complex apps that stay healthy as you refactor and add features.
+
+# Interface
+
+```swift
+public protocol Program {
+
+    associatedtype Seed
+    associatedtype Event
+    associatedtype State
+    associatedtype Action
+    associatedtype View
+    associatedtype Failure
+
+    static func start(with seed: Seed, perform: (Action) -> Void) -> Result<State, Failure>
+    static func update(for event: Event, state: inout State, perform: (Action) -> Void) -> Result<Success, Failure>
+    static func view(for state: State) -> Result<View, Failure>
+
+}
+```
 
 # Example
 
@@ -26,40 +43,46 @@ Let's build a counter:
 ```swift
 import Elm
 
-struct Counter: Elm.Module {
+struct Counter: Program {
 
-    struct Flags {}
+    struct Seed {}
 
-    enum Message {
-        case increment
-        case decrement
+    enum Event {
+        case userDidTapIncrementButton
+        case userDidTapDecrementButton
     }
 
-    struct Model {
+    struct State {
         var count: Int
     }
+
+    enum Action {}
 
     struct View {
         let count: String
     }
 
-    enum Command {}
     enum Failure {}
 
-    static func start(with flags: Flags, perform: (Command) -> Void) throws -> Model {
-        return .init(count: 0)
+    static func start(with seed: Seed, perform: (Action) -> Void) -> Result<State, Failure> {
+        let state = State(count: 0)
+        return .success(state)
     }
 
-    static func update(for message: Message, model: inout Model, perform: (Command) -> Void) throws {
-        switch message {
-        case .increment: model.count += 1
-        case .decrement: model.count -= 1
+    static func update(for event: Event, state: inout State, perform: (Action) -> Void) -> Result<Success, Failure> {
+        switch event {
+        case .userDidTapIncrementButton:
+            state.count += 1
+        case .userDidTapDecrementButton:
+            state.count -= 1
         }
+        return .success() 
     }
 
-    static func view(for model: Model) throws -> View {
-        let count = String(model.count)
-        return .init(count: count)
+    static func view(for state: State) -> Result<View, Failure> {
+        let count = String(state.count)
+        let view = View(count: count)
+        return .success(view)
     }
     
 }
@@ -73,10 +96,10 @@ struct Counter: Elm.Module {
 import UIKit
 import Elm
 
-class CounterViewController: UIViewController, Elm.Delegate {
+class CounterViewController: UIViewController, StoreDelegate {
 
-    typealias Module = Counter
-    var program: Program<Module>!
+    typealias Program = Counter
+    var store: Store<Program>!
 
     @IBOutlet var countLabel: UILabel!
     @IBOutlet var incrementButton: UIBarButtonItem!
@@ -84,22 +107,22 @@ class CounterViewController: UIViewController, Elm.Delegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        program = Counter.makeProgram(delegate: self, flags: .init())
+        store = Counter.makeStore(delegate: self, seed: .init())
     }
 
     @IBAction func userDidTapIncrementButton() {
-        program.dispatch(.increment)
+        store.dispatch(.userDidTapIncrementButton)
     }
 
     @IBAction func userDidTapDecrementButton() {
-        program.dispatch(.decrement)
+        store.dispatch(.userDidTapDecrementButton)
     }
 
-    func program(_ program: Program<Module>, didUpdate view: Module.View) {
-        countLabel?.text = view.count
+    func store(_ store: Store<Program>, didUpdate view: Program.View) {
+        countLabel.text = view.count
     }
 
-    func program(_ program: Program<Module>, didEmit command: Module.Command) {
+    func store(_ store: Store<Program>, didRequest action: Program.Action) {
         fatalError()
     }
     
@@ -114,34 +137,33 @@ import Elm
 
 @testable import Counter
 
-class CounterTests: XCTestCase, Elm.Tests {
+class CounterTests: XCTestCase, Tests {
 
-    typealias Module = Counter
-    let failureReporter = XCTFail
+    typealias Program = Counter
 
-    func test() {
+    func testStart() {
         let start = expectStart(with: .init())
-        expect(start?.model.count, 0)
+        expect(start?.state.count, 0)
     }
 
     func testIncrement1() {
-        let update = expectUpdate(for: .increment, model: .init(count: 1))
-        expect(update?.model.count, 2)
+        let update = expectUpdate(for: .userDidTapIncrementButton, state: .init(count: 1))
+        expect(update?.state.count, 2)
     }
 
     func testIncrement2() {
-        let update = expectUpdate(for: .increment, model: .init(count: 2))
-        expect(update?.model.count, 3)
+        let update = expectUpdate(for: .userDidTapIncrementButton, state: .init(count: 2))
+        expect(update?.state.count, 3)
     }
 
     func testDecrement1() {
-        let update = expectUpdate(for: .decrement, model: .init(count: -1))
-        expect(update?.model.count, -2)
+        let update = expectUpdate(for: .userDidTapDecrementButton, state: .init(count: -1))
+        expect(update?.state.count, -2)
     }
 
     func testDecrement2() {
-        let update = expectUpdate(for: .decrement, model: .init(count: -2))
-        expect(update?.model.count, -3)
+        let update = expectUpdate(for: .userDidTapDecrementButton, state: .init(count: -2))
+        expect(update?.state.count, -3)
     }
 
     func testView1() {
@@ -153,21 +175,22 @@ class CounterTests: XCTestCase, Elm.Tests {
         let view = expectView(for: .init(count: 2))
         expect(view?.count, "2")
     }
+
+    func fail(_ message: String, file: StaticString, line: Int) {
+        XCTFail(message, file: file, line: UInt(line))
+    }
     
 }
 ```
 
 # Installation
 
-* Add `github "salutis/Elm" "master"` to `Cartfile`
+* Add `github "salutis/swift-elm-architecture"` to `Cartfile`
 * Run `carthage bootstrap`
 * Drag `Carthage/Build/iOS/Elm.framework` to Xcode project
   * Targets:
     * `App`: Yes
     * `AppTests`: Yes
-* Add _Copy Files_ build phase to both `App` and `AppTests` targets
-  * Destination: `Frameworks`
-  * Name: `Elm.framework`
 * Add _Run Script_ build phase to both `App` and `AppTests` targets
   * Script: `carthage copy-frameworks`
   * Input files:`$(SRCROOT)/Carthage/Build/iOS/Elm.framework`

@@ -7,14 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9150B5E81E004D6D007F7A79 /* ElmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9150B5E71E004D6D007F7A79 /* ElmTests.swift */; };
-		91F8348C1DEF328A00F27AD5 /* Elm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91F834821DEF328A00F27AD5 /* Elm.framework */; };
+		916E9F721E66CBB300B6C008 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F711E66CBB300B6C008 /* Tests.swift */; };
+		916E9F741E66CBB300B6C008 /* Elm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91F834821DEF328A00F27AD5 /* Elm.framework */; };
+		916E9F7B1E66CC8400B6C008 /* Program.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F7A1E66CC8400B6C008 /* Program.swift */; };
+		916E9F7D1E66CC8800B6C008 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F7C1E66CC8800B6C008 /* Store.swift */; };
+		916E9F7F1E66CC9500B6C008 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F7E1E66CC9500B6C008 /* Tests.swift */; };
+		916E9F811E66CCF600B6C008 /* Utilitities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F801E66CCF600B6C008 /* Utilitities.swift */; };
+		916E9F871E66DA7E00B6C008 /* Recorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F861E66DA7E00B6C008 /* Recorder.swift */; };
+		916E9F891E66DAC100B6C008 /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F881E66DAC100B6C008 /* Counter.swift */; };
 		91F834931DEF328A00F27AD5 /* Elm.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F834851DEF328A00F27AD5 /* Elm.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		91F834B91DEF332600F27AD5 /* Elm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F834B51DEF332600F27AD5 /* Elm.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		91F8348D1DEF328A00F27AD5 /* PBXContainerItemProxy */ = {
+		916E9F751E66CBB300B6C008 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 91F834791DEF328A00F27AD5 /* Project object */;
 			proxyType = 1;
@@ -24,16 +29,29 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		9150B5E71E004D6D007F7A79 /* ElmTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElmTests.swift; sourceTree = "<group>"; };
-		9150B5E91E004D77007F7A79 /* InfoTests.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = InfoTests.plist; sourceTree = "<group>"; };
+		916E9F6F1E66CBB300B6C008 /* ElmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ElmTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		916E9F711E66CBB300B6C008 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
+		916E9F731E66CBB300B6C008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		916E9F7A1E66CC8400B6C008 /* Program.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Program.swift; sourceTree = "<group>"; };
+		916E9F7C1E66CC8800B6C008 /* Store.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
+		916E9F7E1E66CC9500B6C008 /* Tests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
+		916E9F801E66CCF600B6C008 /* Utilitities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilitities.swift; sourceTree = "<group>"; };
+		916E9F861E66DA7E00B6C008 /* Recorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Recorder.swift; sourceTree = "<group>"; };
+		916E9F881E66DAC100B6C008 /* Counter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Counter.swift; sourceTree = "<group>"; };
 		91F834821DEF328A00F27AD5 /* Elm.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Elm.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		91F834851DEF328A00F27AD5 /* Elm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Elm.h; sourceTree = "<group>"; };
 		91F834861DEF328A00F27AD5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		91F8348B1DEF328A00F27AD5 /* ElmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ElmTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		91F834B51DEF332600F27AD5 /* Elm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Elm.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		916E9F6C1E66CBB300B6C008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				916E9F741E66CBB300B6C008 /* Elm.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		91F8347E1DEF328A00F27AD5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -41,21 +59,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		91F834881DEF328A00F27AD5 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				91F8348C1DEF328A00F27AD5 /* Elm.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		916E9F701E66CBB300B6C008 /* ElmTests */ = {
+			isa = PBXGroup;
+			children = (
+				916E9F711E66CBB300B6C008 /* Tests.swift */,
+				916E9F881E66DAC100B6C008 /* Counter.swift */,
+				916E9F861E66DA7E00B6C008 /* Recorder.swift */,
+				916E9F731E66CBB300B6C008 /* Info.plist */,
+			);
+			path = ElmTests;
+			sourceTree = "<group>";
+		};
 		91F834781DEF328A00F27AD5 = {
 			isa = PBXGroup;
 			children = (
 				91F834841DEF328A00F27AD5 /* Elm */,
+				916E9F701E66CBB300B6C008 /* ElmTests */,
 				91F834831DEF328A00F27AD5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -64,7 +86,7 @@
 			isa = PBXGroup;
 			children = (
 				91F834821DEF328A00F27AD5 /* Elm.framework */,
-				91F8348B1DEF328A00F27AD5 /* ElmTests.xctest */,
+				916E9F6F1E66CBB300B6C008 /* ElmTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -73,10 +95,11 @@
 			isa = PBXGroup;
 			children = (
 				91F834851DEF328A00F27AD5 /* Elm.h */,
-				91F834B51DEF332600F27AD5 /* Elm.swift */,
-				9150B5E71E004D6D007F7A79 /* ElmTests.swift */,
+				916E9F7A1E66CC8400B6C008 /* Program.swift */,
+				916E9F7C1E66CC8800B6C008 /* Store.swift */,
+				916E9F7E1E66CC9500B6C008 /* Tests.swift */,
+				916E9F801E66CCF600B6C008 /* Utilitities.swift */,
 				91F834861DEF328A00F27AD5 /* Info.plist */,
-				9150B5E91E004D77007F7A79 /* InfoTests.plist */,
 			);
 			path = Elm;
 			sourceTree = "<group>";
@@ -95,10 +118,29 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		916E9F6E1E66CBB300B6C008 /* ElmTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 916E9F771E66CBB300B6C008 /* Build configuration list for PBXNativeTarget "ElmTests" */;
+			buildPhases = (
+				916E9F6B1E66CBB300B6C008 /* Sources */,
+				916E9F6C1E66CBB300B6C008 /* Frameworks */,
+				916E9F6D1E66CBB300B6C008 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				916E9F761E66CBB300B6C008 /* PBXTargetDependency */,
+			);
+			name = ElmTests;
+			productName = ElmTests;
+			productReference = 916E9F6F1E66CBB300B6C008 /* ElmTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		91F834811DEF328A00F27AD5 /* Elm */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 91F834961DEF328A00F27AD5 /* Build configuration list for PBXNativeTarget "Elm" */;
 			buildPhases = (
+				916E9F6A1E66327400B6C008 /* Run SwiftLint */,
 				91F8347D1DEF328A00F27AD5 /* Sources */,
 				91F8347E1DEF328A00F27AD5 /* Frameworks */,
 				91F8347F1DEF328A00F27AD5 /* Headers */,
@@ -113,41 +155,23 @@
 			productReference = 91F834821DEF328A00F27AD5 /* Elm.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		91F8348A1DEF328A00F27AD5 /* ElmTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 91F834991DEF328A00F27AD5 /* Build configuration list for PBXNativeTarget "ElmTests" */;
-			buildPhases = (
-				91F834871DEF328A00F27AD5 /* Sources */,
-				91F834881DEF328A00F27AD5 /* Frameworks */,
-				91F834891DEF328A00F27AD5 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				91F8348E1DEF328A00F27AD5 /* PBXTargetDependency */,
-			);
-			name = ElmTests;
-			productName = ElmTests;
-			productReference = 91F8348B1DEF328A00F27AD5 /* ElmTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		91F834791DEF328A00F27AD5 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0810;
+				LastSwiftUpdateCheck = 0820;
 				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = "Rudolf Adamkovič";
 				TargetAttributes = {
+					916E9F6E1E66CBB300B6C008 = {
+						CreatedOnToolsVersion = 8.2.1;
+						ProvisioningStyle = Automatic;
+					};
 					91F834811DEF328A00F27AD5 = {
 						CreatedOnToolsVersion = 8.1;
 						LastSwiftMigration = 0810;
-						ProvisioningStyle = Automatic;
-					};
-					91F8348A1DEF328A00F27AD5 = {
-						CreatedOnToolsVersion = 8.1;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -165,20 +189,20 @@
 			projectRoot = "";
 			targets = (
 				91F834811DEF328A00F27AD5 /* Elm */,
-				91F8348A1DEF328A00F27AD5 /* ElmTests */,
+				916E9F6E1E66CBB300B6C008 /* ElmTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		91F834801DEF328A00F27AD5 /* Resources */ = {
+		916E9F6D1E66CBB300B6C008 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		91F834891DEF328A00F27AD5 /* Resources */ = {
+		91F834801DEF328A00F27AD5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -187,34 +211,83 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		916E9F6A1E66327400B6C008 /* Run SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run SwiftLint";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -ex\ntest $(swiftlint version) == \"0.16.1\"\nFLAGS=$(test $CONFIGURATION == \"Release\" && echo \"--strict\" || echo \"\")\nswiftlint lint $FLAGS\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		916E9F6B1E66CBB300B6C008 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				916E9F721E66CBB300B6C008 /* Tests.swift in Sources */,
+				916E9F871E66DA7E00B6C008 /* Recorder.swift in Sources */,
+				916E9F891E66DAC100B6C008 /* Counter.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		91F8347D1DEF328A00F27AD5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				91F834B91DEF332600F27AD5 /* Elm.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		91F834871DEF328A00F27AD5 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				9150B5E81E004D6D007F7A79 /* ElmTests.swift in Sources */,
+				916E9F7D1E66CC8800B6C008 /* Store.swift in Sources */,
+				916E9F811E66CCF600B6C008 /* Utilitities.swift in Sources */,
+				916E9F7F1E66CC9500B6C008 /* Tests.swift in Sources */,
+				916E9F7B1E66CC8400B6C008 /* Program.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		91F8348E1DEF328A00F27AD5 /* PBXTargetDependency */ = {
+		916E9F761E66CBB300B6C008 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 91F834811DEF328A00F27AD5 /* Elm */;
-			targetProxy = 91F8348D1DEF328A00F27AD5 /* PBXContainerItemProxy */;
+			targetProxy = 916E9F751E66CBB300B6C008 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		916E9F781E66CBB300B6C008 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				INFOPLIST_FILE = ElmTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = Salutis.ElmTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Debug;
+		};
+		916E9F791E66CBB300B6C008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				INFOPLIST_FILE = ElmTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = Salutis.ElmTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Release;
+		};
 		91F834941DEF328A00F27AD5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -297,6 +370,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -307,6 +381,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -353,35 +428,18 @@
 			};
 			name = Release;
 		};
-		91F8349A1DEF328A00F27AD5 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = Elm/InfoTests.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = Salutis.ElmTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
-			};
-			name = Debug;
-		};
-		91F8349B1DEF328A00F27AD5 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = Elm/InfoTests.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = Salutis.ElmTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		916E9F771E66CBB300B6C008 /* Build configuration list for PBXNativeTarget "ElmTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				916E9F781E66CBB300B6C008 /* Debug */,
+				916E9F791E66CBB300B6C008 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		91F8347C1DEF328A00F27AD5 /* Build configuration list for PBXProject "Elm" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -396,15 +454,6 @@
 			buildConfigurations = (
 				91F834971DEF328A00F27AD5 /* Debug */,
 				91F834981DEF328A00F27AD5 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		91F834991DEF328A00F27AD5 /* Build configuration list for PBXNativeTarget "ElmTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				91F8349A1DEF328A00F27AD5 /* Debug */,
-				91F8349B1DEF328A00F27AD5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
