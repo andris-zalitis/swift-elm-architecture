@@ -264,7 +264,7 @@ extension View: Equatable {
 // MARK: Recorders
 //
 
-final class DataRecorder: Delegate {
+final class DataRecorder: StoreDelegate {
 
     typealias Program = Counter
 
@@ -292,7 +292,7 @@ final class DataRecorder: Delegate {
 
 }
 
-final class ThreadRecorder: Elm.Delegate {
+final class ThreadRecorder: StoreDelegate {
 
     var didUpdateView: () -> Void = { _ in }
     private(set) var didUpdateViewOnThread: Thread?

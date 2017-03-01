@@ -96,7 +96,7 @@ struct Counter: Program {
 import UIKit
 import Elm
 
-class CounterViewController: UIViewController, Elm.Delegate {
+class CounterViewController: UIViewController, StoreDelegate {
 
     typealias Program = Counter
     var store: Store<Program>!
@@ -137,7 +137,7 @@ import Elm
 
 @testable import Counter
 
-class CounterTests: XCTestCase, Elm.Tests {
+class CounterTests: XCTestCase, Tests {
 
     typealias Program = Counter
 
