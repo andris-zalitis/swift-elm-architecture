@@ -40,6 +40,7 @@ public final class Store<Program: Elm.Program> {
     typealias Action = Program.Action
     typealias View = Program.View
 
+    private let thread = Thread.current
     private var state: State
     public private(set) lazy var view: View = Store.makeView(program: Program.self, state: self.state)
 
@@ -74,6 +75,12 @@ public final class Store<Program: Elm.Program> {
     }
 
     public func dispatch(_ events: Event...) {
+        guard Thread.current == thread else {
+            let message = "Invalid thread" + "\n"
+                +  dumped(events, label: "Events")
+                +  dumped(state, label: "State")
+            fatalError(message)
+        }
         var actions: [Action] = []
         for event in events {
             let result = Program.update(for: event, state: &state) { action in
@@ -106,12 +113,6 @@ public final class Store<Program: Elm.Program> {
     }
 
     private func updateDelegate(with actions: [Action]) {
-        guard Thread.isMainThread else {
-            OperationQueue.main.addOperation { [weak store = self] in
-                store?.updateDelegate(with: actions)
-            }
-            return
-        }
         sendView(view)
         actions.forEach(sendAction)
     }
