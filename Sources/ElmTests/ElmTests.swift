@@ -51,54 +51,6 @@ class ElmTests: XCTestCase {
 
     //
     // MARK: -
-    // MARK: Threading
-    //
-
-    func testDelegateStartOnMainThread() {
-
-        let recorder = ThreadRecorder()
-
-        let didUpdateView = expectation(description: "")
-        let didRequestAction = expectation(description: "")
-        recorder.didUpdateView = didUpdateView.fulfill
-        recorder.didRequestAction = didRequestAction.fulfill
-
-        let backgroundQueue = OperationQueue()
-        backgroundQueue.addOperation {
-            _ = Counter.makeStore(delegate: recorder, seed: .init())
-        }
-
-        waitForExpectations(timeout: 60) { _ in
-            XCTAssertEqual(recorder.didUpdateViewOnThread, Thread.main)
-            XCTAssertEqual(recorder.didRequestActionOnThread, Thread.main)
-        }
-
-    }
-
-    func testDelegateUpdateOnMainThread() {
-
-        let recorder = ThreadRecorder()
-        let store = Counter.makeStore(delegate: recorder, seed: .init())
-
-        let didUpdateView = expectation(description: "")
-        let didRequestAction = expectation(description: "")
-        recorder.didUpdateView = didUpdateView.fulfill
-        recorder.didRequestAction = didRequestAction.fulfill
-
-        let backgroundQueue = OperationQueue()
-        backgroundQueue.addOperation {
-            store.dispatch(.increment)
-        }
-
-        waitForExpectations(timeout: 60) { _ in
-            XCTAssertEqual(recorder.didUpdateViewOnThread, Thread.main)
-            XCTAssertEqual(recorder.didRequestActionOnThread, Thread.main)
-        }
-
-    }
-
-    //
-    // MARK: -
     // MARK: Data
     //
 
@@ -288,26 +240,6 @@ final class DataRecorder: StoreDelegate {
 
     func store(_ store: Store<Counter>, didRequest action: Counter.Action) {
         actions.append(action)
-    }
-
-}
-
-final class ThreadRecorder: StoreDelegate {
-
-    var didUpdateView: () -> Void = { _ in }
-    private(set) var didUpdateViewOnThread: Thread?
-
-    var didRequestAction: () -> Void = { _ in }
-    private(set) var didRequestActionOnThread: Thread?
-
-    func store(_ store: Store<Counter>, didUpdate view: Counter.View) {
-        didUpdateViewOnThread = Thread.current
-        didUpdateView()
-    }
-
-    func store(_ store: Store<Counter>, didRequest action: Counter.Action) {
-        didRequestActionOnThread = Thread.current
-        didRequestAction()
     }
 
 }
