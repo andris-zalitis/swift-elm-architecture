@@ -126,7 +126,7 @@ public final class Store<Program: Elm.Program> {
             let result = Program.update(for: event, state: &state) { action in
                 actions.append(action)
             }
-            if case .failure(let failure) = result  {
+            if case .failure(let failure) = result {
                 let message = "Fatal error!" + "\n"
                     + dumped(Program.update, label: "Location")
                     + dumped(failure, label: "Failure")
