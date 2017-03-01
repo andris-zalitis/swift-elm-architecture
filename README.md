@@ -137,7 +137,7 @@ import Elm
 
 @testable import Counter
 
-class CounterTests: XCTestCase, Elm.Tests {
+class CounterTests: XCTestCase, Tests {
 
     typealias Program = Counter
 
