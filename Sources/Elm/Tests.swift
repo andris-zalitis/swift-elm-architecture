@@ -37,6 +37,20 @@ public protocol Tests: class {
 
 public extension Tests {
 
+    func expectStart(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Start<Program>? {
+        var actions: [Action] = []
+        let result = Program.start(with: seed) { action in
+            actions.append(action)
+        }
+        switch result {
+        case .success(let state):
+            return Start(state: state, actions: Lens(content: actions))
+        case .failure(let failure):
+            reportUnexpectedFailure(failure, file: file, line: line)
+            return nil
+        }
+    }
+
     func expectFailure(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Failure? {
         let result = Program.start(with: seed) { _ in }
         switch result {
@@ -48,28 +62,9 @@ public extension Tests {
         }
     }
 
-    func expectFailure(for state: State, file: StaticString = #file, line: Int = #line) -> Failure? {
-        let result = Program.view(for: state)
-        switch result {
-        case .success:
-            reportUnexpectedSuccess(file: file, line: line)
-            return nil
-        case .failure(let failure):
-            return failure
-        }
-    }
+}
 
-    func expectFailure(for event: Event, state: State, file: StaticString = #file, line: Int = #line) -> Failure? {
-        var state = state
-        let result = Program.update(for: event, state: &state) { _ in }
-        switch result {
-        case .success:
-            reportUnexpectedSuccess(file: file, line: line)
-            return nil
-        case .failure(let failure):
-            return failure
-        }
-    }
+public extension Tests {
 
     func expectUpdate(for event: Event, state: State, file: StaticString = #file, line: Int = #line) -> Update<Program>? {
         var state = state
@@ -86,19 +81,21 @@ public extension Tests {
         }
     }
 
-    func expectStart(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Start<Program>? {
-        var actions: [Action] = []
-        let result = Program.start(with: seed) { action in
-            actions.append(action)
-        }
+    func expectFailure(for event: Event, state: State, file: StaticString = #file, line: Int = #line) -> Failure? {
+        var state = state
+        let result = Program.update(for: event, state: &state) { _ in }
         switch result {
-        case .success(let state):
-            return Start(state: state, actions: Lens(content: actions))
-        case .failure(let failure):
-            reportUnexpectedFailure(failure, file: file, line: line)
+        case .success:
+            reportUnexpectedSuccess(file: file, line: line)
             return nil
+        case .failure(let failure):
+            return failure
         }
     }
+
+}
+
+public extension Tests {
 
     func expectView(for state: State, file: StaticString = #file, line: Int = #line) -> View? {
         let result = Program.view(for: state)
@@ -111,12 +108,15 @@ public extension Tests {
         }
     }
 
-    private func reportUnexpectedSuccess(file: StaticString, line: Int) {
-        fail("Unexpected success", file: file, line: line)
-    }
-
-    private func reportUnexpectedFailure<Failure>(_ failure: Failure, file: StaticString, line: Int) {
-        fail("Unexpected failure: \(failure)", file: file, line: line)
+    func expectFailure(for state: State, file: StaticString = #file, line: Int = #line) -> Failure? {
+        let result = Program.view(for: state)
+        switch result {
+        case .success:
+            reportUnexpectedSuccess(file: file, line: line)
+            return nil
+        case .failure(let failure):
+            return failure
+        }
     }
 
 }
@@ -130,6 +130,18 @@ public extension Tests {
             let event = value + " is not equal to " + expectedValue
             fail(event, file: file, line: line)
         }
+    }
+
+}
+
+extension Tests {
+
+    func reportUnexpectedSuccess(file: StaticString, line: Int) {
+        fail("Unexpected success", file: file, line: line)
+    }
+
+    func reportUnexpectedFailure<Failure>(_ failure: Failure, file: StaticString, line: Int) {
+        fail("Unexpected failure: \(failure)", file: file, line: line)
     }
 
 }
