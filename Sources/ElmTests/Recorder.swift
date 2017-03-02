@@ -26,8 +26,8 @@ final class Recorder: StoreDelegate {
 
     typealias Program = Counter
 
-    var views: [View] = []
-    var actions: [Action] = []
+    private(set) var views: [View] = []
+    private(set) var actions: [Action] = []
 
     func store(_ store: Store<Counter>, didUpdate view: Counter.View) {
         views.append(view)
