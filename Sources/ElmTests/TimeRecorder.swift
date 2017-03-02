@@ -20,21 +20,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import Foundation
+
 @testable import Elm
 
-final class Recorder: StoreDelegate {
+final class TimeRecorder: StoreDelegate {
 
     typealias Program = Counter
 
-    private(set) var views: [View] = []
-    private(set) var actions: [Action] = []
+    private(set) var didUpdateViewAt: [UInt64] = []
+    private(set) var didRequestActionAt: [UInt64] = []
 
     func store(_ store: Store<Counter>, didUpdate view: Counter.View) {
-        views.append(view)
+        let now = mach_absolute_time()
+        didUpdateViewAt.append(now)
     }
 
     func store(_ store: Store<Counter>, didRequest action: Counter.Action) {
-        actions.append(action)
+        let now = mach_absolute_time()
+        didRequestActionAt.append(now)
     }
 
 }
