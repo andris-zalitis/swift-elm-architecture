@@ -52,28 +52,30 @@ struct Counter: Program {
 
     enum Failure {}
 
-    static func start(with seed: Seed, perform: (Action) -> Void) -> Result<State, Failure> {
-        perform(.log("Did start"))
-        let state = State(count: seed.count)
-        return .success(state)
+    static func start(with seed: Seed) -> Transition<State, Action, Failure> {
+        let initialState = State(count: seed.count)
+        let initialAction  = Action.log("Did start")
+        return .state(initialState, perform: [initialAction])
     }
 
-    static func update(for event: Event, state: inout State, perform: (Action) -> Void) -> Result<Success, Failure> {
+    static func update(for event: Event, state: State) -> Transition<State, Action, Failure> {
+        let nextState: State
+        let nextAction: Action
         switch event {
         case .increment:
-            state.count += 1
-            perform(.log("Did increment"))
+            nextState = .init(count: state.count + 1)
+            nextAction = .log("Did increment")
         case .decrement:
-            state.count -= 1
-            perform(.log("Did decrement"))
+            nextState = .init(count: state.count - 1)
+            nextAction = .log("Did decrement")
         }
-        return .success()
+        return .state(nextState, perform: [nextAction])
     }
 
-    static func view(for state: State) -> Result<View, Failure> {
-        let counterText = String(state.count)
-        let view = View(count: counterText)
-        return .success(view)
+    static func view(for state: State) -> Scene<View, Failure> {
+        let count = String(state.count)
+        let view = View(count: count)
+        return .view(view)
     }
 
 }

@@ -13,7 +13,6 @@
 		916E9F7B1E66CC8400B6C008 /* Program.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F7A1E66CC8400B6C008 /* Program.swift */; };
 		916E9F7D1E66CC8800B6C008 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F7C1E66CC8800B6C008 /* Store.swift */; };
 		916E9F7F1E66CC9500B6C008 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F7E1E66CC9500B6C008 /* Tests.swift */; };
-		916E9F811E66CCF600B6C008 /* Utilitities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F801E66CCF600B6C008 /* Utilitities.swift */; };
 		916E9F871E66DA7E00B6C008 /* DataRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F861E66DA7E00B6C008 /* DataRecorder.swift */; };
 		916E9F891E66DAC100B6C008 /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E9F881E66DAC100B6C008 /* Counter.swift */; };
 /* End PBXBuildFile section */
@@ -36,7 +35,6 @@
 		916E9F7A1E66CC8400B6C008 /* Program.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Program.swift; sourceTree = "<group>"; };
 		916E9F7C1E66CC8800B6C008 /* Store.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		916E9F7E1E66CC9500B6C008 /* Tests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
-		916E9F801E66CCF600B6C008 /* Utilitities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilitities.swift; sourceTree = "<group>"; };
 		916E9F861E66DA7E00B6C008 /* DataRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataRecorder.swift; sourceTree = "<group>"; };
 		916E9F881E66DAC100B6C008 /* Counter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Counter.swift; sourceTree = "<group>"; };
 		91F834821DEF328A00F27AD5 /* Elm.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Elm.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -98,7 +96,6 @@
 				916E9F7A1E66CC8400B6C008 /* Program.swift */,
 				916E9F7C1E66CC8800B6C008 /* Store.swift */,
 				916E9F7E1E66CC9500B6C008 /* Tests.swift */,
-				916E9F801E66CCF600B6C008 /* Utilitities.swift */,
 				91F834861DEF328A00F27AD5 /* Info.plist */,
 			);
 			path = Elm;
@@ -245,7 +242,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				916E9F7D1E66CC8800B6C008 /* Store.swift in Sources */,
-				916E9F811E66CCF600B6C008 /* Utilitities.swift in Sources */,
 				916E9F7F1E66CC9500B6C008 /* Tests.swift in Sources */,
 				916E9F7B1E66CC8400B6C008 /* Program.swift in Sources */,
 			);

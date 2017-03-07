@@ -53,13 +53,9 @@ public final class Store<Program: Elm.Program> {
     private var sendAction: ActionSink = { _ in }
 
     init<Delegate: Elm.StoreDelegate>(program _: Program.Type, delegate: Delegate, seed: Seed) where Delegate.Program == Program {
-        var actions: [Action] = []
-        let result = Program.start(with: seed) { action in
-            actions.append(action)
-        }
-        switch result {
-        case .success(let state):
-            self.state = state
+        switch Program.start(with: seed) {
+        case .state(let nextState, perform: let actions):
+            state = nextState
             sendView = { [weak delegate] view in
                 delegate?.store(self, didUpdate: view)
             }
@@ -85,10 +81,11 @@ public final class Store<Program: Elm.Program> {
         }
         var actions: [Action] = []
         for event in events {
-            let result = Program.update(for: event, state: &state) { action in
-                actions.append(action)
-            }
-            if case .failure(let failure) = result {
+            switch Program.update(for: event, state: state) {
+            case .state(let newState, perform: let newActions):
+                state = newState
+                actions.append(contentsOf: newActions)
+            case .failure(let failure):
                 let message = "Fatal error!" + "\n"
                     + dumped(Program.update, label: "Location")
                     + dumped(failure, label: "Failure")
@@ -103,7 +100,7 @@ public final class Store<Program: Elm.Program> {
 
     private static func makeView(program: Program.Type, state: State) -> View {
         switch program.view(for: state) {
-        case .success(let view):
+        case .view(let view):
             return view
         case .failure(let failure):
             let message = "Fatal error!" + "\n"
@@ -119,4 +116,10 @@ public final class Store<Program: Elm.Program> {
         actions.forEach(sendAction)
     }
 
+}
+
+private func dumped<T>(_ value: T, label: String) -> String {
+    var result = label + ":" + "\n"
+    dump(value, to: &result, indent: 1)
+    return result
 }
