@@ -37,14 +37,12 @@ public protocol Tests: class {
 
 public extension Tests {
 
-    func expectStart(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Start<Program>? {
-        var actions: [Action] = []
-        let result = Program.start(with: seed) { action in
-            actions.append(action)
-        }
-        switch result {
-        case .success(let state):
-            return Start(state: state, actions: Lens(content: actions))
+    public typealias Start<State, Action> = Result<State, Action>
+
+    func expectStart(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Start<State, Action>? {
+        switch Program.start(with: seed) {
+        case .state(let state, perform: let actions):
+            return Start<State, Action>(state: state, actions: actions)
         case .failure(let failure):
             reportUnexpectedFailure(failure, file: file, line: line)
             return nil
@@ -52,9 +50,8 @@ public extension Tests {
     }
 
     func expectFailure(with seed: Seed, file: StaticString = #file, line: Int = #line) -> Failure? {
-        let result = Program.start(with: seed) { _ in }
-        switch result {
-        case .success:
+        switch Program.start(with: seed) {
+        case .state:
             reportUnexpectedSuccess(file: file, line: line)
             return nil
         case .failure(let failure):
@@ -66,15 +63,12 @@ public extension Tests {
 
 public extension Tests {
 
-    func expectUpdate(for event: Event, state: State, file: StaticString = #file, line: Int = #line) -> Update<Program>? {
-        var state = state
-        var actions: [Action] = []
-        let result = Program.update(for: event, state: &state) { action in
-            actions.append(action)
-        }
-        switch result {
-        case .success:
-            return Update(state: state, actions: Lens(content: actions))
+    public typealias Update<State, Action> = Result<State, Action>
+
+    func expectUpdate(for event: Event, state: State, file: StaticString = #file, line: Int = #line) -> Update<State, Action>? {
+        switch Program.update(for: event, state: state) {
+        case .state(let state, perform: let actions):
+            return Start<State, Action>(state: state, actions: actions)
         case .failure(let failure):
             reportUnexpectedFailure(failure, file: file, line: line)
             return nil
@@ -82,10 +76,8 @@ public extension Tests {
     }
 
     func expectFailure(for event: Event, state: State, file: StaticString = #file, line: Int = #line) -> Failure? {
-        var state = state
-        let result = Program.update(for: event, state: &state) { _ in }
-        switch result {
-        case .success:
+        switch Program.update(for: event, state: state) {
+        case .state:
             reportUnexpectedSuccess(file: file, line: line)
             return nil
         case .failure(let failure):
@@ -98,9 +90,8 @@ public extension Tests {
 public extension Tests {
 
     func expectView(for state: State, file: StaticString = #file, line: Int = #line) -> View? {
-        let result = Program.view(for: state)
-        switch result {
-        case .success(let view):
+        switch Program.view(for: state) {
+        case .view(let view):
             return view
         case .failure(let failure):
             reportUnexpectedFailure(failure, file: file, line: line)
@@ -109,9 +100,8 @@ public extension Tests {
     }
 
     func expectFailure(for state: State, file: StaticString = #file, line: Int = #line) -> Failure? {
-        let result = Program.view(for: state)
-        switch result {
-        case .success:
+        switch Program.view(for: state) {
+        case .view:
             reportUnexpectedSuccess(file: file, line: line)
             return nil
         case .failure(let failure):
@@ -146,26 +136,20 @@ extension Tests {
 
 }
 
-public typealias Start<Program: Elm.Program> = TestResult<Program>
-public typealias Update<Program: Elm.Program> = TestResult<Program>
-
-public struct TestResult<Program: Elm.Program> {
-
-    typealias State = Program.State
-    typealias Action = Program.Action
+public struct Result<State, Action> {
 
     public let state: State
-    public let actions: Lens<Action>
+    public let actions: [Int: Action]
 
-}
-
-public extension TestResult {
-
-    var action: Action? {
-        guard actions.content.count == 1 else {
-            return nil
-        }
-        return actions[0]
+    init(state: State, actions: [Action]) {
+        self.state = state
+        self.actions = {
+            var newActions: [Int: Action] = [:]
+            for (index, action) in actions.enumerated() {
+                newActions[index] = action
+            }
+            return newActions
+        }()
     }
 
 }

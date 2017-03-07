@@ -29,9 +29,23 @@ public protocol Program {
     associatedtype View
     associatedtype Failure
 
-    static func start(with seed: Seed, perform: (Action) -> Void) -> Result<State, Failure>
-    static func update(for event: Event, state: inout State, perform: (Action) -> Void) -> Result<Success, Failure>
-    static func view(for state: State) -> Result<View, Failure>
+    static func start(with seed: Seed) -> Transition<State, Action, Failure>
+    static func update(for event: Event, state: State) -> Transition<State, Action, Failure>
+    static func view(for state: State) -> Scene<View, Failure>
+
+}
+
+public enum Transition<State, Action, Failure> {
+
+    case state(State, perform: [Action])
+    case failure(Failure)
+
+}
+
+public enum Scene<View, Failure> {
+
+    case view(View)
+    case failure(Failure)
 
 }
 
