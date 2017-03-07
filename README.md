@@ -25,9 +25,23 @@ public protocol Program {
     associatedtype View
     associatedtype Failure
 
-    static func start(with seed: Seed, perform: (Action) -> Void) -> Result<State, Failure>
-    static func update(for event: Event, state: inout State, perform: (Action) -> Void) -> Result<Success, Failure>
-    static func view(for state: State) -> Result<View, Failure>
+    static func start(with seed: Seed) -> Transition<State, Action, Failure>
+    static func update(for event: Event, state: State) -> Transition<State, Action, Failure>
+    static func view(for state: State) -> Scene<View, Failure>
+
+}
+
+public enum Transition<State, Action, Failure> {
+
+    case state(State, perform: [Action])
+    case failure(Failure)
+
+}
+
+public enum Scene<View, Failure> {
+
+    case view(View)
+    case failure(Failure)
 
 }
 ```
@@ -64,25 +78,24 @@ struct Counter: Program {
 
     enum Failure {}
 
-    static func start(with seed: Seed, perform: (Action) -> Void) -> Result<State, Failure> {
-        let state = State(count: 0)
-        return .success(state)
+    static func start(with seed: Seed) -> Transition<State, Action, Failure> {
+        let initialState = State(count: seed.count)
+        return .state(initialState, perform: [])
     }
 
-    static func update(for event: Event, state: inout State, perform: (Action) -> Void) -> Result<Success, Failure> {
+    static func update(for event: Event, state: State) -> Transition<State, Action, Failure> {
+        let nextState: State
         switch event {
-        case .userDidTapIncrementButton:
-            state.count += 1
-        case .userDidTapDecrementButton:
-            state.count -= 1
+        case .increment: nextState = .init(count: state.count + 1)
+        case .decrement: nextState = .init(count: state.count - 1)
         }
-        return .success() 
+        return .state(nextState, perform: [])
     }
 
-    static func view(for state: State) -> Result<View, Failure> {
+    static func view(for state: State) -> Scene<View, Failure> {
         let count = String(state.count)
         let view = View(count: count)
-        return .success(view)
+        return .view(view)
     }
     
 }
