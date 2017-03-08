@@ -53,8 +53,9 @@ public final class Store<Program: Elm.Program> {
     private var sendAction: ActionSink = { _ in }
 
     init<Delegate: Elm.StoreDelegate>(program _: Program.Type, delegate: Delegate, seed: Seed) where Delegate.Program == Program {
-        switch Program.start(with: seed) {
-        case .state(let nextState, perform: let actions):
+        let start = Program.start(with: seed)
+        switch start.data {
+        case .success(state: let nextState, actions: let actions):
             state = nextState
             sendView = { [weak delegate] view in
                 delegate?.store(self, didUpdate: view)
@@ -62,7 +63,8 @@ public final class Store<Program: Elm.Program> {
             sendAction = { [weak delegate] action in
                 delegate?.store(self, didRequest: action)
             }
-            updateDelegate(with: actions)
+            sendView(view)
+            actions.forEach(sendAction)
         case .failure(let failure):
             let message = "Fatal error!" + "\n"
                 + dumped(Program.start, label: "Location")
@@ -80,10 +82,15 @@ public final class Store<Program: Elm.Program> {
             fatalError(message)
         }
         var actions: [Action] = []
+        var didUpdateState = false
         for event in events {
-            switch Program.update(for: event, state: state) {
-            case .state(let newState, perform: let newActions):
-                state = newState
+            let update = Program.update(for: event, state: state)
+            switch update.data {
+            case .success(state: let newState, actions: let newActions):
+                if let newState = newState {
+                    didUpdateState = true
+                    state = newState
+                }
                 actions.append(contentsOf: newActions)
             case .failure(let failure):
                 let message = "Fatal error!" + "\n"
@@ -94,13 +101,17 @@ public final class Store<Program: Elm.Program> {
                 fatalError(message)
             }
         }
-        view = Store.makeView(program: Program.self, state: state)
-        updateDelegate(with: actions)
+        if didUpdateState {
+            view = Store.makeView(program: Program.self, state: state)
+            sendView(view)
+        }
+        actions.forEach(sendAction)
     }
 
     private static func makeView(program: Program.Type, state: State) -> View {
-        switch program.view(for: state) {
-        case .view(let view):
+        let scene = program.scene(for: state)
+        switch scene.data {
+        case .success(view: let view):
             return view
         case .failure(let failure):
             let message = "Fatal error!" + "\n"
@@ -109,11 +120,6 @@ public final class Store<Program: Elm.Program> {
                 + dumped(state, label: "State")
             fatalError(message)
         }
-    }
-
-    private func updateDelegate(with actions: [Action]) {
-        sendView(view)
-        actions.forEach(sendAction)
     }
 
 }
