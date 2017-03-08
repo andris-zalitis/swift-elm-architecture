@@ -29,15 +29,19 @@ public protocol Program {
     associatedtype View
     associatedtype Failure
 
-    static func start(with seed: Seed) -> Start<State, Action, Failure>
-    static func update(for event: Event, state: State) -> Update<State, Action, Failure>
-    static func scene(for state: State) -> Scene<View, Failure>
+    static func start(with seed: Seed) -> Start<Self>
+    static func update(for event: Event, state: State) -> Update<Self>
+    static func scene(for state: State) -> Scene<Self>
 
 }
 
-public struct Start<State, Action, Failure> {
+public struct Start<Program: Elm.Program> {
 
-    let data: StartData<State, Action, Failure>
+    typealias State = Program.State
+    typealias Action = Program.Action
+    typealias Failure = Program.Failure
+
+    let data: StartData<Program>
 
     public init(state: State) {
         data = .success(state: state, actions: [])
@@ -53,16 +57,24 @@ public struct Start<State, Action, Failure> {
 
 }
 
-enum StartData<State, Action, Failure> {
+enum StartData<Program: Elm.Program> {
+
+    typealias State = Program.State
+    typealias Action = Program.Action
+    typealias Failure = Program.Failure
 
     case success(state: State, actions: [Action])
     case failure(Failure)
 
 }
 
-public struct Update<State, Action, Failure> {
+public struct Update<Program: Elm.Program> {
 
-    let data: UpdateData<State, Action, Failure>
+    typealias State = Program.State
+    typealias Action = Program.Action
+    typealias Failure = Program.Failure
+
+    let data: UpdateData<Program>
 
     public init(state: State) {
         data = .success(state: state, actions: [])
@@ -82,16 +94,23 @@ public struct Update<State, Action, Failure> {
 
 }
 
-enum UpdateData<State, Action, Failure> {
+enum UpdateData<Program: Elm.Program> {
+
+    typealias State = Program.State
+    typealias Action = Program.Action
+    typealias Failure = Program.Failure
 
     case success(state: State?, actions: [Action])
     case failure(Failure)
 
 }
 
-public struct Scene<View, Failure> {
+public struct Scene<Program: Elm.Program> {
 
-    let data: SceneData<View, Failure>
+    typealias View = Program.View
+    typealias Failure = Program.Failure
+
+    let data: SceneData<Program>
 
     init(view: View) {
         data = .success(view: view)
@@ -103,7 +122,10 @@ public struct Scene<View, Failure> {
 
 }
 
-enum SceneData<View, Failure> {
+enum SceneData<Program: Elm.Program> {
+
+    typealias View = Program.View
+    typealias Failure = Program.Failure
 
     case success(view: View)
     case failure(Failure)
