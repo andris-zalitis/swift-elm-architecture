@@ -72,7 +72,7 @@ struct Counter: Program {
         return .init(state: nextState, actions: nextAction)
     }
 
-    static func scene(for state: State) -> Scene<Counter> {
+    static func render(with state: State) -> Render<Counter> {
         let count = String(state.count)
         let view = View(count: count)
         return .init(view: view)
