@@ -101,6 +101,10 @@ public struct Update<Program: Elm.Program> {
         data = .success(state: nil, actions: actions)
     }
 
+    public init(error: Error) {
+        data = .error(error)
+    }
+
 }
 
 enum UpdateData<Program: Elm.Program> {
