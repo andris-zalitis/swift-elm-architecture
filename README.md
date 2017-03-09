@@ -45,35 +45,27 @@ struct Counter: Program {
         case userDidTapDecrementButton
     }
 
-    struct State {
-        var count: Int
-    }
+    typealias State = Int
 
     enum Action {}
 
-    struct View {
-        let count: String
-    }
+    typealias View = String
 
     enum Failure {}
 
     static func start(with seed: Seed) -> Start<Counter> {
-        let initialState = State(count: seed.count)
-        return .init(state: initialState)
+        return .init(state: 0)
     }
 
     static func update(for event: Event, state: State) -> Update<Counter> {
-        let nextState: State
         switch event {
-        case .increment: nextState = .init(count: state.count + 1)
-        case .decrement: nextState = .init(count: state.count - 1)
+        case .increment: return .init(state: state + 1)
+        case .decrement: return .init(state: state - 1)
         }
-        return .init(state: nextState)
     }
 
     static func render(with state: State) -> Render<Counter> {
-        let count = String(state.count)
-        let view = View(count: count)
+        let view = String(state)
         return .init(view: view)
     }
     
@@ -111,7 +103,7 @@ class CounterViewController: UIViewController, StoreDelegate {
     }
 
     func store(_ store: Store<Program>, didUpdate view: Program.View) {
-        countLabel.text = view.count
+        countLabel.text = view
     }
 
     func store(_ store: Store<Program>, didRequest action: Program.Action) {
@@ -136,43 +128,43 @@ class CounterTests: XCTestCase, Tests {
     func testStart() {
         let start = start(with: .init())
         let state = start.expect(.state)
-        assert(state?.count, equals: 0)
+        assert(state, equals: 0)
     }
 
     func testIncrement1() {
-        let update = update(for: .userDidTapIncrementButton, state: .init(count: 1))
+        let update = update(for: .userDidTapIncrementButton, state: 1)
         let state = update.expect(.state)
-        assert(state?.count, equals: 2)
+        assert(state, equals: 2)
     }
 
     func testIncrement2() {
-        let update = update(for: .userDidTapIncrementButton, state: .init(count: 2))
+        let update = update(for: .userDidTapIncrementButton, state: 2)
         let state = update.expect(.state)
-        assert(state?.count, equals: 3)
+        assert(state, equals: 3)
     }
 
     func testDecrement1() {
-        let update = update(for: .userDidTapDecrementButton, state: .init(count: -1))
+        let update = update(for: .userDidTapDecrementButton, state: -1)
         let state = update.expect(.state)
-        assert(state?.count, equals: -2)
+        assert(state, equals: -2)
     }
 
     func testDecrement2() {
-        let update = update(for: .userDidTapDecrementButton, state: .init(count: -2))
+        let update = update(for: .userDidTapDecrementButton, state: -2)
         let state = update.expect(.state)
-        assert(state?.count, equals: -3)
+        assert(state, equals: -3)
     }
 
     func testView1() {
-        let render = render(with: .init(count: 1))
+        let render = render(with: 1)
         let view = render.expect(.view)
-        assert(view?.count, equals: "1")
+        assert(view, equals: "1")
     }
 
     func testView2() {
-        let render = render(with: .init(count: 2))
+        let render = render(with: 2)
         let view = render.expect(.view)
-        assert(view?.count, equals: "2")
+        assert(view, equals: "2")
     }
 
     func fail(_ message: String, file: StaticString, line: Int) {
