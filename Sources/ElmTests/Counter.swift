@@ -30,21 +30,15 @@ typealias Action = Counter.Action
 
 struct Counter: Program {
 
-    struct Seed {
-        let count: Int
-    }
+    typealias Seed = Int
 
     enum Event {
-        case increment, decrement
+        case increment
+        case decrement
     }
 
-    struct State {
-        var count: Int
-    }
-
-    struct View {
-        let count: String
-    }
+    typealias State = Int
+    typealias View = String
 
     enum Action {
         case log(String)
@@ -53,9 +47,8 @@ struct Counter: Program {
     enum Failure {}
 
     static func start(with seed: Seed) -> Start<Counter> {
-        let initialState = State(count: seed.count)
         let initialAction = Action.log("Did start")
-        return .init(state: initialState, actions: initialAction)
+        return .init(state: seed, actions: initialAction)
     }
 
     static func update(for event: Event, state: State) -> Update<Counter> {
@@ -63,18 +56,17 @@ struct Counter: Program {
         let nextAction: Action
         switch event {
         case .increment:
-            nextState = .init(count: state.count + 1)
+            nextState = state + 1
             nextAction = .log("Did increment")
         case .decrement:
-            nextState = .init(count: state.count - 1)
+            nextState = state - 1
             nextAction = .log("Did decrement")
         }
         return .init(state: nextState, actions: nextAction)
     }
 
     static func render(with state: State) -> Render<Counter> {
-        let count = String(state.count)
-        let view = View(count: count)
+        let view = String(state)
         return .init(view: view)
     }
 
@@ -82,12 +74,6 @@ struct Counter: Program {
 
 extension Action: Equatable {
     static func == (lhs: Action, rhs: Action) -> Bool {
-        return String(describing: lhs) == String(describing: rhs)
-    }
-}
-
-extension View: Equatable {
-    static func == (lhs: View, rhs: View) -> Bool {
         return String(describing: lhs) == String(describing: rhs)
     }
 }
