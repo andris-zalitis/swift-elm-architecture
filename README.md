@@ -25,23 +25,9 @@ public protocol Program {
     associatedtype View
     associatedtype Failure
 
-    static func start(with seed: Seed) -> Transition<State, Action, Failure>
-    static func update(for event: Event, state: State) -> Transition<State, Action, Failure>
-    static func view(for state: State) -> Scene<View, Failure>
-
-}
-
-public enum Transition<State, Action, Failure> {
-
-    case state(State, perform: [Action])
-    case failure(Failure)
-
-}
-
-public enum Scene<View, Failure> {
-
-    case view(View)
-    case failure(Failure)
+    static func start(with seed: Seed) -> Start<Self>
+    static func update(for event: Event, state: State) -> Update<Self>
+    static func scene(for state: State) -> Scene<Self>
 
 }
 ```
@@ -78,24 +64,24 @@ struct Counter: Program {
 
     enum Failure {}
 
-    static func start(with seed: Seed) -> Transition<State, Action, Failure> {
+    static func start(with seed: Seed) -> Start<Counter> {
         let initialState = State(count: seed.count)
-        return .state(initialState, perform: [])
+        return .init(state: initialState)
     }
 
-    static func update(for event: Event, state: State) -> Transition<State, Action, Failure> {
+    static func update(for event: Event, state: State) -> Update<Counter> {
         let nextState: State
         switch event {
         case .increment: nextState = .init(count: state.count + 1)
         case .decrement: nextState = .init(count: state.count - 1)
         }
-        return .state(nextState, perform: [])
+        return .init(state: nextState)
     }
 
-    static func view(for state: State) -> Scene<View, Failure> {
+    static func scene(for state: State) -> Scene<Counter> {
         let count = String(state.count)
         let view = View(count: count)
-        return .view(view)
+        return .init(view: view)
     }
     
 }
@@ -155,38 +141,45 @@ class CounterTests: XCTestCase, Tests {
     typealias Program = Counter
 
     func testStart() {
-        let start = expectStart(with: .init())
-        expect(start?.state.count, 0)
+        let start = start(with: .init())
+        let state = start.expect(.state)
+        assert(state?.count, equals: 0)
     }
 
     func testIncrement1() {
-        let update = expectUpdate(for: .userDidTapIncrementButton, state: .init(count: 1))
-        expect(update?.state.count, 2)
+        let update = update(for: .userDidTapIncrementButton, state: .init(count: 1))
+        let state = update.expect(.state)
+        assert(state?.count, equals: 2)
     }
 
     func testIncrement2() {
-        let update = expectUpdate(for: .userDidTapIncrementButton, state: .init(count: 2))
-        expect(update?.state.count, 3)
+        let update = update(for: .userDidTapIncrementButton, state: .init(count: 2))
+        let state = update.expect(.state)
+        assert(state?.count, equals: 3)
     }
 
     func testDecrement1() {
-        let update = expectUpdate(for: .userDidTapDecrementButton, state: .init(count: -1))
-        expect(update?.state.count, -2)
+        let update = update(for: .userDidTapDecrementButton, state: .init(count: -1))
+        let state = update.expect(.state)
+        assert(state?.count, equals: -2)
     }
 
     func testDecrement2() {
-        let update = expectUpdate(for: .userDidTapDecrementButton, state: .init(count: -2))
-        expect(update?.state.count, -3)
+        let update = update(for: .userDidTapDecrementButton, state: .init(count: -2))
+        let state = update.expect(.state)
+        assert(state?.count, equals: -3)
     }
 
     func testView1() {
-        let view = expectView(for: .init(count: 1))
-        expect(view?.count, "1")
+        let scene = scene(for: .init(count: 1))
+        let view = scene.expect(.view)
+        assert(view?.count, equals: "1")
     }
 
     func testView2() {
-        let view = expectView(for: .init(count: 2))
-        expect(view?.count, "2")
+        let scene = scene(for: .init(count: 2))
+        let view = scene.expect(.view)
+        assert(view?.count, equals: "2")
     }
 
     func fail(_ message: String, file: StaticString, line: Int) {

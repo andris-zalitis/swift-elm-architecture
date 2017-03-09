@@ -29,22 +29,105 @@ public protocol Program {
     associatedtype View
     associatedtype Failure
 
-    static func start(with seed: Seed) -> Transition<State, Action, Failure>
-    static func update(for event: Event, state: State) -> Transition<State, Action, Failure>
-    static func view(for state: State) -> Scene<View, Failure>
+    static func start(with seed: Seed) -> Start<Self>
+    static func update(for event: Event, state: State) -> Update<Self>
+    static func scene(for state: State) -> Scene<Self>
 
 }
 
-public enum Transition<State, Action, Failure> {
+public struct Start<Program: Elm.Program> {
 
-    case state(State, perform: [Action])
+    typealias State = Program.State
+    typealias Action = Program.Action
+    typealias Failure = Program.Failure
+
+    let data: StartData<Program>
+
+    public init(state: State) {
+        data = .success(state: state, actions: [])
+    }
+
+    public init(state: State, actions: Action...) {
+        data = .success(state: state, actions: actions)
+    }
+
+    public init(failure: Failure) {
+        data = .failure(failure)
+    }
+
+}
+
+enum StartData<Program: Elm.Program> {
+
+    typealias State = Program.State
+    typealias Action = Program.Action
+    typealias Failure = Program.Failure
+
+    case success(state: State, actions: [Action])
     case failure(Failure)
 
 }
 
-public enum Scene<View, Failure> {
+public struct Update<Program: Elm.Program> {
 
-    case view(View)
+    typealias State = Program.State
+    typealias Action = Program.Action
+    typealias Failure = Program.Failure
+
+    let data: UpdateData<Program>
+
+    public init(state: State) {
+        data = .success(state: state, actions: [])
+    }
+
+    public init(state: State, actions: Action...) {
+        data = .success(state: state, actions: actions)
+    }
+
+    public init(actions: Action...) {
+        data = .success(state: nil, actions: actions)
+    }
+
+    public static var skip: Update {
+        return .init()
+    }
+
+}
+
+enum UpdateData<Program: Elm.Program> {
+
+    typealias State = Program.State
+    typealias Action = Program.Action
+    typealias Failure = Program.Failure
+
+    case success(state: State?, actions: [Action])
+    case failure(Failure)
+
+}
+
+public struct Scene<Program: Elm.Program> {
+
+    typealias View = Program.View
+    typealias Failure = Program.Failure
+
+    let data: SceneData<Program>
+
+    init(view: View) {
+        data = .success(view: view)
+    }
+
+    init(failure: Failure) {
+        data = .failure(failure)
+    }
+
+}
+
+enum SceneData<Program: Elm.Program> {
+
+    typealias View = Program.View
+    typealias Failure = Program.Failure
+
+    case success(view: View)
     case failure(Failure)
 
 }
