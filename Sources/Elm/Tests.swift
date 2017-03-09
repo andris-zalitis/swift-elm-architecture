@@ -55,17 +55,17 @@ public extension Tests {
 
     func start(with seed: Seed) -> StartResult<Program> {
         let start = Program.start(with: seed)
-        return .init(start: start, failureReporter: self)
+        return .init(data: start.data, failureReporter: self)
     }
 
     func update(for event: Event, state: State) -> UpdateResult<Program> {
         let update = Program.update(for: event, state: state)
-        return .init(update: update, failureReporter: self)
+        return .init(data: update.data, failureReporter: self)
     }
 
     func render(with state: State) -> RenderResult<Program> {
         let render = Program.render(with: state)
-        return .init(render: render, failureReporter: self)
+        return .init(data: render.data, failureReporter: self)
     }
 
 }
@@ -85,11 +85,11 @@ public struct StartResult<Program: Elm.Program> {
     typealias Action = Program.Action
     typealias Failure = Program.Failure
 
-    let start: Start<Program>
+    let data: StartData<Program>
     let failureReporter: FailureReporter
 
     func expect(_: Expectation.State, file: StaticString = #file, line: Int = #line) -> State? {
-        switch start.data {
+        switch data {
         case .success(state: let state, actions: _):
             return state
         case .failure(let failure):
@@ -99,7 +99,7 @@ public struct StartResult<Program: Elm.Program> {
     }
 
     func expect(_: Expectation.Actions, file: StaticString = #file, line: Int = #line) -> [Int: Action] {
-        switch start.data {
+        switch data {
         case .success(state: _, actions: let actions):
             var newActions: [Int: Action] = [:]
             for (index, action) in actions.enumerated() {
@@ -113,7 +113,7 @@ public struct StartResult<Program: Elm.Program> {
     }
 
     func expect(_: Expectation.Failure, file: StaticString = #file, line: Int = #line) -> Failure? {
-        switch start.data {
+        switch data {
         case .success:
             failureReporter.reportUnexpectedSuccess(file: file, line: line)
             return nil
@@ -130,11 +130,11 @@ public struct UpdateResult<Program: Elm.Program> {
     typealias Action = Program.Action
     typealias Failure = Program.Failure
 
-    let update: Update<Program>
+    let data: UpdateData<Program>
     let failureReporter: FailureReporter
 
     func expect(_: Expectation.State, file: StaticString = #file, line: Int = #line) -> State? {
-        switch update.data {
+        switch data {
         case .success(state: let state, actions: _):
             return state
         case .failure(let failure):
@@ -144,7 +144,7 @@ public struct UpdateResult<Program: Elm.Program> {
     }
 
     func expect(_: Expectation.Actions, file: StaticString = #file, line: Int = #line) -> [Int: Action] {
-        switch update.data {
+        switch data {
         case .success(state: _, actions: let actions):
             var newActions: [Int: Action] = [:]
             for (index, action) in actions.enumerated() {
@@ -158,7 +158,7 @@ public struct UpdateResult<Program: Elm.Program> {
     }
 
     func expect(_: Expectation.Failure, file: StaticString = #file, line: Int = #line) -> Failure? {
-        switch update.data {
+        switch data {
         case .success:
             failureReporter.reportUnexpectedSuccess(file: file, line: line)
             return nil
@@ -174,11 +174,11 @@ public struct RenderResult<Program: Elm.Program> {
     typealias View = Program.View
     typealias Failure = Program.Failure
 
-    let render: Render<Program>
+    let data: RenderData<Program>
     let failureReporter: FailureReporter
 
     func expect(_: Expectation.View, file: StaticString = #file, line: Int = #line) -> View? {
-        switch render.data {
+        switch data {
         case .success(view: let view):
             return view
         case .failure(let failure):
@@ -188,7 +188,7 @@ public struct RenderResult<Program: Elm.Program> {
     }
 
     func expect(_: Expectation.Failure, file: StaticString = #file, line: Int = #line) -> Failure? {
-        switch render.data {
+        switch data {
         case .success:
             failureReporter.reportUnexpectedSuccess(file: file, line: line)
             return nil
