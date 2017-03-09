@@ -44,8 +44,6 @@ struct Counter: Program {
         case log(String)
     }
 
-    enum Failure {}
-
     static func start(with seed: Seed) -> Start<Counter> {
         let initialAction = Action.log("Did start")
         return .init(state: seed, actions: initialAction)

@@ -22,18 +22,6 @@
 
 import Foundation
 
-public protocol StoreDelegate: class {
-
-    associatedtype Program: Elm.Program
-
-    typealias Action = Program.Action
-    typealias View = Program.View
-
-    func store(_ store: Store<Program>, didRequest action: Action)
-    func store(_ store: Store<Program>, didUpdate view: View)
-
-}
-
 public final class Store<Program: Elm.Program> {
 
     typealias Seed = Program.Seed
