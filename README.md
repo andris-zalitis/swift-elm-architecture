@@ -14,7 +14,7 @@ _The Elm Architecture_ is a simple pattern for architecting apps. It is great fo
 # Interface
 
 ```swift
-public protocol Program {
+protocol Program {
 
     associatedtype Seed
     associatedtype Event
