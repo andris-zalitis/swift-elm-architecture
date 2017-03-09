@@ -25,7 +25,7 @@ protocol Program {
 
     static func start(with seed: Seed) -> Start<Self>
     static func update(for event: Event, state: State) -> Update<Self>
-    static func scene(for state: State) -> Scene<Self>
+    static func render(for state: State) -> Render<Self>
 
 }
 ```
@@ -76,7 +76,7 @@ struct Counter: Program {
         return .init(state: nextState)
     }
 
-    static func scene(for state: State) -> Scene<Counter> {
+    static func render(for state: State) -> Render<Counter> {
         let count = String(state.count)
         let view = View(count: count)
         return .init(view: view)
@@ -169,14 +169,14 @@ class CounterTests: XCTestCase, Tests {
     }
 
     func testView1() {
-        let scene = scene(for: .init(count: 1))
-        let view = scene.expect(.view)
+        let render = render(for: .init(count: 1))
+        let view = render.expect(.view)
         assert(view?.count, equals: "1")
     }
 
     func testView2() {
-        let scene = scene(for: .init(count: 2))
-        let view = scene.expect(.view)
+        let render = render(for: .init(count: 2))
+        let view = render.expect(.view)
         assert(view?.count, equals: "2")
     }
 

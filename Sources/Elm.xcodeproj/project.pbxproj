@@ -28,6 +28,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9100AB621E716DCC000C58C2 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		916C31E91E68DB6300FF3174 /* TimeRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeRecorder.swift; sourceTree = "<group>"; };
 		916E9F6F1E66CBB300B6C008 /* ElmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ElmTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		916E9F711E66CBB300B6C008 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
@@ -77,6 +78,7 @@
 			children = (
 				91F834841DEF328A00F27AD5 /* Elm */,
 				916E9F701E66CBB300B6C008 /* ElmTests */,
+				9100AB621E716DCC000C58C2 /* README.md */,
 				91F834831DEF328A00F27AD5 /* Products */,
 			);
 			sourceTree = "<group>";
