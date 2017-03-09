@@ -63,7 +63,7 @@ public extension Tests {
         return .init(update: update, failureReporter: self)
     }
 
-    func render(for state: State) -> RenderResult<Program> {
+    func render(with state: State) -> RenderResult<Program> {
         let render = Program.render(with: state)
         return .init(render: render, failureReporter: self)
     }
