@@ -63,9 +63,9 @@ public extension Tests {
         return .init(update: update, failureReporter: self)
     }
 
-    func scene(for state: State) -> SceneResult<Program> {
-        let scene = Program.scene(for: state)
-        return .init(scene: scene, failureReporter: self)
+    func render(for state: State) -> RenderResult<Program> {
+        let render = Program.render(with: state)
+        return .init(render: render, failureReporter: self)
     }
 
 }
@@ -169,16 +169,16 @@ public struct UpdateResult<Program: Elm.Program> {
 
 }
 
-public struct SceneResult<Program: Elm.Program> {
+public struct RenderResult<Program: Elm.Program> {
 
     typealias View = Program.View
     typealias Failure = Program.Failure
 
-    let scene: Scene<Program>
+    let render: Render<Program>
     let failureReporter: FailureReporter
 
     func expect(_: Expectation.View, file: StaticString = #file, line: Int = #line) -> View? {
-        switch scene.data {
+        switch render.data {
         case .success(view: let view):
             return view
         case .failure(let failure):
@@ -188,7 +188,7 @@ public struct SceneResult<Program: Elm.Program> {
     }
 
     func expect(_: Expectation.Failure, file: StaticString = #file, line: Int = #line) -> Failure? {
-        switch scene.data {
+        switch render.data {
         case .success:
             failureReporter.reportUnexpectedSuccess(file: file, line: line)
             return nil

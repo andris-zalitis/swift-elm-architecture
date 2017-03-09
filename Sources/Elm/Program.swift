@@ -31,7 +31,7 @@ public protocol Program {
 
     static func start(with seed: Seed) -> Start<Self>
     static func update(for event: Event, state: State) -> Update<Self>
-    static func scene(for state: State) -> Scene<Self>
+    static func render(with state: State) -> Render<Self>
 
 }
 
@@ -105,12 +105,12 @@ enum UpdateData<Program: Elm.Program> {
 
 }
 
-public struct Scene<Program: Elm.Program> {
+public struct Render<Program: Elm.Program> {
 
     typealias View = Program.View
     typealias Failure = Program.Failure
 
-    let data: SceneData<Program>
+    let data: RenderData<Program>
 
     init(view: View) {
         data = .success(view: view)
@@ -122,7 +122,7 @@ public struct Scene<Program: Elm.Program> {
 
 }
 
-enum SceneData<Program: Elm.Program> {
+enum RenderData<Program: Elm.Program> {
 
     typealias View = Program.View
     typealias Failure = Program.Failure
