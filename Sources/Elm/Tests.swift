@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-public protocol Tests: class, FailureReporter {
+public protocol Tests: class, ErrorReporter {
 
     associatedtype Program: Elm.Program
 
@@ -29,7 +29,7 @@ public protocol Tests: class, FailureReporter {
     typealias Event = Program.Event
     typealias Action = Program.Action
     typealias View = Program.View
-    typealias Failure = Program.Failure
+    typealias Error = Program.Error
 
 }
 
@@ -42,26 +42,26 @@ public extension Tests {
 
     func start(with seed: Seed) -> StartResult<Program> {
         let start = Program.start(with: seed)
-        return .init(data: start.data, failureReporter: self)
+        return .init(data: start.data, errorReporter: self)
     }
-    
+
 }
 
 public struct StartResult<Program: Elm.Program> {
 
     typealias State = Program.State
     typealias Action = Program.Action
-    typealias Failure = Program.Failure
+    typealias Error = Program.Error
 
     let data: StartData<Program>
-    let failureReporter: FailureReporter
+    let errorReporter: ErrorReporter
 
     func expect(_: Expectation.State, file: StaticString = #file, line: Int = #line) -> State? {
         switch data {
         case .success(state: let state, actions: _):
             return state
-        case .failure(let failure):
-            failureReporter.reportUnexpectedFailure(failure, file: file, line: line)
+        case .error(let error):
+            errorReporter.reportUnexpectedError(error, file: file, line: line)
             return nil
         }
     }
@@ -74,19 +74,19 @@ public struct StartResult<Program: Elm.Program> {
                 newActions[index] = action
             }
             return newActions
-        case .failure(let failure):
-            failureReporter.reportUnexpectedFailure(failure, file: file, line: line)
+        case .error(let error):
+            errorReporter.reportUnexpectedError(error, file: file, line: line)
             return [:]
         }
     }
 
-    func expect(_: Expectation.Failure, file: StaticString = #file, line: Int = #line) -> Failure? {
+    func expect(_: Expectation.Error, file: StaticString = #file, line: Int = #line) -> Error? {
         switch data {
         case .success:
-            failureReporter.reportUnexpectedSuccess(file: file, line: line)
+            errorReporter.reportUnexpectedSuccess(file: file, line: line)
             return nil
-        case .failure(let failure):
-            return failure
+        case .error(let error):
+            return error
         }
     }
 
@@ -101,7 +101,7 @@ public extension Tests {
 
     func update(for event: Event, state: State) -> UpdateResult<Program> {
         let update = Program.update(for: event, state: state)
-        return .init(data: update.data, failureReporter: self)
+        return .init(data: update.data, errorReporter: self)
     }
 
 }
@@ -110,17 +110,17 @@ public struct UpdateResult<Program: Elm.Program> {
 
     typealias State = Program.State
     typealias Action = Program.Action
-    typealias Failure = Program.Failure
+    typealias Error = Program.Error
 
     let data: UpdateData<Program>
-    let failureReporter: FailureReporter
+    let errorReporter: ErrorReporter
 
     func expect(_: Expectation.State, file: StaticString = #file, line: Int = #line) -> State? {
         switch data {
         case .success(state: let state, actions: _):
             return state
-        case .failure(let failure):
-            failureReporter.reportUnexpectedFailure(failure, file: file, line: line)
+        case .error(let error):
+            errorReporter.reportUnexpectedError(error, file: file, line: line)
             return nil
         }
     }
@@ -133,19 +133,19 @@ public struct UpdateResult<Program: Elm.Program> {
                 newActions[index] = action
             }
             return newActions
-        case .failure(let failure):
-            failureReporter.reportUnexpectedFailure(failure, file: file, line: line)
+        case .error(let error):
+            errorReporter.reportUnexpectedError(error, file: file, line: line)
             return [:]
         }
     }
 
-    func expect(_: Expectation.Failure, file: StaticString = #file, line: Int = #line) -> Failure? {
+    func expect(_: Expectation.Error, file: StaticString = #file, line: Int = #line) -> Error? {
         switch data {
         case .success:
-            failureReporter.reportUnexpectedSuccess(file: file, line: line)
+            errorReporter.reportUnexpectedSuccess(file: file, line: line)
             return nil
-        case .failure(let failure):
-            return failure
+        case .error(let error):
+            return error
         }
     }
 
@@ -160,36 +160,36 @@ public extension Tests {
 
     func render(with state: State) -> RenderResult<Program> {
         let render = Program.render(with: state)
-        return .init(data: render.data, failureReporter: self)
+        return .init(data: render.data, errorReporter: self)
     }
-    
+
 }
 
 public struct RenderResult<Program: Elm.Program> {
 
     typealias View = Program.View
-    typealias Failure = Program.Failure
+    typealias Error = Program.Error
 
     let data: RenderData<Program>
-    let failureReporter: FailureReporter
+    let errorReporter: ErrorReporter
 
     func expect(_: Expectation.View, file: StaticString = #file, line: Int = #line) -> View? {
         switch data {
         case .success(view: let view):
             return view
-        case .failure(let failure):
-            failureReporter.reportUnexpectedFailure(failure, file: file, line: line)
+        case .error(let error):
+            errorReporter.reportUnexpectedError(error, file: file, line: line)
             return nil
         }
     }
 
-    func expect(_: Expectation.Failure, file: StaticString = #file, line: Int = #line) -> Failure? {
+    func expect(_: Expectation.Error, file: StaticString = #file, line: Int = #line) -> Error? {
         switch data {
         case .success:
-            failureReporter.reportUnexpectedSuccess(file: file, line: line)
+            errorReporter.reportUnexpectedSuccess(file: file, line: line)
             return nil
-        case .failure(let failure):
-            return failure
+        case .error(let error):
+            return error
         }
     }
 
@@ -205,8 +205,8 @@ public enum Expectation {
     public enum State { case state }
     public enum Actions { case actions }
     public enum View { case view }
-    public enum Failure { case failure }
-    
+    public enum Error { case error }
+
 }
 
 //
@@ -229,23 +229,23 @@ public extension Tests {
 
 //
 // MARK:
-// MARK: Failure reporter
+// MARK: Error reporter
 //
 
-public protocol FailureReporter {
+public protocol ErrorReporter {
 
     func fail(_ message: String, file: StaticString, line: Int)
 
 }
 
-extension FailureReporter {
+extension ErrorReporter {
 
     func reportUnexpectedSuccess(file: StaticString, line: Int) {
         fail("Unexpected success", file: file, line: line)
     }
 
-    func reportUnexpectedFailure<Failure>(_ failure: Failure, file: StaticString, line: Int) {
-        fail("Unexpected failure: \(failure)", file: file, line: line)
+    func reportUnexpectedError<Error>(_ error: Error, file: StaticString, line: Int) {
+        fail("Unexpected error: \(error)", file: file, line: line)
     }
     
 }
