@@ -33,23 +33,10 @@ public protocol Tests: class, FailureReporter {
 
 }
 
-public protocol FailureReporter {
-
-    func fail(_ message: String, file: StaticString, line: Int)
-
-}
-
-extension FailureReporter {
-
-    func reportUnexpectedSuccess(file: StaticString, line: Int) {
-        fail("Unexpected success", file: file, line: line)
-    }
-
-    func reportUnexpectedFailure<Failure>(_ failure: Failure, file: StaticString, line: Int) {
-        fail("Unexpected failure: \(failure)", file: file, line: line)
-    }
-
-}
+//
+// MARK:
+// MARK: Start
+//
 
 public extension Tests {
 
@@ -57,26 +44,7 @@ public extension Tests {
         let start = Program.start(with: seed)
         return .init(data: start.data, failureReporter: self)
     }
-
-    func update(for event: Event, state: State) -> UpdateResult<Program> {
-        let update = Program.update(for: event, state: state)
-        return .init(data: update.data, failureReporter: self)
-    }
-
-    func render(with state: State) -> RenderResult<Program> {
-        let render = Program.render(with: state)
-        return .init(data: render.data, failureReporter: self)
-    }
-
-}
-
-public enum Expectation {
-
-    public enum State { case state }
-    public enum Actions { case actions }
-    public enum View { case view }
-    public enum Failure { case failure }
-
+    
 }
 
 public struct StartResult<Program: Elm.Program> {
@@ -120,6 +88,20 @@ public struct StartResult<Program: Elm.Program> {
         case .failure(let failure):
             return failure
         }
+    }
+
+}
+
+//
+// MARK:
+// MARK: Update
+//
+
+public extension Tests {
+
+    func update(for event: Event, state: State) -> UpdateResult<Program> {
+        let update = Program.update(for: event, state: state)
+        return .init(data: update.data, failureReporter: self)
     }
 
 }
@@ -169,6 +151,20 @@ public struct UpdateResult<Program: Elm.Program> {
 
 }
 
+//
+// MARK:
+// MARK: Render
+//
+
+public extension Tests {
+
+    func render(with state: State) -> RenderResult<Program> {
+        let render = Program.render(with: state)
+        return .init(data: render.data, failureReporter: self)
+    }
+    
+}
+
 public struct RenderResult<Program: Elm.Program> {
 
     typealias View = Program.View
@@ -199,6 +195,25 @@ public struct RenderResult<Program: Elm.Program> {
 
 }
 
+//
+// MARK:
+// MARK: Expectation
+//
+
+public enum Expectation {
+
+    public enum State { case state }
+    public enum Actions { case actions }
+    public enum View { case view }
+    public enum Failure { case failure }
+    
+}
+
+//
+// MARK:
+// MARK: Assert
+//
+
 public extension Tests {
 
     func assert<T>(_ value: T, equals expectedValue: T, file: StaticString = #file, line: Int = #line) {
@@ -210,4 +225,27 @@ public extension Tests {
         }
     }
 
+}
+
+//
+// MARK:
+// MARK: Failure reporter
+//
+
+public protocol FailureReporter {
+
+    func fail(_ message: String, file: StaticString, line: Int)
+
+}
+
+extension FailureReporter {
+
+    func reportUnexpectedSuccess(file: StaticString, line: Int) {
+        fail("Unexpected success", file: file, line: line)
+    }
+
+    func reportUnexpectedFailure<Failure>(_ failure: Failure, file: StaticString, line: Int) {
+        fail("Unexpected failure: \(failure)", file: file, line: line)
+    }
+    
 }
