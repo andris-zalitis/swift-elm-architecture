@@ -96,7 +96,7 @@ class CounterTests: XCTestCase, Tests {
     typealias Program = Counter
 
     func testStart() {
-        let start = start(with: .init())
+        let start = start()
         let state = start.expect(.state)
         assert(state, equals: 0)
     }
