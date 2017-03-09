@@ -53,10 +53,10 @@ public final class Store<Program: Elm.Program> {
             }
             sendView(view)
             actions.forEach(sendAction)
-        case .failure(let failure):
+        case .error(let error):
             let message = "Fatal error!" + "\n"
                 + dumped(Program.start, label: "Location")
-                + dumped(failure, label: "Failure")
+                + dumped(error, label: "Error")
                 + dumped(seed, label: "Seed")
             fatalError(message)
         }
@@ -80,10 +80,10 @@ public final class Store<Program: Elm.Program> {
                     state = newState
                 }
                 actions.append(contentsOf: newActions)
-            case .failure(let failure):
+            case .error(let error):
                 let message = "Fatal error!" + "\n"
                     + dumped(Program.update, label: "Location")
-                    + dumped(failure, label: "Failure")
+                    + dumped(error, label: "Error")
                     + dumped(event, label: "Event")
                     + dumped(state, label: "State")
                 fatalError(message)
@@ -101,10 +101,10 @@ public final class Store<Program: Elm.Program> {
         switch render.data {
         case .success(view: let view):
             return view
-        case .failure(let failure):
+        case .error(let error):
             let message = "Fatal error!" + "\n"
                 + dumped(Program.update, label: "Location")
-                + dumped(failure, label: "Failure")
+                + dumped(error, label: "Error")
                 + dumped(state, label: "State")
             fatalError(message)
         }
