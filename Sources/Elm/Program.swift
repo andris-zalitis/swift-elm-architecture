@@ -88,10 +88,6 @@ public struct Update<Program: Elm.Program> {
         data = .success(state: nil, actions: actions)
     }
 
-    public static var skip: Update {
-        return .init()
-    }
-
 }
 
 enum UpdateData<Program: Elm.Program> {
