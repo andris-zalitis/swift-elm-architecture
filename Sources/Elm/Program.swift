@@ -152,3 +152,11 @@ public extension Program {
     }
 
 }
+
+public extension Program where Seed == Void {
+
+    static func makeStore<Delegate: StoreDelegate>(delegate: Delegate) -> Store<Self> where Delegate.Program == Self {
+        return Store<Self>(program: self, delegate: delegate, seed: Void())
+    }
+
+}

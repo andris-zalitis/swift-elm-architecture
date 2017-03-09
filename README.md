@@ -65,7 +65,7 @@ class CounterViewController: UIViewController, StoreDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        store = Counter.makeStore(delegate: self, seed: .init())
+        store = Counter.makeStore(delegate: self)
     }
 
     @IBAction func userDidTapIncrementButton() {
