@@ -1,15 +1,10 @@
 # The Elm Architecture for Swift
 
-This is [The Elm Architecture](https://guide.elm-lang.org/architecture/) for [Swift](https://swift.org).
-
 <a href="http://elm-lang.org"><img src="Images/Logo-Elm.png" width="32" height="32" alt="Elm Logo"/></a>
 <a href="https://swift.org"><img src="Images/Logo-Swift.png" width="32" height="32" alt="Swift Logo"/></a>
+<a href="https://dashboard.buddybuild.com/apps/583f5837a72f6501008044ab/build/latest"><img src="https://dashboard.buddybuild.com/api/statusImage?appID=583f5837a72f6501008044ab&branch=master&build=latest" alt="Continuous Integration"/></a>
 
-[![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=583f5837a72f6501008044ab&branch=master&build=latest)](https://dashboard.buddybuild.com/apps/583f5837a72f6501008044ab/build/latest)
-
-# About
-
-_The Elm Architecture_ is a simple pattern for architecting apps. It is great for modularity, code reuse, and testing. Ultimately, it makes it easy to create complex apps that stay healthy as you refactor and add features.
+[The Elm Architecture](https://guide.elm-lang.org/architecture/) is a simple pattern for architecting apps. It is great for modularity, code reuse, and testing. Ultimately, it makes it easy to create complex apps that stay healthy as you refactor and add features.
 
 # Interface
 
@@ -25,7 +20,7 @@ protocol Program {
 
     static func start(with seed: Seed) -> Start<Self>
     static func update(for event: Event, state: State) -> Update<Self>
-    static func render(for state: State) -> Render<Self>
+    static func render(with state: State) -> Render<Self>
 
 }
 ```
@@ -76,7 +71,7 @@ struct Counter: Program {
         return .init(state: nextState)
     }
 
-    static func render(for state: State) -> Render<Counter> {
+    static func render(with state: State) -> Render<Counter> {
         let count = String(state.count)
         let view = View(count: count)
         return .init(view: view)
@@ -169,13 +164,13 @@ class CounterTests: XCTestCase, Tests {
     }
 
     func testView1() {
-        let render = render(for: .init(count: 1))
+        let render = render(with: .init(count: 1))
         let view = render.expect(.view)
         assert(view?.count, equals: "1")
     }
 
     func testView2() {
-        let render = render(for: .init(count: 2))
+        let render = render(with: .init(count: 2))
         let view = render.expect(.view)
         assert(view?.count, equals: "2")
     }
