@@ -33,10 +33,7 @@ public protocol Tests: class, ErrorReporter {
 
 }
 
-//
-// MARK:
-// MARK: Start
-//
+// MARK: - Start
 
 public extension Tests {
 
@@ -92,10 +89,7 @@ public struct StartResult<Program: Elm.Program> {
 
 }
 
-//
-// MARK:
-// MARK: Update
-//
+// MARK: - Update
 
 public extension Tests {
 
@@ -151,10 +145,7 @@ public struct UpdateResult<Program: Elm.Program> {
 
 }
 
-//
-// MARK:
-// MARK: Render
-//
+// MARK: - Render
 
 public extension Tests {
 
@@ -195,10 +186,7 @@ public struct RenderResult<Program: Elm.Program> {
 
 }
 
-//
-// MARK:
-// MARK: Expectation
-//
+// MARK: - Expectation
 
 public enum Expectation {
 
@@ -209,10 +197,7 @@ public enum Expectation {
 
 }
 
-//
-// MARK:
-// MARK: Assert
-//
+// MARK: - Assert
 
 public extension Tests {
 
@@ -227,10 +212,7 @@ public extension Tests {
 
 }
 
-//
-// MARK:
-// MARK: Error reporter
-//
+// MARK: - Error reporter
 
 public protocol ErrorReporter {
 
@@ -247,5 +229,5 @@ extension ErrorReporter {
     func reportUnexpectedError<Error>(_ error: Error, file: StaticString, line: Int) {
         fail("Unexpected error: \(error)", file: file, line: line)
     }
-    
+
 }

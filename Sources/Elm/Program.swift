@@ -44,10 +44,7 @@ public extension Program where View == Void {
 
 }
 
-//
-// MARK:
-// MARK: Start
-//
+// MARK: - Start
 
 public struct Start<Program: Elm.Program> {
 
@@ -117,10 +114,7 @@ enum UpdateData<Program: Elm.Program> {
 
 }
 
-//
-// MARK:
-// MARK: Render
-//
+// MARK: - Render
 
 public struct Render<Program: Elm.Program> {
 
@@ -149,10 +143,7 @@ enum RenderData<Program: Elm.Program> {
 
 }
 
-//
-// MARK:
-// MARK: Store
-//
+// MARK: - Store
 
 public extension Program {
 

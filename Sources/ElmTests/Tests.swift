@@ -26,10 +26,7 @@ import XCTest
 
 final class Tests: XCTestCase {
 
-    //
-    // MARK:
-    // MARK: View
-    //
+    // MARK: - View
 
     func testViewAfterStart1() {
         let recorder = DataRecorder()
@@ -122,10 +119,7 @@ final class Tests: XCTestCase {
         XCTAssertLessThan(didUpdateViewAt, didRequestActionAt)
     }
 
-    //
-    // MARK:
-    // MARK: Actions
-    //
+    // MARK: - Actions
 
     func testActionsAfterStart() {
         let recorder = DataRecorder()
@@ -181,10 +175,7 @@ final class Tests: XCTestCase {
         )
     }
 
-    //
-    // MARK:
-    // MARK: Delegate
-    //
+    // MARK: - Delegate
 
     func testWeakDelegate() {
         var recorder: DataRecorder? = DataRecorder()
