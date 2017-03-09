@@ -48,9 +48,9 @@ public extension Program where View == Void {
 
 public struct Start<Program: Elm.Program> {
 
-    public typealias State = Program.State
-    public typealias Action = Program.Action
-    public typealias Error = Program.Error
+    typealias State = Program.State
+    typealias Action = Program.Action
+    typealias Error = Program.Error
 
     let data: StartData<Program>
 
