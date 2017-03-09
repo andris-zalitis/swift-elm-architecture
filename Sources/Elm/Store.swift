@@ -55,9 +55,9 @@ public final class Store<Program: Elm.Program> {
             actions.forEach(sendAction)
         case .error(let error):
             let message = "Fatal error!" + "\n"
-                + dumped(Program.start, label: "Location")
-                + dumped(error, label: "Error")
-                + dumped(seed, label: "Seed")
+                + String(dumping: Program.start, label: "Location")
+                + String(dumping: error, label: "Error")
+                + String(dumping: seed, label: "Seed")
             fatalError(message)
         }
     }
@@ -65,8 +65,8 @@ public final class Store<Program: Elm.Program> {
     public func dispatch(_ events: Event...) {
         guard Thread.current == thread else {
             let message = "Invalid thread" + "\n"
-                +  dumped(events, label: "Events")
-                +  dumped(state, label: "State")
+                +  String(dumping: events, label: "Events")
+                +  String(dumping: state, label: "State")
             fatalError(message)
         }
         var actions: [Action] = []
@@ -82,10 +82,10 @@ public final class Store<Program: Elm.Program> {
                 actions.append(contentsOf: newActions)
             case .error(let error):
                 let message = "Fatal error!" + "\n"
-                    + dumped(Program.update, label: "Location")
-                    + dumped(error, label: "Error")
-                    + dumped(event, label: "Event")
-                    + dumped(state, label: "State")
+                    + String(dumping: Program.update, label: "Location")
+                    + String(dumping: error, label: "Error")
+                    + String(dumping: event, label: "Event")
+                    + String(dumping: state, label: "State")
                 fatalError(message)
             }
         }
@@ -103,17 +103,20 @@ public final class Store<Program: Elm.Program> {
             return view
         case .error(let error):
             let message = "Fatal error!" + "\n"
-                + dumped(Program.update, label: "Location")
-                + dumped(error, label: "Error")
-                + dumped(state, label: "State")
+                + String(dumping: Program.render, label: "Location")
+                + String(dumping: error, label: "Error")
+                + String(dumping: state, label: "State")
             fatalError(message)
         }
     }
 
 }
 
-private func dumped<T>(_ value: T, label: String) -> String {
-    var result = label + ":" + "\n"
-    dump(value, to: &result, indent: 1)
-    return result
+extension String {
+
+    init<Value>(dumping value: Value, label: String) {
+        self.init()
+        dump("\(label):\n", to: &self, indent: 1)
+    }
+
 }
