@@ -27,7 +27,7 @@ public protocol Program {
     associatedtype State
     associatedtype Action = Void
     associatedtype View = Void
-    associatedtype Failure = Void
+    associatedtype Error = Void
 
     static func start(with seed: Seed) -> Start<Self>
     static func update(for event: Event, state: State) -> Update<Self>
@@ -50,7 +50,7 @@ public struct Start<Program: Elm.Program> {
 
     public typealias State = Program.State
     public typealias Action = Program.Action
-    public typealias Failure = Program.Failure
+    public typealias Error = Program.Error
 
     let data: StartData<Program>
 
@@ -62,8 +62,8 @@ public struct Start<Program: Elm.Program> {
         data = .success(state: state, actions: actions)
     }
 
-    public init(failure: Failure) {
-        data = .failure(failure)
+    public init(error: Error) {
+        data = .error(error)
     }
 
 }
@@ -72,10 +72,10 @@ enum StartData<Program: Elm.Program> {
 
     typealias State = Program.State
     typealias Action = Program.Action
-    typealias Failure = Program.Failure
+    typealias Error = Program.Error
 
     case success(state: State, actions: [Action])
-    case failure(Failure)
+    case error(Error)
 
 }
 
@@ -85,7 +85,7 @@ public struct Update<Program: Elm.Program> {
 
     typealias State = Program.State
     typealias Action = Program.Action
-    typealias Failure = Program.Failure
+    typealias Error = Program.Error
 
     let data: UpdateData<Program>
 
@@ -107,10 +107,10 @@ enum UpdateData<Program: Elm.Program> {
 
     typealias State = Program.State
     typealias Action = Program.Action
-    typealias Failure = Program.Failure
+    typealias Error = Program.Error
 
     case success(state: State?, actions: [Action])
-    case failure(Failure)
+    case error(Error)
 
 }
 
@@ -119,7 +119,7 @@ enum UpdateData<Program: Elm.Program> {
 public struct Render<Program: Elm.Program> {
 
     typealias View = Program.View
-    typealias Failure = Program.Failure
+    typealias Error = Program.Error
 
     let data: RenderData<Program>
 
@@ -127,8 +127,8 @@ public struct Render<Program: Elm.Program> {
         data = .success(view: view)
     }
 
-    init(failure: Failure) {
-        data = .failure(failure)
+    init(error: Error) {
+        data = .error(error)
     }
 
 }
@@ -136,10 +136,10 @@ public struct Render<Program: Elm.Program> {
 enum RenderData<Program: Elm.Program> {
 
     typealias View = Program.View
-    typealias Failure = Program.Failure
+    typealias Error = Program.Error
 
     case success(view: View)
-    case failure(Failure)
+    case error(Error)
 
 }
 
