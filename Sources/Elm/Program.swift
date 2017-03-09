@@ -22,12 +22,12 @@
 
 public protocol Program {
 
-    associatedtype Seed
+    associatedtype Seed = Void
     associatedtype Event
     associatedtype State
-    associatedtype Action
-    associatedtype View
-    associatedtype Failure
+    associatedtype Action = Void
+    associatedtype View = Void
+    associatedtype Failure = Void
 
     static func start(with seed: Seed) -> Start<Self>
     static func update(for event: Event, state: State) -> Update<Self>
@@ -35,11 +35,22 @@ public protocol Program {
 
 }
 
+public extension Program where View == Void {
+
+    static func render(with state: State) -> Render<Self> {
+        let view: View = Void()
+        return .init(view: view)
+    }
+
+}
+
+// MARK: Start
+
 public struct Start<Program: Elm.Program> {
 
-    typealias State = Program.State
-    typealias Action = Program.Action
-    typealias Failure = Program.Failure
+    public typealias State = Program.State
+    public typealias Action = Program.Action
+    public typealias Failure = Program.Failure
 
     let data: StartData<Program>
 
@@ -67,6 +78,8 @@ enum StartData<Program: Elm.Program> {
     case failure(Failure)
 
 }
+
+// MARK: Update
 
 public struct Update<Program: Elm.Program> {
 
@@ -101,6 +114,8 @@ enum UpdateData<Program: Elm.Program> {
 
 }
 
+// MARK: Render
+
 public struct Render<Program: Elm.Program> {
 
     typealias View = Program.View
@@ -128,10 +143,20 @@ enum RenderData<Program: Elm.Program> {
 
 }
 
+// MARK: Store
+
 public extension Program {
 
     static func makeStore<Delegate: StoreDelegate>(delegate: Delegate, seed: Seed) -> Store<Self> where Delegate.Program == Self {
         return Store<Self>(program: self, delegate: delegate, seed: seed)
+    }
+
+}
+
+public extension Program where Seed == Void {
+
+    static func makeStore<Delegate: StoreDelegate>(delegate: Delegate) -> Store<Self> where Delegate.Program == Self {
+        return Store<Self>(program: self, delegate: delegate, seed: Void())
     }
 
 }

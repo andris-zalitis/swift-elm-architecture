@@ -6,25 +6,6 @@
 
 [The Elm Architecture](https://guide.elm-lang.org/architecture/) is a simple pattern for architecting apps. It is great for modularity, code reuse, and testing. Ultimately, it makes it easy to create complex apps that stay healthy as you refactor and add features.
 
-# Interface
-
-```swift
-protocol Program {
-
-    associatedtype Seed
-    associatedtype Event
-    associatedtype State
-    associatedtype Action
-    associatedtype View
-    associatedtype Failure
-
-    static func start(with seed: Seed) -> Start<Self>
-    static func update(for event: Event, state: State) -> Update<Self>
-    static func render(with state: State) -> Render<Self>
-
-}
-```
-
 # Example
 
 Let's build a counter:
@@ -38,22 +19,15 @@ import Elm
 
 struct Counter: Program {
 
-    struct Seed {}
-
     enum Event {
         case userDidTapIncrementButton
         case userDidTapDecrementButton
     }
 
     typealias State = Int
-
-    enum Action {}
-
     typealias View = String
 
-    enum Failure {}
-
-    static func start(with seed: Seed) -> Start<Counter> {
+    static func start(with seed: Void) -> Start<Counter> {
         return .init(state: 0)
     }
 
@@ -91,7 +65,7 @@ class CounterViewController: UIViewController, StoreDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        store = Counter.makeStore(delegate: self, seed: .init())
+        store = Counter.makeStore(delegate: self)
     }
 
     @IBAction func userDidTapIncrementButton() {
@@ -104,10 +78,6 @@ class CounterViewController: UIViewController, StoreDelegate {
 
     func store(_ store: Store<Program>, didUpdate view: Program.View) {
         countLabel.text = view
-    }
-
-    func store(_ store: Store<Program>, didRequest action: Program.Action) {
-        fatalError()
     }
     
 }
