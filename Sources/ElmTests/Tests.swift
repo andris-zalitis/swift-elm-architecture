@@ -26,13 +26,7 @@ import XCTest
 
 final class Tests: XCTestCase {
 
-    func testWeakDelegate() {
-        var recorder: DataRecorder? = DataRecorder()
-        _ = Counter.makeStore(delegate: recorder!, seed: 0)
-        weak var weakRecorder: DataRecorder? = recorder
-        recorder = nil
-        XCTAssertNil(weakRecorder)
-    }
+    // MARK: - View
 
     func testViewAfterStart1() {
         let recorder = DataRecorder()
@@ -59,60 +53,6 @@ final class Tests: XCTestCase {
         store.dispatch(.increment)
         store.dispatch(.decrement)
         XCTAssertEqual(store.view, "1")
-    }
-
-    func testActionsAfterStart() {
-        let recorder = DataRecorder()
-        _ = Counter.makeStore(delegate: recorder, seed: 1)
-        XCTAssertEqual(recorder.actions, [.log("Did start")])
-    }
-
-    func testActionsAfterDispatch1() {
-        let recorder = DataRecorder()
-        let store = Counter.makeStore(delegate: recorder, seed: 1)
-        store.dispatch(.increment)
-        XCTAssertEqual(recorder.actions, [
-            .log("Did start"),
-            .log("Did increment")
-            ]
-        )
-    }
-
-    func testActionsAfterDispatch2() {
-        let recorder = DataRecorder()
-        let store = Counter.makeStore(delegate: recorder, seed: 1)
-        store.dispatch(.increment)
-        store.dispatch(.decrement)
-        XCTAssertEqual(recorder.actions, [
-            .log("Did start"),
-            .log("Did increment"),
-            .log("Did decrement")
-            ]
-        )
-    }
-
-    func testActionsAfterMultidispatch1() {
-        let recorder = DataRecorder()
-        let store = Counter.makeStore(delegate: recorder, seed: 1)
-        store.dispatch(.increment, .decrement)
-        XCTAssertEqual(recorder.actions, [
-            .log("Did start"),
-            .log("Did increment"),
-            .log("Did decrement")
-            ]
-        )
-    }
-
-    func testActionsAfterMultidispatch2() {
-        let recorder = DataRecorder()
-        let store = Counter.makeStore(delegate: recorder, seed: 2)
-        store.dispatch(.decrement, .increment)
-        XCTAssertEqual(recorder.actions, [
-            .log("Did start"),
-            .log("Did decrement"),
-            .log("Did increment")
-            ]
-        )
     }
 
     func testViewsAfterStart1() {
@@ -177,6 +117,72 @@ final class Tests: XCTestCase {
         let didUpdateViewAt = recorder.didUpdateViewAt[1]
         let didRequestActionAt = recorder.didRequestActionAt[1]
         XCTAssertLessThan(didUpdateViewAt, didRequestActionAt)
+    }
+
+    // MARK: - Actions
+
+    func testActionsAfterStart() {
+        let recorder = DataRecorder()
+        _ = Counter.makeStore(delegate: recorder, seed: 1)
+        XCTAssertEqual(recorder.actions, [.log("Did start")])
+    }
+
+    func testActionsAfterDispatch1() {
+        let recorder = DataRecorder()
+        let store = Counter.makeStore(delegate: recorder, seed: 1)
+        store.dispatch(.increment)
+        XCTAssertEqual(recorder.actions, [
+            .log("Did start"),
+            .log("Did increment")
+            ]
+        )
+    }
+
+    func testActionsAfterDispatch2() {
+        let recorder = DataRecorder()
+        let store = Counter.makeStore(delegate: recorder, seed: 1)
+        store.dispatch(.increment)
+        store.dispatch(.decrement)
+        XCTAssertEqual(recorder.actions, [
+            .log("Did start"),
+            .log("Did increment"),
+            .log("Did decrement")
+            ]
+        )
+    }
+
+    func testActionsAfterMultidispatch1() {
+        let recorder = DataRecorder()
+        let store = Counter.makeStore(delegate: recorder, seed: 1)
+        store.dispatch(.increment, .decrement)
+        XCTAssertEqual(recorder.actions, [
+            .log("Did start"),
+            .log("Did increment"),
+            .log("Did decrement")
+            ]
+        )
+    }
+
+    func testActionsAfterMultidispatch2() {
+        let recorder = DataRecorder()
+        let store = Counter.makeStore(delegate: recorder, seed: 2)
+        store.dispatch(.decrement, .increment)
+        XCTAssertEqual(recorder.actions, [
+            .log("Did start"),
+            .log("Did decrement"),
+            .log("Did increment")
+            ]
+        )
+    }
+
+    // MARK: - Delegate
+
+    func testWeakDelegate() {
+        var recorder: DataRecorder? = DataRecorder()
+        _ = Counter.makeStore(delegate: recorder!, seed: 0)
+        weak var weakRecorder: DataRecorder? = recorder
+        recorder = nil
+        XCTAssertNil(weakRecorder)
     }
 
 }
