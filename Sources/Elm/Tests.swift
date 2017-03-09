@@ -44,6 +44,15 @@ public extension Tests {
 
 }
 
+public extension Tests where Program.Seed == Void {
+
+    func start() -> StartResult<Program> {
+        let start = Program.start(with: Void())
+        return .init(data: start.data, errorReporter: self)
+    }
+
+}
+
 public struct StartResult<Program: Elm.Program> {
 
     typealias State = Program.State
