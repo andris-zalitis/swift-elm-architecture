@@ -138,7 +138,7 @@ public struct StartResult<Program: Elm.Program> {
 
 public extension TestProgram {
 
-    func testUpdate(for event: Event, state: State) -> UpdateResult<Program> {
+    func update(for event: Event, state: State) -> UpdateResult<Program> {
         let update = Program.update(for: event, state: state)
         return .init(data: update.data, errorReporter: errorReporter)
     }
@@ -194,7 +194,7 @@ public struct UpdateResult<Program: Elm.Program> {
 
 public extension TestProgram {
 
-    func testRender(with state: State) -> RenderResult<Program> {
+    func render(with state: State) -> RenderResult<Program> {
         let render = Program.render(with: state)
         return .init(data: render.data, errorReporter: errorReporter)
     }
