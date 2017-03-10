@@ -54,11 +54,7 @@ public struct Start<Program: Elm.Program> {
 
     let data: StartData<Program>
 
-    public init(state: State) {
-        data = .success(state: state, actions: [])
-    }
-
-    public init(state: State, actions: Action...) {
+    public init(state: State, actions: [Action] = []) {
         data = .success(state: state, actions: actions)
     }
 
@@ -89,16 +85,8 @@ public struct Update<Program: Elm.Program> {
 
     let data: UpdateData<Program>
 
-    public init(state: State) {
-        data = .success(state: state, actions: [])
-    }
-
-    public init(state: State, actions: Action...) {
+    public init(state: State? = nil, actions: [Action] = []) {
         data = .success(state: state, actions: actions)
-    }
-
-    public init(actions: Action...) {
-        data = .success(state: nil, actions: actions)
     }
 
     public init(error: Error) {
