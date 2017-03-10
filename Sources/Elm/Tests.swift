@@ -35,7 +35,7 @@ public protocol Tests: class, ErrorReporter {
 
 public extension Tests {
 
-    func assert<T>(_ value: T, equals expectedValue: T, file: StaticString = #file, line: Int = #line) {
+    func expect<T>(_ value: T, equals expectedValue: T, file: StaticString = #file, line: Int = #line) {
         let value = String(describing: value)
         let expectedValue = String(describing: expectedValue)
         if value != expectedValue {
