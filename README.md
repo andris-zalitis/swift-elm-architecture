@@ -96,43 +96,43 @@ class CounterTests: XCTestCase, Tests {
     typealias Program = Counter
 
     func testStart() {
-        let start = start()
+        let start = program.start()
         let state = start.expect(.state)
         assert(state, equals: 0)
     }
 
     func testIncrement1() {
-        let update = update(for: .userDidTapIncrementButton, state: 1)
+        let update = program.update(for: .userDidTapIncrementButton, state: 1)
         let state = update.expect(.state)
         assert(state, equals: 2)
     }
 
     func testIncrement2() {
-        let update = update(for: .userDidTapIncrementButton, state: 2)
+        let update = program.update(for: .userDidTapIncrementButton, state: 2)
         let state = update.expect(.state)
         assert(state, equals: 3)
     }
 
     func testDecrement1() {
-        let update = update(for: .userDidTapDecrementButton, state: -1)
+        let update = program.update(for: .userDidTapDecrementButton, state: -1)
         let state = update.expect(.state)
         assert(state, equals: -2)
     }
 
     func testDecrement2() {
-        let update = update(for: .userDidTapDecrementButton, state: -2)
+        let update = program.update(for: .userDidTapDecrementButton, state: -2)
         let state = update.expect(.state)
         assert(state, equals: -3)
     }
 
     func testView1() {
-        let render = render(with: 1)
+        let render = program.render(with: 1)
         let view = render.expect(.view)
         assert(view, equals: "1")
     }
 
     func testView2() {
-        let render = render(with: 2)
+        let render = program.render(with: 2)
         let view = render.expect(.view)
         assert(view, equals: "2")
     }

@@ -33,22 +33,58 @@ public protocol Tests: class, ErrorReporter {
 
 }
 
-// MARK: - Start
-
 public extension Tests {
 
-    func start(with seed: Seed) -> StartResult<Program> {
-        let start = Program.start(with: seed)
-        return .init(data: start.data, errorReporter: self)
+    func assert<T>(_ value: T, equals expectedValue: T, file: StaticString = #file, line: Int = #line) {
+        let value = String(describing: value)
+        let expectedValue = String(describing: expectedValue)
+        if value != expectedValue {
+            let event = value + " is not equal to " + expectedValue
+            fail(event, file: file, line: line)
+        }
     }
 
 }
 
-public extension Tests where Program.Seed == Void {
+public extension Tests {
+
+    var program: TestProgram<Program> {
+        return .init(errorReporter: self)
+    }
+
+}
+
+// MARK: - Test program
+
+public struct TestProgram<Program: Elm.Program> {
+
+    typealias Seed = Program.Seed
+    typealias State = Program.State
+    typealias Event = Program.Event
+    typealias Action = Program.Action
+    typealias View = Program.View
+    typealias Error = Program.Error
+
+    let errorReporter: ErrorReporter
+
+}
+
+// MARK: - Start
+
+public extension TestProgram {
+
+    func start(with seed: Seed) -> StartResult<Program> {
+        let start = Program.start(with: seed)
+        return .init(data: start.data, errorReporter: errorReporter)
+    }
+
+}
+
+public extension TestProgram where Program.Seed == Void {
 
     func start() -> StartResult<Program> {
         let start = Program.start(with: Void())
-        return .init(data: start.data, errorReporter: self)
+        return .init(data: start.data, errorReporter: errorReporter)
     }
 
 }
@@ -100,11 +136,11 @@ public struct StartResult<Program: Elm.Program> {
 
 // MARK: - Update
 
-public extension Tests {
+public extension TestProgram {
 
-    func update(for event: Event, state: State) -> UpdateResult<Program> {
+    func testUpdate(for event: Event, state: State) -> UpdateResult<Program> {
         let update = Program.update(for: event, state: state)
-        return .init(data: update.data, errorReporter: self)
+        return .init(data: update.data, errorReporter: errorReporter)
     }
 
 }
@@ -156,11 +192,11 @@ public struct UpdateResult<Program: Elm.Program> {
 
 // MARK: - Render
 
-public extension Tests {
+public extension TestProgram {
 
-    func render(with state: State) -> RenderResult<Program> {
+    func testRender(with state: State) -> RenderResult<Program> {
         let render = Program.render(with: state)
-        return .init(data: render.data, errorReporter: self)
+        return .init(data: render.data, errorReporter: errorReporter)
     }
 
 }
@@ -203,21 +239,6 @@ public enum Expectation {
     public enum Actions { case actions }
     public enum View { case view }
     public enum Error { case error }
-
-}
-
-// MARK: - Assert
-
-public extension Tests {
-
-    func assert<T>(_ value: T, equals expectedValue: T, file: StaticString = #file, line: Int = #line) {
-        let value = String(describing: value)
-        let expectedValue = String(describing: expectedValue)
-        if value != expectedValue {
-            let event = value + " is not equal to " + expectedValue
-            fail(event, file: file, line: line)
-        }
-    }
 
 }
 
