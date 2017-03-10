@@ -101,6 +101,10 @@ public struct Update<Program: Elm.Program> {
         data = .success(state: nil, actions: actions)
     }
 
+    public init(error: Error) {
+        data = .error(error)
+    }
+
 }
 
 enum UpdateData<Program: Elm.Program> {
@@ -123,11 +127,11 @@ public struct Render<Program: Elm.Program> {
 
     let data: RenderData<Program>
 
-    init(view: View) {
+    public init(view: View) {
         data = .success(view: view)
     }
 
-    init(error: Error) {
+    public init(error: Error) {
         data = .error(error)
     }
 
