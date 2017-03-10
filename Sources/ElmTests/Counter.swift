@@ -45,27 +45,37 @@ struct Counter: Program {
     }
 
     static func start(with seed: Seed) -> Start<Counter> {
-        let initialAction = Action.log("Did start")
-        return .init(state: seed, actions: initialAction)
+        return .init(
+            state: seed,
+            actions: [
+                .log("Did start")
+            ]
+        )
     }
 
     static func update(for event: Event, state: State) -> Update<Counter> {
-        let nextState: State
-        let nextAction: Action
         switch event {
         case .increment:
-            nextState = state + 1
-            nextAction = .log("Did increment")
+            return .init(
+                state: state + 1,
+                actions: [
+                    .log("Did increment")
+                ]
+            )
         case .decrement:
-            nextState = state - 1
-            nextAction = .log("Did decrement")
+            return .init(
+                state: state - 1,
+                actions: [
+                    .log("Did decrement")
+                ]
+            )
         }
-        return .init(state: nextState, actions: nextAction)
     }
 
     static func render(with state: State) -> Render<Counter> {
-        let view = String(state)
-        return .init(view: view)
+        return .init(
+            view: String(state)
+        )
     }
 
 }
