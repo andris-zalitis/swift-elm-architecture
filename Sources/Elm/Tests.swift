@@ -41,7 +41,11 @@ public extension Tests {
             fail(message, file: file, line: line)
             return
         }
-        let value = String(describing: actualValue)
+        expect(actualValue, equals: expectedValue, file: file, line: line)
+    }
+
+    func expect<T>(_ value: T, equals expectedValue: T, file: StaticString = #file, line: Int = #line) {
+        let value = String(describing: value)
         let expectedValue = String(describing: expectedValue)
         if value != expectedValue {
             let message = "'\(value)' is not equal to '\(expectedValue)'"
