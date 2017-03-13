@@ -35,12 +35,17 @@ public protocol Tests: class, ErrorReporter {
 
 public extension Tests {
 
-    func expect<T>(_ value: T, equals expectedValue: T, file: StaticString = #file, line: Int = #line) {
-        let value = String(describing: value)
+    func expect<T>(_ value: T?, equals expectedValue: T, file: StaticString = #file, line: Int = #line) {
+        guard let actualValue = value else {
+            let message = "nil is not equal to \(expectedValue)"
+            fail(message, file: file, line: line)
+            return
+        }
+        let value = String(describing: actualValue)
         let expectedValue = String(describing: expectedValue)
         if value != expectedValue {
-            let event = value + " is not equal to " + expectedValue
-            fail(event, file: file, line: line)
+            let message = "'\(value)' is not equal to '\(expectedValue)'"
+            fail(message, file: file, line: line)
         }
     }
 
