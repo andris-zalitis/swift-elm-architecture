@@ -147,7 +147,7 @@ class CounterTests: XCTestCase, Tests {
 # Installation
 
 * Add `github "salutis/swift-elm-architecture"` to `Cartfile`
-* Run `carthage bootstrap`
+* Run `carthage update swift-elm-architecture`
 * Drag `Carthage/Build/iOS/Elm.framework` to Xcode project
   * Targets:
     * `App`: Yes
