@@ -107,7 +107,7 @@ public struct StartResult<Program: Elm.Program> {
     let data: StartData<Program>
     let errorReporter: ErrorReporter
 
-    public func expect(_: Expectation.State, file: StaticString = #file, line: Int = #line) -> State? {
+    public func expectState(file: StaticString = #file, line: Int = #line) -> State? {
         switch data {
         case .success(state: let state, actions: _):
             return state
@@ -117,7 +117,7 @@ public struct StartResult<Program: Elm.Program> {
         }
     }
 
-    public func expect(_: Expectation.Actions, file: StaticString = #file, line: Int = #line) -> [Int: Action] {
+    public func expectActions(file: StaticString = #file, line: Int = #line) -> [Int: Action] {
         switch data {
         case .success(state: _, actions: let actions):
             var newActions: [Int: Action] = [:]
@@ -131,7 +131,7 @@ public struct StartResult<Program: Elm.Program> {
         }
     }
 
-    public func expect(_: Expectation.Error, file: StaticString = #file, line: Int = #line) -> Error? {
+    public func expectError(file: StaticString = #file, line: Int = #line) -> Error? {
         switch data {
         case .success:
             errorReporter.reportUnexpectedSuccess(file: file, line: line)
@@ -163,7 +163,7 @@ public struct UpdateResult<Program: Elm.Program> {
     let data: UpdateData<Program>
     let errorReporter: ErrorReporter
 
-    public func expect(_: Expectation.State, file: StaticString = #file, line: Int = #line) -> State? {
+    public func expectState(file: StaticString = #file, line: Int = #line) -> State? {
         switch data {
         case .success(state: let state, actions: _):
             return state
@@ -173,7 +173,7 @@ public struct UpdateResult<Program: Elm.Program> {
         }
     }
 
-    public func expect(_: Expectation.Actions, file: StaticString = #file, line: Int = #line) -> [Int: Action] {
+    public func expectActions(file: StaticString = #file, line: Int = #line) -> [Int: Action] {
         switch data {
         case .success(state: _, actions: let actions):
             var newActions: [Int: Action] = [:]
@@ -187,7 +187,7 @@ public struct UpdateResult<Program: Elm.Program> {
         }
     }
 
-    public func expect(_: Expectation.Error, file: StaticString = #file, line: Int = #line) -> Error? {
+    public func expectError(file: StaticString = #file, line: Int = #line) -> Error? {
         switch data {
         case .success:
             errorReporter.reportUnexpectedSuccess(file: file, line: line)
@@ -218,7 +218,7 @@ public struct RenderResult<Program: Elm.Program> {
     let data: RenderData<Program>
     let errorReporter: ErrorReporter
 
-    public func expect(_: Expectation.View, file: StaticString = #file, line: Int = #line) -> View? {
+    public func expectView(file: StaticString = #file, line: Int = #line) -> View? {
         switch data {
         case .success(view: let view):
             return view
@@ -228,7 +228,7 @@ public struct RenderResult<Program: Elm.Program> {
         }
     }
 
-    public func expect(_: Expectation.Error, file: StaticString = #file, line: Int = #line) -> Error? {
+    public func expectError(file: StaticString = #file, line: Int = #line) -> Error? {
         switch data {
         case .success:
             errorReporter.reportUnexpectedSuccess(file: file, line: line)
@@ -237,17 +237,6 @@ public struct RenderResult<Program: Elm.Program> {
             return error
         }
     }
-
-}
-
-// MARK: - Expectation
-
-public enum Expectation {
-
-    public enum State { case state }
-    public enum Actions { case actions }
-    public enum View { case view }
-    public enum Error { case error }
 
 }
 
