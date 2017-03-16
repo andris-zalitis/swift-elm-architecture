@@ -97,7 +97,7 @@ public final class Store<Program: Elm.Program> {
     private static func makeView(program: Program.Type, state: State) -> View {
         let render = program.render(with: state)
         switch render.data {
-        case .success(view: let view):
+        case .view(let view):
             return view
         case .error(let error):
             let message = "Fatal error!" + "\n"

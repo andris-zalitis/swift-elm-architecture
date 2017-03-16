@@ -242,7 +242,7 @@ public struct RenderResult<Program: Elm.Program> {
 
     public func expectView(file: StaticString = #file, line: Int = #line) -> View? {
         switch data {
-        case .success(view: let view):
+        case .view(let view):
             return view
         case .error(let error):
             errorReporter.reportUnexpectedError(error, file: file, line: line)
@@ -252,7 +252,7 @@ public struct RenderResult<Program: Elm.Program> {
 
     public func expectError(file: StaticString = #file, line: Int = #line) -> Error? {
         switch data {
-        case .success:
+        case .view:
             errorReporter.reportUnexpectedSuccess(file: file, line: line)
             return nil
         case .error(let error):
