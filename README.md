@@ -28,19 +28,19 @@ struct Counter: Program {
     typealias View = String
 
     static func start(with seed: Void) -> Start<Counter> {
-        return .init(state: 0)
+        return .next(state: 0)
     }
 
     static func update(for event: Event, state: State) -> Update<Counter> {
         switch event {
-        case .increment: return .init(state: state + 1)
-        case .decrement: return .init(state: state - 1)
+        case .increment: return .next(state: state + 1)
+        case .decrement: return .next(state: state - 1)
         }
     }
 
     static func render(with state: State) -> Render<Counter> {
         let view = String(state)
-        return .init(view: view)
+        return .view(view)
     }
     
 }
