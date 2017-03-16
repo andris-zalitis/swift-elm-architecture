@@ -43,7 +43,7 @@ public final class Store<Program: Elm.Program> {
     init<Delegate: Elm.StoreDelegate>(program _: Program.Type, delegate: Delegate, seed: Seed) where Delegate.Program == Program {
         let start = Program.start(with: seed)
         switch start.data {
-        case .success(state: let nextState, actions: let actions):
+        case .next(state: let nextState, actions: let actions, event: let event):
             state = nextState
             sendView = { [weak delegate] view in
                 delegate?.store(self, didUpdate: view)
@@ -53,6 +53,9 @@ public final class Store<Program: Elm.Program> {
             }
             sendView(view)
             actions.forEach(sendAction)
+            if let event = event {
+                dispatch(event)
+            }
         case .error(let error):
             let message = "Fatal error!" + "\n"
                 + String(dumping: Program.start, label: "Location")
@@ -62,38 +65,33 @@ public final class Store<Program: Elm.Program> {
         }
     }
 
-    public func dispatch(_ events: Event...) {
+    public func dispatch(_ event: Event) {
         guard Thread.current == thread else {
             let message = "Invalid thread" + "\n"
-                +  String(dumping: events, label: "Events")
+                +  String(dumping: event, label: "Event")
                 +  String(dumping: state, label: "State")
             fatalError(message)
         }
-        var actions: [Action] = []
-        var didUpdateState = false
-        for event in events {
-            let update = Program.update(for: event, state: state)
-            switch update.data {
-            case .success(state: let newState, actions: let newActions):
-                if let newState = newState {
-                    didUpdateState = true
-                    state = newState
-                }
-                actions.append(contentsOf: newActions)
-            case .error(let error):
-                let message = "Fatal error!" + "\n"
-                    + String(dumping: Program.update, label: "Location")
-                    + String(dumping: error, label: "Error")
-                    + String(dumping: event, label: "Event")
-                    + String(dumping: state, label: "State")
-                fatalError(message)
+        let update = Program.update(for: event, state: state)
+        switch update.data {
+        case .next(state: let state, actions: let actions, event: let event):
+            if let state = state {
+                self.state = state
+                view = Store.makeView(program: Program.self, state: state)
+                sendView(view)
             }
+            actions.forEach(sendAction)
+            if let event = event {
+                dispatch(event)
+            }
+        case .error(let error):
+            let message = "Fatal error!" + "\n"
+                + String(dumping: Program.update, label: "Location")
+                + String(dumping: error, label: "Error")
+                + String(dumping: event, label: "Event")
+                + String(dumping: state, label: "State")
+            fatalError(message)
         }
-        if didUpdateState {
-            view = Store.makeView(program: Program.self, state: state)
-            sendView(view)
-        }
-        actions.forEach(sendAction)
     }
 
     private static func makeView(program: Program.Type, state: State) -> View {

@@ -48,29 +48,34 @@ public extension Program where View == Void {
 
 public struct Start<Program: Elm.Program> {
 
+    typealias Event = Program.Event
     typealias State = Program.State
     typealias Action = Program.Action
     typealias Error = Program.Error
 
-    let data: StartData<Program>
+    typealias Data = StartData<Program>
+    let data: Data
 
-    public init(state: State, actions: [Action] = []) {
-        data = .success(state: state, actions: actions)
+    public static func next(state: State, actions: [Action] = [], event: Event? = nil) -> Start {
+        let data: Data = .next(state: state, actions: actions, event: event)
+        return .init(data: data)
     }
 
-    public init(error: Error) {
-        data = .error(error)
+    public static func error(_ error: Error) -> Start {
+        let data: Data = .error(error)
+        return .init(data: data)
     }
 
 }
 
 enum StartData<Program: Elm.Program> {
 
+    typealias Event = Program.Event
     typealias State = Program.State
     typealias Action = Program.Action
     typealias Error = Program.Error
 
-    case success(state: State, actions: [Action])
+    case next(state: State, actions: [Action], event: Event?)
     case error(Error)
 
 }
@@ -79,29 +84,34 @@ enum StartData<Program: Elm.Program> {
 
 public struct Update<Program: Elm.Program> {
 
+    typealias Event = Program.Event
     typealias State = Program.State
     typealias Action = Program.Action
     typealias Error = Program.Error
 
-    let data: UpdateData<Program>
+    typealias Data = UpdateData<Program>
+    let data: Data
 
-    public init(state: State? = nil, actions: [Action] = []) {
-        data = .success(state: state, actions: actions)
+    public static func next(state: State? = nil, actions: [Action] = [], event: Event? = nil) -> Update {
+        let data: Data = .next(state: state, actions: actions, event: event)
+        return .init(data: data)
     }
 
-    public init(error: Error) {
-        data = .error(error)
+    public static func error(_ error: Error) -> Update {
+        let data: Data = .error(error)
+        return .init(data: data)
     }
 
 }
 
 enum UpdateData<Program: Elm.Program> {
 
+    typealias Event = Program.Event
     typealias State = Program.State
     typealias Action = Program.Action
     typealias Error = Program.Error
 
-    case success(state: State?, actions: [Action])
+    case next(state: State?, actions: [Action], event: Event?)
     case error(Error)
 
 }

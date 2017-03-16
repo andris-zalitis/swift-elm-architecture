@@ -34,6 +34,7 @@ struct Counter: Program {
 
     enum Event {
         case increment
+        case incrementTwice
         case decrement
     }
 
@@ -45,29 +46,29 @@ struct Counter: Program {
     }
 
     static func start(with seed: Seed) -> Start<Counter> {
-        return .init(
+        return .next(
             state: seed,
-            actions: [
-                .log("Did start")
-            ]
+            actions: [.log("Did call start")]
         )
     }
 
     static func update(for event: Event, state: State) -> Update<Counter> {
         switch event {
         case .increment:
-            return .init(
+            return .next(
                 state: state + 1,
-                actions: [
-                    .log("Did increment")
-                ]
+                actions: [.log("Did call increment")]
+            )
+        case .incrementTwice:
+            return .next(
+                state: state + 1,
+                actions: [.log("Did call increment twice")],
+                event: .increment
             )
         case .decrement:
-            return .init(
+            return .next(
                 state: state - 1,
-                actions: [
-                    .log("Did decrement")
-                ]
+                actions: [.log("Did call decrement")]
             )
         }
     }

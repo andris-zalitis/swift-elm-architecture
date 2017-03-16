@@ -55,6 +55,13 @@ final class Tests: XCTestCase {
         XCTAssertEqual(store.view, "1")
     }
 
+    func testViewAfterDispatchIncrementTwice() {
+        let recorder = DataRecorder()
+        let store = Counter.makeStore(delegate: recorder, seed: 0)
+        store.dispatch(.incrementTwice)
+        XCTAssertEqual(store.view, "2")
+    }
+
     func testViewsAfterStart1() {
         let recorder = DataRecorder()
         _ = Counter.makeStore(delegate: recorder, seed: 1)
@@ -71,8 +78,7 @@ final class Tests: XCTestCase {
         let recorder = DataRecorder()
         let store = Counter.makeStore(delegate: recorder, seed: 1)
         store.dispatch(.increment)
-        XCTAssertEqual(recorder.views, ["1", "2"]
-        )
+        XCTAssertEqual(recorder.views, ["1", "2"])
     }
 
     func testViewsAfterDispatch2() {
@@ -80,24 +86,14 @@ final class Tests: XCTestCase {
         let store = Counter.makeStore(delegate: recorder, seed: 1)
         store.dispatch(.increment)
         store.dispatch(.decrement)
-        XCTAssertEqual(recorder.views, ["1", "2", "1"]
-        )
+        XCTAssertEqual(recorder.views, ["1", "2", "1"])
     }
 
-    func testViewsAfterMultidispatch1() {
+    func testViewsAfterDispatchIncrementTwice() {
         let recorder = DataRecorder()
         let store = Counter.makeStore(delegate: recorder, seed: 0)
-        store.dispatch(.increment, .increment)
-        XCTAssertEqual(recorder.views, ["0", "2"]
-        )
-    }
-
-    func testViewsAfterMultidispatch2() {
-        let recorder = DataRecorder()
-        let store = Counter.makeStore(delegate: recorder, seed: 2)
-        store.dispatch(.decrement, .decrement)
-        XCTAssertEqual(recorder.views, ["2", "0"]
-        )
+        store.dispatch(.incrementTwice)
+        XCTAssertEqual(recorder.views, ["0", "1", "2"])
     }
 
     func testViewUpdatesBeforeActions1() {
@@ -124,7 +120,7 @@ final class Tests: XCTestCase {
     func testActionsAfterStart() {
         let recorder = DataRecorder()
         _ = Counter.makeStore(delegate: recorder, seed: 1)
-        XCTAssertEqual(recorder.actions, [.log("Did start")])
+        XCTAssertEqual(recorder.actions, [.log("Did call start")])
     }
 
     func testActionsAfterDispatch1() {
@@ -132,8 +128,8 @@ final class Tests: XCTestCase {
         let store = Counter.makeStore(delegate: recorder, seed: 1)
         store.dispatch(.increment)
         XCTAssertEqual(recorder.actions, [
-            .log("Did start"),
-            .log("Did increment")
+            .log("Did call start"),
+            .log("Did call increment")
             ]
         )
     }
@@ -144,33 +140,21 @@ final class Tests: XCTestCase {
         store.dispatch(.increment)
         store.dispatch(.decrement)
         XCTAssertEqual(recorder.actions, [
-            .log("Did start"),
-            .log("Did increment"),
-            .log("Did decrement")
+            .log("Did call start"),
+            .log("Did call increment"),
+            .log("Did call decrement")
             ]
         )
     }
 
-    func testActionsAfterMultidispatch1() {
+    func testActionsAfterDispatchIncrementTwice() {
         let recorder = DataRecorder()
-        let store = Counter.makeStore(delegate: recorder, seed: 1)
-        store.dispatch(.increment, .decrement)
+        let store = Counter.makeStore(delegate: recorder, seed: 0)
+        store.dispatch(.incrementTwice)
         XCTAssertEqual(recorder.actions, [
-            .log("Did start"),
-            .log("Did increment"),
-            .log("Did decrement")
-            ]
-        )
-    }
-
-    func testActionsAfterMultidispatch2() {
-        let recorder = DataRecorder()
-        let store = Counter.makeStore(delegate: recorder, seed: 2)
-        store.dispatch(.decrement, .increment)
-        XCTAssertEqual(recorder.actions, [
-            .log("Did start"),
-            .log("Did decrement"),
-            .log("Did increment")
+            .log("Did call start"),
+            .log("Did call increment twice"),
+            .log("Did call increment")
             ]
         )
     }
