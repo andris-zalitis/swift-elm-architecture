@@ -74,9 +74,8 @@ struct Counter: Program {
     }
 
     static func render(with state: State) -> Render<Counter> {
-        return .init(
-            view: String(state)
-        )
+        let view: View = String(state)
+        return .view(view)
     }
 
 }

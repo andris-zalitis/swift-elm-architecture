@@ -39,7 +39,7 @@ public extension Program where View == Void {
 
     static func render(with state: State) -> Render<Self> {
         let view: View = Void()
-        return .init(view: view)
+        return .view(view)
     }
 
 }
@@ -123,14 +123,17 @@ public struct Render<Program: Elm.Program> {
     typealias View = Program.View
     typealias Error = Program.Error
 
-    let data: RenderData<Program>
+    typealias Data = RenderData<Program>
+    let data: Data
 
-    public init(view: View) {
-        data = .success(view: view)
+    public static func view(_ view: View) -> Render {
+        let data: Data = .view(view)
+        return .init(data: data)
     }
 
-    public init(error: Error) {
-        data = .error(error)
+    public static func error(_ error: Error) -> Render {
+        let data: Data = .error(error)
+        return .init(data: data)
     }
 
 }
@@ -140,7 +143,7 @@ enum RenderData<Program: Elm.Program> {
     typealias View = Program.View
     typealias Error = Program.Error
 
-    case success(view: View)
+    case view(View)
     case error(Error)
 
 }
