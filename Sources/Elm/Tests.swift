@@ -100,6 +100,7 @@ public extension TestProgram where Program.Seed == Void {
 
 public struct StartResult<Program: Elm.Program> {
 
+    typealias Event = Program.Event
     typealias State = Program.State
     typealias Action = Program.Action
     typealias Error = Program.Error
@@ -109,7 +110,7 @@ public struct StartResult<Program: Elm.Program> {
 
     public func expectState(file: StaticString = #file, line: Int = #line) -> State? {
         switch data {
-        case .success(state: let state, actions: _):
+        case .next(state: let state, actions: _, event: _):
             return state
         case .error(let error):
             errorReporter.reportUnexpectedError(error, file: file, line: line)
@@ -119,7 +120,7 @@ public struct StartResult<Program: Elm.Program> {
 
     public func expectActions(file: StaticString = #file, line: Int = #line) -> [Int: Action] {
         switch data {
-        case .success(state: _, actions: let actions):
+        case .next(state: _, actions: let actions, event: _):
             var newActions: [Int: Action] = [:]
             for (index, action) in actions.enumerated() {
                 newActions[index] = action
@@ -131,9 +132,19 @@ public struct StartResult<Program: Elm.Program> {
         }
     }
 
+    public func expectEvent(file: StaticString = #file, line: Int = #line) -> Event? {
+        switch data {
+        case .next(state: _, actions: _, event: let event):
+            return event
+        case .error(let error):
+            errorReporter.reportUnexpectedError(error, file: file, line: line)
+            return nil
+        }
+    }
+
     public func expectError(file: StaticString = #file, line: Int = #line) -> Error? {
         switch data {
-        case .success:
+        case .next:
             errorReporter.reportUnexpectedSuccess(file: file, line: line)
             return nil
         case .error(let error):
@@ -156,6 +167,7 @@ public extension TestProgram {
 
 public struct UpdateResult<Program: Elm.Program> {
 
+    typealias Event = Program.Event
     typealias State = Program.State
     typealias Action = Program.Action
     typealias Error = Program.Error
@@ -165,7 +177,7 @@ public struct UpdateResult<Program: Elm.Program> {
 
     public func expectState(file: StaticString = #file, line: Int = #line) -> State? {
         switch data {
-        case .success(state: let state, actions: _):
+        case .next(state: let state, actions: _, event: _):
             return state
         case .error(let error):
             errorReporter.reportUnexpectedError(error, file: file, line: line)
@@ -175,7 +187,7 @@ public struct UpdateResult<Program: Elm.Program> {
 
     public func expectActions(file: StaticString = #file, line: Int = #line) -> [Int: Action] {
         switch data {
-        case .success(state: _, actions: let actions):
+        case .next(state: _, actions: let actions, event: _):
             var newActions: [Int: Action] = [:]
             for (index, action) in actions.enumerated() {
                 newActions[index] = action
@@ -187,9 +199,19 @@ public struct UpdateResult<Program: Elm.Program> {
         }
     }
 
+    public func expectEvent(file: StaticString = #file, line: Int = #line) -> Event? {
+        switch data {
+        case .next(state: _, actions: _, event: let event):
+            return event
+        case .error(let error):
+            errorReporter.reportUnexpectedError(error, file: file, line: line)
+            return nil
+        }
+    }
+
     public func expectError(file: StaticString = #file, line: Int = #line) -> Error? {
         switch data {
-        case .success:
+        case .next:
             errorReporter.reportUnexpectedSuccess(file: file, line: line)
             return nil
         case .error(let error):
